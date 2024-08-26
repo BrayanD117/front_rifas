@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import '@mantine/core/styles.css';
 import { Navbar } from './components/Navbar';
+import { Footer } from "./components/Footer";
 
 import { ColorSchemeScript, MantineProvider } from '@mantine/core';
 
@@ -24,6 +25,7 @@ export default function RootLayout({
           <>
             <Navbar/>
             {children}
+            <Footer/>
           </>
         </MantineProvider>
       </body>
