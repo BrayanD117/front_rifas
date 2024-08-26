@@ -10,4 +10,13 @@
     right: 0;
     z-index: 1000;
     backdrop-filter: blur(10px);
-}
+  }
+  
+  .cartIcon {
+    transition: transform 0.3s ease;
+  }
+  
+  .buttonHover:hover .cartIcon {
+    transform: scale(1.2);
+  }
+  

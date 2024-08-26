@@ -9,7 +9,6 @@ const HomePage = () => {
       <Container size={"xl"}>
         <h1>HomePage</h1>
       </Container>
-      
     </>
   )
 }

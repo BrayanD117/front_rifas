@@ -105,6 +105,7 @@ import {
             <Button
               h={100}
               color="green"
+              className={classes.buttonHover}
               styles={{
                 root: {
                   right: '-20px',
@@ -121,8 +122,10 @@ import {
               }}
             >
               <IconShoppingCartFilled 
+                className={classes.cartIcon}
                 style={{ width: rem(45), height: rem(45) }}
-                stroke={1.5}/>
+                stroke={1.5}
+                />
             </Button>
             </Group>
             <Burger opened={drawerOpened} onClick={toggleDrawer} hiddenFrom="sm" />
