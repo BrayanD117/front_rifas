@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import '@mantine/core/styles.css';
+import { Navbar } from './components/Navbar';
 
 import { ColorSchemeScript, MantineProvider } from '@mantine/core';
 
@@ -19,7 +20,12 @@ export default function RootLayout({
         <ColorSchemeScript />
       </head>
       <body>
-        <MantineProvider>{children}</MantineProvider>
+        <MantineProvider>
+          <>
+            <Navbar/>
+            {children}
+          </>
+        </MantineProvider>
       </body>
     </html>
   );

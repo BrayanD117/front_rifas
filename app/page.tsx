@@ -1,11 +1,15 @@
 import React from 'react'
 import CarouselComponent from './components/Carousel'
+import { Container } from '@mantine/core'
 
 const HomePage = () => {
   return (
     <>
       <CarouselComponent />
-      <h1>HomePage</h1>
+      <Container size={"xl"}>
+        <h1>HomePage</h1>
+      </Container>
+      
     </>
   )
 }
