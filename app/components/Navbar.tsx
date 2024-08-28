@@ -41,7 +41,7 @@ export function Navbar() {
               direction="row"
               wrap="wrap"
             >
-              <Button size="lg" variant="subtle" color="gray">Iniciar Sesión</Button>
+              <Button size="lg" variant="subtle" color="white">Iniciar Sesión</Button>
             </Flex>
             <Flex>
               <Burger

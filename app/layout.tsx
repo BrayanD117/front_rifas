@@ -21,7 +21,7 @@ export default function RootLayout({
         <ColorSchemeScript />
       </head>
       <body>
-        <MantineProvider>
+        <MantineProvider defaultColorScheme="light">
           <>
             <Navbar/>
             {children}
