@@ -14,6 +14,7 @@ import {
   Flex,
   Center,
   Grid,
+  Text
 } from "@mantine/core";
 import { useDisclosure } from "@mantine/hooks";
 import { IconShoppingCartFilled } from "@tabler/icons-react";
@@ -29,43 +30,47 @@ export function Navbar() {
     <Box>
       <header className={classes.header}>
         <Grid justify="space-between" align="center">
-          <Grid.Col span={4}>
-            <Group justify="flex-start">
-              <Center>
-                <Image
-                  mt={-20}
-                  alt="Rifa Mania"
-                  h={80}
-                  src="/assets/Logo-Rifa-Manía.webp"
-                />
-              </Center>
-            </Group>
-          </Grid.Col>
-          <Grid.Col span={4}>
+        <Grid.Col span={4}>
             <Flex
               visibleFrom="sm"
-              mt={-20}
+              mt={-35}
               mih={50}
               gap="md"
-              justify="center"
+              justify="flex-start"
               align="center"
               direction="row"
               wrap="wrap"
             >
-              <Button variant="default">Iniciar sesion</Button>
+              <Button size="lg" variant="subtle" color="gray">Iniciar Sesión</Button>
             </Flex>
-            <Burger
-              opened={drawerOpened}
-              onClick={toggleDrawer}
-              hiddenFrom="sm"
-            />
+            <Flex>
+              <Burger
+                mt={-35}
+                opened={drawerOpened}
+                onClick={toggleDrawer}
+                hiddenFrom="sm"
+              />
+            </Flex>
+          </Grid.Col>
+          <Grid.Col span={4}>
+            <Group justify="center">
+              <Center>
+                <Image
+                  mt={-35}
+                  alt="Rifa Mania"
+                  h={150}
+                  w="auto"
+                  src="/assets/Logo-tu-fortuna.webp"
+                />
+              </Center>
+            </Group>
           </Grid.Col>
           <Grid.Col span={4}>
             <Group justify="flex-end">
               <Button
                 h={110}
                 mt={-10}
-                color="green"
+                color="#00890a"
                 className={classes.buttonHover}
                 styles={{
                   root: {
