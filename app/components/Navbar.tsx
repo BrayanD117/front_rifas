@@ -72,9 +72,9 @@ export function Navbar() {
                 <Image
                   mt={-20}
                   alt="Rifa Mania"
-                  h={60}
+                  h={90}
                   w="auto"
-                  src="/assets/Logo-tu-fortuna.webp"
+                  src="/assets/Logo-Rifa-Manía.webp"
                 />
                 </UnstyledButton>
               </Center>
