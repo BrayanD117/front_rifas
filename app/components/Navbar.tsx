@@ -45,6 +45,7 @@ export function Navbar() {
             </Flex>
             <Flex>
               <Burger
+                color={"white"}
                 mt={-35}
                 opened={drawerOpened}
                 onClick={toggleDrawer}

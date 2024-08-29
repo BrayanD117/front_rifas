@@ -15,7 +15,7 @@ const CustomCard: React.FC<CustomCardProps> = ({
     imageSrc, imageAlt, title, badgeText, description, buttonText
 }) => {
     return (
-        <Card shadow="sm" padding="lg" radius="md" withBorder style={{ display: 'flex', flexDirection: 'column', justifyContent: 'space-between', minHeight: '400px' }}>
+        <Card shadow="sm" padding="lg" radius="md" withBorder style={{ display: 'flex', flexDirection: 'column', justifyContent: 'space-between', minHeight: '400px', height: '100%'}}>
             <Card.Section>
                 <Image
                     src={imageSrc}
