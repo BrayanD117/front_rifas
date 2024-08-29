@@ -14,9 +14,12 @@ import {
   Flex,
   Center,
   Grid,
-  Text
+  Text,
+  NavLink,
+  UnstyledButton
 } from "@mantine/core";
 import { useDisclosure } from "@mantine/hooks";
+import { useRouter } from "next/navigation";  
 import { IconShoppingCartFilled } from "@tabler/icons-react";
 import classes from "./styles/Navbar.module.css";
 
@@ -25,6 +28,15 @@ export function Navbar() {
     useDisclosure(false);
   const [linksOpened, { toggle: toggleLinks }] = useDisclosure(false);
   const theme = useMantineTheme();
+  const router = useRouter();
+
+  const handleLoginClick = () => {
+    router.push("/login");
+  };
+
+  const handleBrandClick = () => {
+    router.push("/");
+  };
 
   return (
     <Box>
@@ -41,7 +53,7 @@ export function Navbar() {
               direction="row"
               wrap="wrap"
             >
-              <Button size="lg" variant="subtle" color="white">Iniciar Sesión</Button>
+              <Button size="lg" variant="subtle" color="white" onClick={handleLoginClick}>Iniciar Sesión</Button>
             </Flex>
             <Flex>
               <Burger
@@ -56,13 +68,15 @@ export function Navbar() {
           <Grid.Col span={4}>
             <Group justify="center">
               <Center>
+              <UnstyledButton component="a" onClick={handleBrandClick}>
                 <Image
-                  mt={-35}
+                  mt={-20}
                   alt="Rifa Mania"
-                  h={150}
+                  h={60}
                   w="auto"
                   src="/assets/Logo-tu-fortuna.webp"
                 />
+                </UnstyledButton>
               </Center>
             </Group>
           </Grid.Col>
@@ -110,7 +124,7 @@ export function Navbar() {
         <ScrollArea h={`calc(100vh - ${rem(80)})`} mx="-md">
           <Divider my="sm" />
           <Group justify="center" grow pb="xl" px="md">
-            <Button variant="default">Iniciar sesion</Button>
+            <Button variant="default" onClick={handleLoginClick}>Iniciar sesion</Button>
             <Button>Registrarme</Button>
           </Group>
         </ScrollArea>
