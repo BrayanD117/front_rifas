@@ -14,7 +14,6 @@ const HomeCards: React.FC = () => {
               imageAlt="Norway"
               title="Hola"
               badgeText="On Sale"
-              badgeColor="pink"
               description="With Fjord Tours you can explore more of the magical fjord landscapes with tours and activities on and around the fjords of Norway"
               buttonText="Book classic tour now"
             />
@@ -25,7 +24,6 @@ const HomeCards: React.FC = () => {
               imageAlt="Norway"
               title="Norway Fjord Adventures"
               badgeText="On Sale"
-              badgeColor="pink"
               description="With Fjord Tours you can explore more of the magical fjord landscapes with tours and activities on and around the fjords of Norway"
               buttonText="Book classic tour now"
             />
@@ -36,7 +34,6 @@ const HomeCards: React.FC = () => {
               imageAlt="Norway"
               title="Norway Fjord Adventures"
               badgeText="On Sale"
-              badgeColor="pink"
               description="With Fjord Tours you can explore more of the magical fjord landscapes with tours and activities on and around the fjords of Norway"
               buttonText="Book classic tour now"
             />
@@ -47,7 +44,6 @@ const HomeCards: React.FC = () => {
               imageAlt="Norway"
               title="Norway Fjord Adventures"
               badgeText="On Sale"
-              badgeColor="pink"
               description="With Fjord Tours you can explore more of the magical fjord landscapes with tours and activities on and around the fjords of Norway"
               buttonText="Book classic tour now"
             />

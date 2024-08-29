@@ -7,13 +7,12 @@ interface CustomCardProps {
     imageAlt: string;
     title: string;
     badgeText: string;
-    badgeColor: string;
     description: string;
     buttonText: string;
 }
 
 const CustomCard: React.FC<CustomCardProps> = ({
-    imageSrc, imageAlt, title, badgeText, badgeColor, description, buttonText
+    imageSrc, imageAlt, title, badgeText, description, buttonText
 }) => {
     return (
         <Card shadow="sm" padding="lg" radius="md" withBorder style={{ display: 'flex', flexDirection: 'column', justifyContent: 'space-between', minHeight: '400px' }}>
@@ -30,7 +29,7 @@ const CustomCard: React.FC<CustomCardProps> = ({
                     <Text fw={500}>{title}</Text>
                 </Grid.Col>
                 <Grid.Col span={4}>
-                    <Badge color={badgeColor}>{badgeText}</Badge>
+                    <Badge color={"blue"}>{badgeText}</Badge>
                 </Grid.Col>
             </Grid>
 
@@ -38,7 +37,7 @@ const CustomCard: React.FC<CustomCardProps> = ({
                 {description}
             </Text>
 
-            <Button color="blue" fullWidth mt="md" radius="md">
+            <Button color="#00890a" fullWidth mt="md" radius="md">
                 {buttonText}
             </Button>
         </Card>
