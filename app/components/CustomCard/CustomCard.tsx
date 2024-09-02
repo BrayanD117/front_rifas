@@ -1,6 +1,7 @@
 "use client"
 
 import { Card, Image, Text, Badge, Button, Group, Grid } from '@mantine/core';
+import { PRIMARY_GREEN, PRIMARY_YELLOW } from '@/app/constants/colors';
 
 interface CustomCardProps {
     imageSrc: string;
@@ -29,7 +30,7 @@ const CustomCard: React.FC<CustomCardProps> = ({
                     <Text fw={500}>{title}</Text>
                 </Grid.Col>
                 <Grid.Col span={4}>
-                    <Badge color={"blue"}>{badgeText}</Badge>
+                    <Badge color={PRIMARY_YELLOW}>{badgeText}</Badge>
                 </Grid.Col>
             </Grid>
 
@@ -37,7 +38,7 @@ const CustomCard: React.FC<CustomCardProps> = ({
                 {description}
             </Text>
 
-            <Button color="#00890a" fullWidth mt="md" radius="md">
+            <Button color={PRIMARY_GREEN} fullWidth mt="md" radius="md">
                 {buttonText}
             </Button>
         </Card>

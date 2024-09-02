@@ -22,6 +22,7 @@ import { useDisclosure } from "@mantine/hooks";
 import { useRouter } from "next/navigation";  
 import { IconShoppingCartFilled } from "@tabler/icons-react";
 import classes from "./styles/Navbar.module.css";
+import { PRIMARY_GREEN } from "../constants/colors";
 
 export function Navbar() {
   const [drawerOpened, { toggle: toggleDrawer, close: closeDrawer }] =
@@ -85,7 +86,7 @@ export function Navbar() {
               <Button
                 h={110}
                 mt={-10}
-                color="#00890a"
+                color={PRIMARY_GREEN}
                 className={classes.buttonHover}
                 styles={{
                   root: {
