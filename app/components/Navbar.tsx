@@ -46,7 +46,7 @@ export function Navbar() {
         <Grid.Col span={4}>
             <Flex
               visibleFrom="sm"
-              mt={-35}
+              mt={-20}
               mih={50}
               gap="md"
               justify="flex-start"
@@ -59,7 +59,7 @@ export function Navbar() {
             <Flex>
               <Burger
                 color={"white"}
-                mt={-35}
+                mt={-20}
                 opened={drawerOpened}
                 onClick={toggleDrawer}
                 hiddenFrom="sm"
