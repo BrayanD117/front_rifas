@@ -12,14 +12,47 @@ import {
   Container,
   Card,
 } from '@mantine/core';
+import axios from 'axios';
 import { PRIMARY_GREEN, SECONDARY_GREEN } from '../constants/colors';
 import classes from './Login.module.css';
 
 export default function LoginPage() {
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+  const [error, setError] = useState('');
   const [isRegister, setIsRegister] = useState(false);
 
   const toggleForm = () => {
     setIsRegister((prev) => !prev);
+  };
+
+  const handleLogin = async () => {
+    try {
+      const response = await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/user/login`, {
+        email,
+        password,
+      });
+      console.log("Funcionando")
+    } catch (err) {
+      setError('Credenciales inválidas');
+    }
+  };
+
+  const handleRegister = async () => {
+    if (password !== confirmPassword) {
+      setError('Las contraseñas no coinciden');
+      return;
+    }
+
+    try {
+      const response = await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/users`, {
+        email,
+        password,
+      });
+    } catch (err) {
+      setError('Error al registrar el usuario');
+    }
   };
 
   return (
@@ -33,9 +66,25 @@ export default function LoginPage() {
                 ¡Bienvenido de vuelta a Tu Fortuna!
               </Title>
 
-              <TextInput c={SECONDARY_GREEN} label="Correo electronico" placeholder="ejemplo@gmail.com" size="md" />
-              <PasswordInput c={SECONDARY_GREEN} label="Contraseña" placeholder="********" mt="md" size="md" />
-              <Button color={PRIMARY_GREEN} fullWidth mt="xl" size="md">
+              <TextInput
+                c={SECONDARY_GREEN}
+                label="Correo electronico"
+                placeholder="ejemplo@gmail.com"
+                size="md"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+              />
+              <PasswordInput
+                c={SECONDARY_GREEN}
+                label="Contraseña"
+                placeholder="********"
+                mt="md"
+                size="md"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+              />
+              {error && <Text color="red">{error}</Text>}
+              <Button color={PRIMARY_GREEN} fullWidth mt="xl" size="md" onClick={handleLogin}>
                 Iniciar Sesión
               </Button>
 
@@ -55,10 +104,34 @@ export default function LoginPage() {
                 ¡Crea tu cuenta!
               </Title>
 
-              <TextInput c={SECONDARY_GREEN} label="Correo electronico" placeholder="ejemplo@gmail.com" size="md" />
-              <PasswordInput c={SECONDARY_GREEN} label="Contraseña" placeholder="********" mt="md" size="md" />
-              <PasswordInput c={SECONDARY_GREEN} label="Confirmar Contraseña" placeholder="********" mt="md" size="md" />
-              <Button color={PRIMARY_GREEN} fullWidth mt="xl" size="md">
+              <TextInput
+                c={SECONDARY_GREEN}
+                label="Correo electronico"
+                placeholder="ejemplo@gmail.com"
+                size="md"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+              />
+              <PasswordInput
+                c={SECONDARY_GREEN}
+                label="Contraseña"
+                placeholder="********"
+                mt="md"
+                size="md"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+              />
+              <PasswordInput
+                c={SECONDARY_GREEN}
+                label="Confirmar Contraseña"
+                placeholder="********"
+                mt="md"
+                size="md"
+                value={confirmPassword}
+                onChange={(e) => setConfirmPassword(e.target.value)}
+              />
+              {error && <Text color="red">{error}</Text>}
+              <Button color={PRIMARY_GREEN} fullWidth mt="xl" size="md" onClick={handleRegister}>
                 Registrarme
               </Button>
 
