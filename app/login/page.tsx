@@ -29,11 +29,11 @@ export default function LoginPage() {
 
   const handleLogin = async () => {
     try {
-      const response = await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/user/login`, {
+      const response = await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/users/login`, {
         email,
         password,
       });
-      console.log("Funcionando")
+      console.log("Iniciar sesión exitosamente");
     } catch (err) {
       setError('Credenciales inválidas');
     }
@@ -50,8 +50,20 @@ export default function LoginPage() {
         email,
         password,
       });
+
+      await handleLogin();
+
+      setEmail('');
+      setPassword('');
+      setConfirmPassword('');
+      setError('');
+      
     } catch (err) {
-      setError('Error al registrar el usuario');
+      if ((err as any).response?.data?.error) {
+        setError((err as any).response.data.error);
+      } else {
+        setError('Error al registrar el usuario');
+      }
     }
   };
 
