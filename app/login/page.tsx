@@ -11,7 +11,10 @@ import {
   Anchor,
   Container,
   Card,
+  Notification,
 } from '@mantine/core';
+import { useRouter } from 'next/navigation';
+import { showNotification } from '@mantine/notifications';
 import axios from 'axios';
 import { PRIMARY_GREEN, SECONDARY_GREEN } from '../constants/colors';
 import classes from './Login.module.css';
@@ -22,6 +25,7 @@ export default function LoginPage() {
   const [confirmPassword, setConfirmPassword] = useState('');
   const [error, setError] = useState('');
   const [isRegister, setIsRegister] = useState(false);
+  const router = useRouter();
 
   const toggleForm = () => {
     setIsRegister((prev) => !prev);
@@ -51,12 +55,18 @@ export default function LoginPage() {
         password,
       });
 
-      await handleLogin();
+      showNotification({
+        title: 'Registro exitoso',
+        message: 'Te has registrado correctamente.',
+        color: 'green',
+      });
 
       setEmail('');
       setPassword('');
       setConfirmPassword('');
       setError('');
+
+      router.push('/');
       
     } catch (err) {
       if ((err as any).response?.data?.error) {
