@@ -36,8 +36,11 @@ export default function LoginPage() {
       const response = await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/users/login`, {
         email,
         password,
+      }, {
+        withCredentials: true,
       });
       console.log("Iniciar sesión exitosamente");
+      router.push('/');
     } catch (err) {
       setError('Credenciales inválidas');
     }
