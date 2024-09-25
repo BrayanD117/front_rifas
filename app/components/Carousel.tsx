@@ -8,36 +8,42 @@ import classes from './styles/Carousel.module.css';
 import { useRef, useState, useEffect } from 'react';
 
 const desktopImages = [
-    'https://raw.githubusercontent.com/mantinedev/mantine/master/.demo/images/bg-1.png',
-    'https://raw.githubusercontent.com/mantinedev/mantine/master/.demo/images/bg-2.png',
-    'https://raw.githubusercontent.com/mantinedev/mantine/master/.demo/images/bg-3.png',
-    'https://raw.githubusercontent.com/mantinedev/mantine/master/.demo/images/bg-4.png',
-    'https://raw.githubusercontent.com/mantinedev/mantine/master/.demo/images/bg-5.png',
+    '/assets/raffles/principal_banner_350.webp',
+    '/assets/raffles/principal_banner_350.webp',
+    '/assets/raffles/principal_banner_350.webp',
+    '/assets/raffles/principal_banner_350.webp',
+    '/assets/raffles/principal_banner_350.webp',
 ];
 
 const mobileImages = [
-  'https://raw.githubusercontent.com/mantinedev/mantine/master/.demo/images/bg-1.png',
+  '/assets/raffles/principal_banner_mobile.webp',
+  '/assets/raffles/principal_banner_mobile.webp',
+  '/assets/raffles/principal_banner_mobile.webp',
+  '/assets/raffles/principal_banner_mobile.webp',
+  '/assets/raffles/principal_banner_mobile.webp'
 ];
 
 const CarouselComponent = () => {
   const autoplay = useRef(Autoplay({ delay: 4000 }));
-  const [images, setImages] = useState(desktopImages);
+  const [images, setImages] = useState<string[]>([]);
+  const [carouselKey, setCarouselKey] = useState<number>(0);
 
   useEffect(() => {
-    const handleResize = () => {
+    const updateImages = () => {
       if (window.innerWidth <= 768) {
         setImages(mobileImages);
       } else {
         setImages(desktopImages);
       }
+      setCarouselKey(prevKey => prevKey + 1);
     };
 
-    handleResize();
+    updateImages();
 
-    window.addEventListener('resize', handleResize);
+    window.addEventListener('resize', updateImages);
 
     return () => {
-      window.removeEventListener('resize', handleResize);
+      window.removeEventListener('resize', updateImages);
     };
   }, []);
 
@@ -48,7 +54,7 @@ const CarouselComponent = () => {
   ));
 
   return (
-    <Carousel withIndicators height={350} loop classNames={classes} plugins={[autoplay.current]}>
+    <Carousel key={carouselKey} withIndicators height={350} loop classNames={classes} plugins={[autoplay.current]}>
         {slides}
     </Carousel>
   );

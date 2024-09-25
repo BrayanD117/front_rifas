@@ -25,7 +25,7 @@ const CustomCard: React.FC<CustomCardProps> = ({
                 />
             </Card.Section>
 
-            <Grid mt={"md"} mb={"xs"}>
+            <Grid mt={"md"} mb={"xs"} align='center'>
                 <Grid.Col span={8} >
                     <Text fw={500}>{title}</Text>
                 </Grid.Col>
