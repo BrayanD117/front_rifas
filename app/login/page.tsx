@@ -34,7 +34,7 @@ export default function LoginPage() {
   const handleLogin = async () => {
     try {
       const response = await axios.post(
-        `${process.env.NEXT_PUBLIC_API_URL}/users/login`,
+        `${process.env.NEXT_PUBLIC_API_URL}/auth/login`,
         {
           email,
           password,
@@ -58,7 +58,7 @@ export default function LoginPage() {
 
     try {
       const response = await axios.post(
-        `${process.env.NEXT_PUBLIC_API_URL}/users`,
+        `${process.env.NEXT_PUBLIC_API_URL}/auth/register`,
         {
           email,
           password,
