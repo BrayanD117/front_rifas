@@ -1,7 +1,9 @@
 import type { Metadata } from "next";
+import '@mantine/notifications/styles.css';
 import '@mantine/core/styles.css';
 import { Navbar } from './components/Navbar';
 import { Footer } from "./components/Footer";
+import { Notifications } from '@mantine/notifications';
 
 import { ColorSchemeScript, MantineProvider } from '@mantine/core';
 
@@ -22,6 +24,7 @@ export default function RootLayout({
       </head>
       <body>
         <MantineProvider defaultColorScheme="light">
+        <Notifications />
           <>
             <Navbar/>
             {children}

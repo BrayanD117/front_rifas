@@ -14,25 +14,63 @@ import {
   Flex,
   Center,
   Grid,
+  UnstyledButton,
+  Modal,
   Text,
-  NavLink,
-  UnstyledButton
 } from "@mantine/core";
 import { useDisclosure } from "@mantine/hooks";
-import { useRouter } from "next/navigation";  
+import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import { IconShoppingCartFilled } from "@tabler/icons-react";
+import axios from "axios";
 import classes from "./styles/Navbar.module.css";
 import { PRIMARY_GREEN } from "../constants/colors";
 
 export function Navbar() {
   const [drawerOpened, { toggle: toggleDrawer, close: closeDrawer }] =
     useDisclosure(false);
-  const [linksOpened, { toggle: toggleLinks }] = useDisclosure(false);
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [logoutModalOpened, { open: openLogoutModal, close: closeLogoutModal }] =
+    useDisclosure(false);
   const theme = useMantineTheme();
   const router = useRouter();
 
+  useEffect(() => {
+    const checkAuth = async () => {
+      try {
+        const response = await axios.get(
+          `${process.env.NEXT_PUBLIC_API_URL}/auth/check-auth`,
+          {
+            withCredentials: true,
+          }
+        );
+        if (response.status === 200) {
+          setIsLoggedIn(true);
+        }
+      } catch (error) {
+        setIsLoggedIn(false);
+      }
+    };
+    checkAuth();
+  }, []);
+
   const handleLoginClick = () => {
     router.push("/login");
+  };
+
+  const handleLogout = async () => {
+    try {
+      await axios.post(
+        `${process.env.NEXT_PUBLIC_API_URL}/auth/logout`,
+        {},
+        { withCredentials: true }
+      );
+      setIsLoggedIn(false);
+      closeLogoutModal();
+      router.push("/login");
+    } catch (error) {
+      console.error("Error al cerrar sesión", error);
+    }
   };
 
   const handleBrandClick = () => {
@@ -43,7 +81,7 @@ export function Navbar() {
     <Box>
       <header className={classes.header}>
         <Grid justify="space-between" align="center">
-        <Grid.Col span={4}>
+          <Grid.Col span={4}>
             <Flex
               visibleFrom="sm"
               mt={-20}
@@ -54,7 +92,25 @@ export function Navbar() {
               direction="row"
               wrap="wrap"
             >
-              <Button size="lg" variant="subtle" color="white" onClick={handleLoginClick}>Iniciar Sesión</Button>
+              {isLoggedIn ? (
+                <Button
+                  size="lg"
+                  variant="subtle"
+                  color="white"
+                  onClick={openLogoutModal}
+                >
+                  Cerrar Sesión
+                </Button>
+              ) : (
+                <Button
+                  size="lg"
+                  variant="subtle"
+                  color="white"
+                  onClick={handleLoginClick}
+                >
+                  Iniciar Sesión
+                </Button>
+              )}
             </Flex>
             <Flex>
               <Burger
@@ -69,14 +125,14 @@ export function Navbar() {
           <Grid.Col span={4}>
             <Group justify="center">
               <Center>
-              <UnstyledButton component="a" onClick={handleBrandClick}>
-                <Image
-                  mt={-20}
-                  alt="Rifa Mania"
-                  h={90}
-                  w="auto"
-                  src="/assets/Logo-Rifa-Manía.webp"
-                />
+                <UnstyledButton component="a" onClick={handleBrandClick}>
+                  <Image
+                    mt={-20}
+                    alt="Rifa Mania"
+                    h={90}
+                    w="auto"
+                    src="/assets/Logo-Rifa-Manía.webp"
+                  />
                 </UnstyledButton>
               </Center>
             </Group>
@@ -113,6 +169,7 @@ export function Navbar() {
           </Grid.Col>
         </Grid>
       </header>
+
       <Drawer
         opened={drawerOpened}
         onClose={closeDrawer}
@@ -125,11 +182,37 @@ export function Navbar() {
         <ScrollArea h={`calc(100vh - ${rem(80)})`} mx="-md">
           <Divider my="sm" />
           <Group justify="center" grow pb="xl" px="md">
-            <Button variant="default" onClick={handleLoginClick}>Iniciar sesion</Button>
-            <Button>Registrarme</Button>
+            {isLoggedIn ? (
+              <Button variant="default" onClick={openLogoutModal}>
+                Cerrar Sesión
+              </Button>
+            ) : (
+              <Button variant="default" onClick={handleLoginClick}>
+                Iniciar sesión
+              </Button>
+            )}
+            {!isLoggedIn && <Button>Registrarme</Button>}
           </Group>
         </ScrollArea>
       </Drawer>
+
+      {/* Modal de Confirmación para Cerrar Sesión */}
+      <Modal
+        opened={logoutModalOpened}
+        onClose={closeLogoutModal}
+        title="Confirmar Cierre de Sesión"
+        centered
+      >
+        <Text>¿Estás seguro que deseas cerrar sesión?</Text>
+        <Group justify="center" mt="md">
+          <Button color="red" onClick={handleLogout}>
+            Cerrar Sesión
+          </Button>
+          <Button variant="default" onClick={closeLogoutModal}>
+            Cancelar
+          </Button>
+        </Group>
+      </Modal>
     </Box>
   );
 }
