@@ -10,7 +10,7 @@ const HomeCards: React.FC = () => {
         <Grid>
           <Grid.Col span={{ base: 12, xs: 6, md: 4, lg: 3 }}>
             <CustomCard
-              imageSrc="/assets/raffles/iPhone.jpeg"
+              imageSrc="/assets/raffles/iPhone.webp"
               imageAlt="iPhone 13"
               title="¡Gana un iPhone 13!"
               badgeText="Sept. 30"
@@ -20,7 +20,7 @@ const HomeCards: React.FC = () => {
           </Grid.Col>
           <Grid.Col span={{ base: 12, xs: 6, md: 4, lg: 3 }}>
             <CustomCard
-              imageSrc="/assets/raffles/dinero.jpg"
+              imageSrc="/assets/raffles/dinero.webp"
               imageAlt="Dinero"
               title="Gana en grande ¡20 millones!"
               badgeText="Dic. 20"
@@ -30,7 +30,7 @@ const HomeCards: React.FC = () => {
           </Grid.Col>
           <Grid.Col span={{ base: 12, xs: 6, md: 4, lg: 3 }}>
             <CustomCard
-              imageSrc="/assets/raffles/nmax.png"
+              imageSrc="/assets/raffles/nmax.webp"
               imageAlt="Moto NMax"
               title="¡Gana una Moto NMax y acelera tu destino!"
               badgeText="Oct. 15"
@@ -40,7 +40,7 @@ const HomeCards: React.FC = () => {
           </Grid.Col>
           <Grid.Col span={{ base: 12, xs: 6, md: 4, lg: 3 }}>
             <CustomCard
-              imageSrc="/assets/raffles/llaveCarro.jpeg"
+              imageSrc="/assets/raffles/llaveCarro.webp"
               imageAlt="Llaves de carro"
               title="¡Llévate una Tucson 0 km y conduce tus sueños!"
               badgeText="Nov. 15"
