@@ -7,7 +7,7 @@ import {
   IconHome,
   IconSettingsFilled,
 } from '@tabler/icons-react';
-import { useRouter } from 'next/navigation';
+import { useRouter, usePathname } from 'next/navigation';
 import axios from 'axios';
 import { useAuth } from '../context/AuthContext';
 import classes from './styles/Sidebar.module.css';
@@ -19,11 +19,18 @@ const data = [
 ];
 
 export function Sidebar() {
-  const [active, setActive] = useState('Inicio');
+  const [active, setActive] = useState('');
   const [logoutModalOpened, setLogoutModalOpened] = useState(false);
   const router = useRouter();
   const { logout } = useAuth();
+  const pathname = usePathname();
 
+  useEffect(() => {
+    const currentRoute = data.find((item) => pathname.startsWith(item.link));
+    if (currentRoute) {
+      setActive(currentRoute.label);
+    }
+  }, [pathname]);
   const handleLogout = async () => {
     try {
       await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/auth/logout`, {}, { withCredentials: true });
@@ -33,10 +40,6 @@ export function Sidebar() {
       console.error('Error al cerrar sesión', error);
     }
   };
-
-  useEffect(() => {
-    setActive('Inicio');
-  }, []);
 
   const links = data.map((item) => (
     <a
@@ -87,9 +90,9 @@ export function Sidebar() {
         title="Confirmar cierre de sesión"
         centered
         overlayProps={{
-            backgroundOpacity: 0.55,
-            blur: 3,
-          }}
+          backgroundOpacity: 0.55,
+          blur: 3,
+        }}
       >
         <Text>¿Estás seguro que deseas cerrar sesión?</Text>
         <Group justify="center" mt="md">
