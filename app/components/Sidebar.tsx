@@ -1,21 +1,36 @@
 import { useState } from 'react';
-import { Group } from '@mantine/core';
+import { Group, Title } from '@mantine/core';
 import {
-  IconBellRinging,
-  IconKey,
   IconSettings,
-  IconSwitchHorizontal,
   IconLogout,
+  IconTicket,
+  IconHome,
+  IconSettingsFilled,
 } from '@tabler/icons-react';
+import { useRouter } from 'next/navigation';
+import axios from 'axios';
+import { useAuth } from '../context/AuthContext';
 import classes from './styles/Sidebar.module.css';
 
 const data = [
-  { link: '', label: 'Notifications', icon: IconBellRinging },
-  { link: '', label: 'Other Settings', icon: IconSettings },
+  { link: '/admin/dashboard', label: 'Inicio', icon: IconHome },
+  { link: '/admin/raffles', label: 'Rifas', icon: IconTicket },
+  { link: '/admin/settings', label: 'Other Settings', icon: IconSettings },
 ];
 
 export function Sidebar() {
   const [active, setActive] = useState('Billing');
+  const router = useRouter();
+  const { logout } = useAuth();
+  const handleLogout = async () => {
+    try {
+      await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/auth/logout`, {}, { withCredentials: true });
+      logout();
+      router.push('/login');
+    } catch (error) {
+      console.error('Error al cerrar sesión', error);
+    }
+  };
 
   const links = data.map((item) => (
     <a
@@ -26,6 +41,7 @@ export function Sidebar() {
       onClick={(event) => {
         event.preventDefault();
         setActive(item.label);
+        router.push(item.link);
       }}
     >
       <item.icon className={classes.linkIcon} stroke={1.5} />
@@ -36,21 +52,24 @@ export function Sidebar() {
   return (
     <nav className={classes.navbar}>
       <div className={classes.navbarMain}>
-        <Group className={classes.header} justify="space-between">
-            <IconKey/>
+        <Group justify="center" className={classes.header}>
+            <IconSettingsFilled className={classes.headerIcon} stroke={1.5} />
+            <Title ta={"center"} order={4}>Panel de administración</Title>
         </Group>
         {links}
       </div>
 
       <div className={classes.footer}>
-        <a href="#" className={classes.link} onClick={(event) => event.preventDefault()}>
-          <IconSwitchHorizontal className={classes.linkIcon} stroke={1.5} />
-          <span>Change account</span>
-        </a>
-
-        <a href="#" className={classes.link} onClick={(event) => event.preventDefault()}>
+        <a
+          href="#"
+          className={classes.link}
+          onClick={(event) => {
+            event.preventDefault();
+            handleLogout();
+          }}
+        >
           <IconLogout className={classes.linkIcon} stroke={1.5} />
-          <span>Logout</span>
+          <span>Cerrar sesión</span>
         </a>
       </div>
     </nav>
