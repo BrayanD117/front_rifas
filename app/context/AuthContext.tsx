@@ -54,9 +54,14 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     setRole(role);
   };
 
-  const logout = () => {
-    setIsLoggedIn(false);
-    setRole(null);
+  const logout = async () => {
+    try {
+      await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/auth/logout`, {}, { withCredentials: true });
+      setIsLoggedIn(false);
+      setRole(null);
+    } catch (error) {
+      console.error("Error al cerrar sesión", error);
+    }
   };
 
   return (
