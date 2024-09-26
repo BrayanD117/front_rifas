@@ -34,7 +34,7 @@ const CustomCard: React.FC<CustomCardProps> = ({
                 </Grid.Col>
             </Grid>
 
-            <Text size="sm" c="dimmed">
+            <Text size="sm" c="dimmed" lineClamp={3}>
                 {description}
             </Text>
 
