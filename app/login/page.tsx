@@ -16,6 +16,7 @@ import {
 import { useRouter } from "next/navigation";
 import { showNotification } from "@mantine/notifications";
 import axios from "axios";
+import { useAuth } from "../context/AuthContext";
 import { PRIMARY_GREEN, SECONDARY_GREEN } from "../constants/colors";
 import classes from "./Login.module.css";
 
@@ -26,6 +27,7 @@ export default function LoginPage() {
   const [error, setError] = useState("");
   const [isRegister, setIsRegister] = useState(false);
   const router = useRouter();
+  const { login } = useAuth();
 
   const toggleForm = () => {
     setIsRegister((prev) => !prev);
@@ -43,8 +45,15 @@ export default function LoginPage() {
           withCredentials: true,
         }
       );
-      console.log("Iniciar sesión exitosamente");
-      router.push("/");
+      const { role } = response.data.user;
+
+      login(role);
+
+      if (role === "Admin") {
+        router.push("/admin/dashboard");
+      } else {
+        router.push("/");
+      }
     } catch (err) {
       setError("Credenciales inválidas");
     }

@@ -4,6 +4,7 @@ import '@mantine/core/styles.css';
 import { Navbar } from './components/Navbar';
 import { Footer } from "./components/Footer";
 import { Notifications } from '@mantine/notifications';
+import { AuthProvider } from './context/AuthContext';
 
 import { ColorSchemeScript, MantineProvider } from '@mantine/core';
 
@@ -24,12 +25,14 @@ export default function RootLayout({
       </head>
       <body>
         <MantineProvider defaultColorScheme="light">
-        <Notifications />
-          <>
-            <Navbar/>
-            {children}
-            <Footer/>
-          </>
+          <AuthProvider>
+            <Notifications />
+            <>
+              <Navbar/>
+              {children}
+              <Footer/>
+            </>
+          </AuthProvider>
         </MantineProvider>
       </body>
     </html>
