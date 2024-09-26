@@ -4,25 +4,37 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { Container, TextInput, NumberInput, Textarea, Button, Title, Group, Checkbox } from "@mantine/core";
 import { DateInput } from '@mantine/dates';
-import { NumberFormatter } from '@mantine/core';
 import 'dayjs/locale/es';
 import axios from "axios";
 
+const formatCurrency = (value: number) => {
+  return new Intl.NumberFormat('es-CO', {
+    style: 'currency',
+    currency: 'COP',
+    minimumFractionDigits: 0,
+  }).format(value);
+};
+
+const parseCurrency = (value: string) => {
+  return Number(value.replace(/\D/g, "")) || 0;
+};
+
 const CreateRafflePage = () => {
   const router = useRouter();
-  const [name, setName] = useState("");
-  const [description, setDescription] = useState("");
-  const [prize, setPrize] = useState("");
+  const [name, setName] = useState<string>("");
+  const [description, setDescription] = useState<string>("");
+  const [prize, setPrize] = useState<string>("");
   const [baseValue, setBaseValue] = useState<number>(0);
   const [ivaValue, setIvaValue] = useState<number>(0);
-  const [totalValue, setTotalValue] = useState<number>(0);
+  const [totalValue, setTotalValue] = useState<string>("0");
   const [gameDate, setGameDate] = useState<Date | null>(null);
   const [closeDate, setCloseDate] = useState<Date | null>(null);
   const [bearerCheck, setBearerCheck] = useState(false);
 
   useEffect(() => {
-    const calculatedBaseValue = totalValue / 1.19;
-    const calculatedIvaValue = calculatedBaseValue * 0.19;
+    const numericTotalValue = parseCurrency(totalValue);
+    const calculatedBaseValue = numericTotalValue / 1.19;
+    const calculatedIvaValue = numericTotalValue - calculatedBaseValue;
 
     setBaseValue(parseFloat(calculatedBaseValue.toFixed(2)));
     setIvaValue(parseFloat(calculatedIvaValue.toFixed(2)));
@@ -30,13 +42,14 @@ const CreateRafflePage = () => {
 
   const handleCreateRaffle = async () => {
     try {
+      const numericTotalValue = parseCurrency(totalValue);
       const newRaffle = {
         name,
         description,
         prize,
         baseValue,
         ivaValue,
-        totalValue,
+        totalValue: numericTotalValue,
         gameDate,
         closeDate,
         bearerCheck,
@@ -84,25 +97,23 @@ const CreateRafflePage = () => {
       />
 
       <Group grow mt="md">
-        <NumberInput
+        <TextInput
           label="Valor Total"
           value={totalValue}
-          onChange={(value) => setTotalValue(value ?? 0)}
-          hideControls
+          onChange={(event) => setTotalValue(formatCurrency(parseCurrency(event.currentTarget.value)))}
+          placeholder="Ingrese el valor total"
           withAsterisk
         />
-        <NumberInput
+        <TextInput
           label="Valor Base"
-          value={baseValue}
+          value={formatCurrency(baseValue)}
           readOnly
-          hideControls
           variant="filled"
         />
-        <NumberInput
+        <TextInput
           label="Valor IVA"
-          value={ivaValue}
+          value={formatCurrency(ivaValue)}
           readOnly
-          hideControls
           variant="filled"
         />
       </Group>
