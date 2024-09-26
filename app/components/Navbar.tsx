@@ -163,13 +163,15 @@ export function Navbar() {
           </Group>
         </ScrollArea>
       </Drawer>
-
-      {/* Modal de Confirmación para Cerrar Sesión */}
       <Modal
         opened={logoutModalOpened}
         onClose={closeLogoutModal}
         title="Confirmar Cierre de Sesión"
         centered
+        overlayProps={{
+          backgroundOpacity: 0.55,
+          blur: 3,
+        }}
       >
         <Text>¿Estás seguro que deseas cerrar sesión?</Text>
         <Group justify="center" mt="md">
