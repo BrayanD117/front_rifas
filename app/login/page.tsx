@@ -11,7 +11,6 @@ import {
   Anchor,
   Container,
   Card,
-  Notification,
 } from "@mantine/core";
 import { useRouter } from "next/navigation";
 import { showNotification } from "@mantine/notifications";
