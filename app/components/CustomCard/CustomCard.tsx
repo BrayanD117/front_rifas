@@ -10,10 +10,11 @@ interface CustomCardProps {
     badgeText: string;
     description: string;
     buttonText: string;
+    onButtonClick: () => void;
 }
 
 const CustomCard: React.FC<CustomCardProps> = ({
-    imageSrc, imageAlt, title, badgeText, description, buttonText
+    imageSrc, imageAlt, title, badgeText, description, buttonText, onButtonClick
 }) => {
     return (
         <Card shadow="sm" padding="lg" radius="md" withBorder style={{ display: 'flex', flexDirection: 'column', justifyContent: 'space-between', minHeight: '400px', height: '100%'}}>
@@ -38,7 +39,7 @@ const CustomCard: React.FC<CustomCardProps> = ({
                 {description}
             </Text>
 
-            <Button color={PRIMARY_GREEN} fullWidth mt="md" radius="md">
+            <Button color={PRIMARY_GREEN} fullWidth mt="md" radius="md" onClick={onButtonClick}>
                 {buttonText}
             </Button>
         </Card>

@@ -3,6 +3,7 @@
 import { Container, Grid } from "@mantine/core";
 import CustomCard from "../CustomCard/CustomCard";
 import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import axios from "axios";
 import dayjs from 'dayjs';
 import 'dayjs/locale/es';
@@ -19,12 +20,12 @@ interface Raffle {
 
 const HomeCards: React.FC = () => {
   const [raffles, setRaffles] = useState<Raffle[]>([]);
+  const router = useRouter();
 
   useEffect(() => {
     const fetchRaffles = async () => {
       try {
         const response = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/raffles/active`);
-        console.log(response.data);
         setRaffles(response.data);
       } catch (error) {
         console.error("Error fetching raffles:", error);
@@ -51,6 +52,7 @@ const HomeCards: React.FC = () => {
                 badgeText={formatDate(raffle.gameDate)}
                 description={raffle.description}
                 buttonText="¡Quiero Jugar!"
+                onButtonClick={() => router.push(`/raffle/${raffle.id}`)}
               />
             </Grid.Col>
           ))}
