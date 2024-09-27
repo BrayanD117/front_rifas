@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { Container, TextInput, NumberInput, Textarea, Button, Title, Group, Switch, Checkbox, Select } from "@mantine/core";
 import { DateTimePicker } from '@mantine/dates';
 import { DropzoneButton } from "@/app/components/Dropzone/DropzoneButton";
+import { showNotification } from '@mantine/notifications';
 import 'dayjs/locale/es';
 import axios from "axios";
 
@@ -39,7 +40,7 @@ const CreateRafflePage = () => {
   const [coverageId, setCoverageId] = useState<string | null>(null);
   const [authorityId, setAuthorityId] = useState<string | null>(null);
   const [bearerCheck, setBearerCheck] = useState(false);
-  const [active, setActive] = useState(false);
+  const [active, setActive] = useState(true);
 
   useEffect(() => {
     const numericTotalValue = parseCurrency(totalValue);
@@ -55,34 +56,48 @@ const CreateRafflePage = () => {
       const numericTotalValue = parseCurrency(totalValue);
       const dateTimePublication = publicationDateTime?.toISOString();
 
-      const newRaffle = {
-        name,
-        description,
-        prize,
-        baseValue,
-        ivaValue,
-        totalValue: numericTotalValue,
-        lottery,
-        numberDigits,
-        numberSeries,
-        bearerCheck,
-        gameDate,
-        closeDate,
-        expirationDate,
-        imageUrl: imageUrl.map((file) => URL.createObjectURL(file)),
-        coverageId,
-        authorityId,
-        active,
-        dateTimePublication,
-      };
+      const formData = new FormData();
+      formData.append('name', name);
+      formData.append('description', description);
+      formData.append('prize', prize);
+      formData.append('baseValue', baseValue.toString());
+      formData.append('ivaValue', ivaValue.toString());
+      formData.append('totalValue', numericTotalValue.toString());
+      formData.append('lottery', lottery);
+      formData.append('numberDigits', numberDigits.toString());
+      formData.append('numberSeries', numberSeries.toString());
+      formData.append('bearerCheck', bearerCheck.toString());
+      formData.append('gameDate', gameDate?.toISOString() || '');
+      formData.append('closeDate', closeDate?.toISOString() || '');
+      formData.append('expirationDate', expirationDate?.toISOString() || '');
+      formData.append('coverageId', coverageId || '');
+      formData.append('authorityId', authorityId || '');
+      formData.append('active', active.toString());
+      formData.append('dateTimePublication', dateTimePublication || '');
 
-      await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/raffles`, newRaffle, {
+      imageUrl.forEach((file, index) => {
+        formData.append(`images`, file, `${name}Image${index + 1}.webp`);
+      });
+
+      await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/raffles`, formData, {
         withCredentials: true,
+        headers: { 'Content-Type': 'multipart/form-data' },
+      });
+
+      showNotification({
+        title: 'Rifa creada con éxito',
+        message: 'La rifa se ha creado correctamente.',
+        color: 'green',
       });
 
       router.push("/admin/raffles");
     } catch (error) {
       console.error("Error al crear la rifa", error);
+      showNotification({
+        title: 'Error al crear la rifa',
+        message: 'Ocurrió un error al crear la rifa. Por favor, inténtalo de nuevo.',
+        color: 'red',
+      });
     }
   };
 
@@ -204,7 +219,7 @@ const CreateRafflePage = () => {
         <NumberInput
           label="Número de Dígitos"
           value={numberDigits}
-          onChange={(value: string | number) => setNumberDigits(typeof value === 'number' ? value : 4)}  // Corregido para manejar tipos correctamente
+          onChange={(value: string | number) => setNumberDigits(typeof value === 'number' ? value : 4)}
           hideControls
         />
         <NumberInput
@@ -232,7 +247,7 @@ const CreateRafflePage = () => {
         onChange={setAuthorityId}
         mt="md"
       />
-      <DropzoneButton />
+      <DropzoneButton setImageUrl={setImageUrl} />
       <Group mt="xl" mb="xl">
         <Button color="green" onClick={handleCreateRaffle}>Crear Rifa</Button>
         <Button color="red" variant="outline" onClick={() => router.push("/admin/raffles")}>

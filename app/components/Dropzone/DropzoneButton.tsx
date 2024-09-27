@@ -4,27 +4,35 @@ import { Dropzone, IMAGE_MIME_TYPE } from '@mantine/dropzone';
 import { IconCloudUpload, IconX, IconDownload } from '@tabler/icons-react';
 import classes from './DropzoneButton.module.css';
 
-export function DropzoneButton() {
+interface DropzoneButtonProps {
+  setImageUrl: React.Dispatch<React.SetStateAction<File[]>>;
+}
+
+export function DropzoneButton({ setImageUrl }: DropzoneButtonProps) {
   const theme = useMantineTheme();
   const openRef = useRef<() => void>(null);
   const [previews, setPreviews] = useState<string[]>([]);
 
   const handleDrop = async (files: File[]) => {
-    const optimizedImages: string[] = [];
+    const optimizedImages: File[] = [];
+    const previewUrls: string[] = [];
 
     for (const file of files) {
-      const imageUrl = await optimizeImage(file);
-      optimizedImages.push(imageUrl);
+      const optimizedFile = await optimizeImage(file);
+      optimizedImages.push(optimizedFile);
+      previewUrls.push(URL.createObjectURL(optimizedFile));
     }
 
-    setPreviews((prev) => [...prev, ...optimizedImages]);
+    setPreviews((prev) => [...prev, ...previewUrls]);
+    setImageUrl((prev) => [...prev, ...optimizedImages]);
   };
 
   const handleRemoveImage = (index: number) => {
     setPreviews((prev) => prev.filter((_, i) => i !== index));
+    setImageUrl((prev) => prev.filter((_, i) => i !== index));
   };
 
-  const optimizeImage = (file: File): Promise<string> => {
+  const optimizeImage = (file: File): Promise<File> => {
     return new Promise((resolve) => {
       const reader = new FileReader();
       reader.readAsDataURL(file);
@@ -58,7 +66,14 @@ export function DropzoneButton() {
           canvas.height = height;
           ctx?.drawImage(img, 0, 0, width, height);
 
-          resolve(canvas.toDataURL('image/webp'));
+          canvas.toBlob((blob) => {
+            if (blob) {
+              const optimizedFile = new File([blob], `${file.name.split('.')[0]}.webp`, {
+                type: 'image/webp',
+              });
+              resolve(optimizedFile);
+            }
+          }, 'image/webp');
         };
       };
     });
