@@ -2,8 +2,9 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { Container, TextInput, NumberInput, Textarea, Button, Title, Group, Checkbox } from "@mantine/core";
-import { DateInput } from '@mantine/dates';
+import { Container, TextInput, NumberInput, Textarea, Button, Title, Group, Switch, Checkbox, Select } from "@mantine/core";
+import { DateTimePicker } from '@mantine/dates';
+import { DropzoneButton } from "@/app/components/Dropzone/DropzoneButton";
 import 'dayjs/locale/es';
 import axios from "axios";
 
@@ -29,7 +30,16 @@ const CreateRafflePage = () => {
   const [totalValue, setTotalValue] = useState<string>("0");
   const [gameDate, setGameDate] = useState<Date | null>(null);
   const [closeDate, setCloseDate] = useState<Date | null>(null);
+  const [expirationDate, setExpirationDate] = useState<Date | null>(null);
+  const [publicationDateTime, setPublicationDateTime] = useState<Date | null>(null);
+  const [lottery, setLottery] = useState<string>("");
+  const [numberDigits, setNumberDigits] = useState<number>(4);
+  const [numberSeries, setNumberSeries] = useState<number>(1);
+  const [imageUrl, setImageUrl] = useState<File[]>([]);
+  const [coverageId, setCoverageId] = useState<string | null>(null);
+  const [authorityId, setAuthorityId] = useState<string | null>(null);
   const [bearerCheck, setBearerCheck] = useState(false);
+  const [active, setActive] = useState(false);
 
   useEffect(() => {
     const numericTotalValue = parseCurrency(totalValue);
@@ -43,6 +53,8 @@ const CreateRafflePage = () => {
   const handleCreateRaffle = async () => {
     try {
       const numericTotalValue = parseCurrency(totalValue);
+      const dateTimePublication = publicationDateTime?.toISOString();
+
       const newRaffle = {
         name,
         description,
@@ -50,9 +62,18 @@ const CreateRafflePage = () => {
         baseValue,
         ivaValue,
         totalValue: numericTotalValue,
+        lottery,
+        numberDigits,
+        numberSeries,
+        bearerCheck,
         gameDate,
         closeDate,
-        bearerCheck,
+        expirationDate,
+        imageUrl: imageUrl.map((file) => URL.createObjectURL(file)),
+        coverageId,
+        authorityId,
+        active,
+        dateTimePublication,
       };
 
       await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/raffles`, newRaffle, {
@@ -119,23 +140,92 @@ const CreateRafflePage = () => {
       </Group>
 
       <Group grow mt="md">
-        <DateInput 
+        <DateTimePicker
           locale="es"
           label="Fecha del Sorteo"
-          placeholder="Seleccione la fecha del sorteo"
+          placeholder="Seleccione la fecha y hora del sorteo"
           value={gameDate}
           onChange={setGameDate}
           withAsterisk
         />
-        <DateInput 
+        <DateTimePicker
           locale="es"
           label="Fecha de Cierre"
-          placeholder="Seleccione la fecha de cierre"
+          placeholder="Seleccione la fecha y hora de cierre"
           value={closeDate}
           onChange={setCloseDate}
           withAsterisk
         />
+        <DateTimePicker
+          locale="es"
+          label="Fecha de Expiración"
+          placeholder="Seleccione la fecha y hora de expiración"
+          value={expirationDate}
+          onChange={setExpirationDate}
+          withAsterisk
+        />
       </Group>
+
+      <Group grow mt="md">
+        <DateTimePicker
+          locale="es"
+          label="Fecha de Publicación"
+          placeholder="Seleccione la fecha y hora de publicación"
+          value={publicationDateTime}
+          onChange={setPublicationDateTime}
+          withAsterisk
+        />
+      </Group>
+
+      <TextInput
+        label="Lotería"
+        placeholder="Ingrese la lotería"
+        value={lottery}
+        onChange={(event) => setLottery(event.currentTarget.value)}
+        mt="md"
+      />
+
+      <Group grow mt="md">
+        <NumberInput
+          label="Número de Dígitos"
+          value={numberDigits}
+          onChange={(value: string | number) => setNumberDigits(typeof value === 'number' ? value : 4)}  // Corregido para manejar tipos correctamente
+          hideControls
+        />
+        <NumberInput
+          label="Número de Series"
+          value={numberSeries}
+          onChange={(value: string | number) => setNumberSeries(typeof value === 'number' ? value : 1)}
+          hideControls
+        />
+      </Group>
+
+      <Select
+        label="Cobertura"
+        placeholder="Seleccione la cobertura"
+        data={[{ value: '', label: 'Cobertura Nacional' }]}
+        value={coverageId}
+        onChange={setCoverageId}
+        mt="md"
+      />
+
+      <Select
+        label="Autoridad"
+        placeholder="Seleccione la autoridad"
+        data={[{ value: '', label: 'Autoridad Nacional' }]}
+        value={authorityId}
+        onChange={setAuthorityId}
+        mt="md"
+      />
+
+      <DropzoneButton />
+
+      <Switch
+        label="¿Publicación activa?"
+        checked={active}
+        onChange={(event) => setActive(event.currentTarget.checked)}
+        mt="md"
+      />
 
       <Checkbox
         label="Cheque al portador"
@@ -143,7 +233,8 @@ const CreateRafflePage = () => {
         onChange={(event) => setBearerCheck(event.currentTarget.checked)}
         mt="md"
       />
-      <Group mt="xl">
+
+      <Group mt="xl" mb="xl">
         <Button color="green" onClick={handleCreateRaffle}>Crear Rifa</Button>
         <Button color="red" variant="outline" onClick={() => router.push("/admin/raffles")}>
           Cancelar
