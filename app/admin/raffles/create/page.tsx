@@ -165,7 +165,22 @@ const CreateRafflePage = () => {
           withAsterisk
         />
       </Group>
-
+      <Group mt="md" justify="space-between">
+        <Switch
+          label="Activar publicación"
+          description="Esta opción activará la publicación de la rifa"
+          checked={active}
+          onChange={(event) => setActive(event.currentTarget.checked)}
+          mt="md"
+        />
+        <Switch
+          label="Cheque al portador"
+          checked={bearerCheck}
+          onChange={(event) => setBearerCheck(event.currentTarget.checked)}
+          description="Esta opción hará que el premio sea entregado al portador de la boleta"
+          mt="md"
+        />
+      </Group>
       <Group grow mt="md">
         <DateTimePicker
           locale="es"
@@ -217,23 +232,7 @@ const CreateRafflePage = () => {
         onChange={setAuthorityId}
         mt="md"
       />
-
       <DropzoneButton />
-
-      <Switch
-        label="¿Publicación activa?"
-        checked={active}
-        onChange={(event) => setActive(event.currentTarget.checked)}
-        mt="md"
-      />
-
-      <Checkbox
-        label="Cheque al portador"
-        checked={bearerCheck}
-        onChange={(event) => setBearerCheck(event.currentTarget.checked)}
-        mt="md"
-      />
-
       <Group mt="xl" mb="xl">
         <Button color="green" onClick={handleCreateRaffle}>Crear Rifa</Button>
         <Button color="red" variant="outline" onClick={() => router.push("/admin/raffles")}>

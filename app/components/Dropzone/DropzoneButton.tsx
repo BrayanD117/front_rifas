@@ -18,6 +18,7 @@ export function DropzoneButton() {
         radius="md"
         accept={IMAGE_MIME_TYPE}
         maxSize={30 * 1024 ** 2}
+        pt={25}
       >
         <div style={{ pointerEvents: 'none' }}>
           <Group justify="center">
