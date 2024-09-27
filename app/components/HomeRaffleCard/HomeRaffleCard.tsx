@@ -3,7 +3,7 @@
 import { Card, Image, Text, Badge, Button, Grid } from '@mantine/core';
 import { PRIMARY_GREEN, PRIMARY_YELLOW } from '@/app/constants/colors';
 
-interface CustomCardProps {
+interface HomeRaffleCardProps {
     imageSrc: string;
     imageAlt: string;
     title: string;
@@ -13,7 +13,7 @@ interface CustomCardProps {
     onButtonClick: () => void;
 }
 
-const CustomCard: React.FC<CustomCardProps> = ({
+const HomeRaffleCard: React.FC<HomeRaffleCardProps> = ({
     imageSrc, imageAlt, title, badgeText, description, buttonText, onButtonClick
 }) => {
     return (
@@ -46,4 +46,4 @@ const CustomCard: React.FC<CustomCardProps> = ({
     );
 }
 
-export default CustomCard;
+export default HomeRaffleCard;

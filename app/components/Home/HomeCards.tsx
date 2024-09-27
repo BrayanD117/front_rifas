@@ -1,7 +1,7 @@
 "use client"
 
 import { Container, Grid } from "@mantine/core";
-import CustomCard from "../CustomCard/CustomCard";
+import HomeRaffleCard from "../HomeRaffleCard/HomeRaffleCard";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import axios from "axios";
@@ -12,7 +12,7 @@ dayjs.locale('es');
 
 interface Raffle {
   id: number;
-  imageUrl: string;
+  imagesUrls: string;
   name: string;
   gameDate: string;
   description: string;
@@ -45,8 +45,8 @@ const HomeCards: React.FC = () => {
         <Grid>
           {raffles.map((raffle) => (
             <Grid.Col key={raffle.id} span={{ base: 12, xs: 6, md: 4, lg: 3 }}>
-              <CustomCard
-                imageSrc={raffle.imageUrl}
+              <HomeRaffleCard
+                imageSrc={raffle.imagesUrls[0]}
                 imageAlt={raffle.name}
                 title={raffle.name}
                 badgeText={formatDate(raffle.gameDate)}
