@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { Container, TextInput, NumberInput, Textarea, Button, Title, Group, Switch, Checkbox, Select } from "@mantine/core";
+import { Container, TextInput, NumberInput, Textarea, Button, Title, Group, Switch, Select } from "@mantine/core";
 import { DateTimePicker } from '@mantine/dates';
 import { DropzoneButton } from "@/app/components/Dropzone/DropzoneButton";
 import { showNotification } from '@mantine/notifications';
@@ -76,17 +76,21 @@ const CreateRafflePage = () => {
     fetchAuthorities();
   }, []);
 
+  const formatDateToDB = (date: Date | null) => {
+    if (!date) return '';
+    const offset = date.getTimezoneOffset() * 60000;
+    const localDate = new Date(date.getTime() - offset);
+    return localDate.toISOString().replace('T', ' ').split('.')[0];
+  };
+
+  const handlePublishImmediately = () => {
+    const currentDate = new Date();
+    setPublicationDateTime(currentDate);
+  };
+
   const handleCreateRaffle = async () => {
     try {
       const numericTotalValue = parseCurrency(totalValue);
-  
-      const formatDateToDB = (date: Date | null) => {
-        if (!date) return '';
-        const offset = date.getTimezoneOffset() * 60000;
-        const localDate = new Date(date.getTime() - offset);
-        return localDate.toISOString().replace('T', ' ').split('.')[0];
-      };
-  
       const formattedGameDate = formatDateToDB(gameDate);
       const formattedCloseDate = formatDateToDB(closeDate);
       const formattedExpirationDate = formatDateToDB(expirationDate);
@@ -232,7 +236,7 @@ const CreateRafflePage = () => {
           mt="md"
         />
       </Group>
-      <Group grow mt="md">
+      <Group grow mt="md" align="center">
         <DateTimePicker
           locale="es"
           label="Fecha de Publicación"
@@ -241,6 +245,9 @@ const CreateRafflePage = () => {
           onChange={setPublicationDateTime}
           withAsterisk
         />
+        <Button mt="md" onClick={handlePublishImmediately}>
+          Publicar inmediatamente
+        </Button>
       </Group>
 
       <TextInput
