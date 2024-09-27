@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import '@mantine/notifications/styles.css';
 import '@mantine/core/styles.css';
 import '@mantine/dates/styles.css';
+import '@mantine/dropzone/styles.css';
 import { Notifications } from '@mantine/notifications';
 import { AuthProvider } from './context/AuthContext';
 
