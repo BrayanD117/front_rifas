@@ -39,6 +39,8 @@ const CreateRafflePage = () => {
   const [imageUrl, setImageUrl] = useState<File[]>([]);
   const [coverageId, setCoverageId] = useState<string | null>(null);
   const [authorityId, setAuthorityId] = useState<string | null>(null);
+  const [coverages, setCoverages] = useState<{ value: string; label: string }[]>([]);
+  const [authorities, setAuthorities] = useState<{ value: string; label: string }[]>([]);
   const [bearerCheck, setBearerCheck] = useState(false);
   const [active, setActive] = useState(true);
 
@@ -51,45 +53,72 @@ const CreateRafflePage = () => {
     setIvaValue(parseFloat(calculatedIvaValue.toFixed(2)));
   }, [totalValue]);
 
+  useEffect(() => {
+    const fetchCoverages = async () => {
+      try {
+        const { data } = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/coverages`);
+        setCoverages(data.map((coverage: any) => ({ value: coverage.id, label: coverage.name })));
+      } catch (error) {
+        console.error('Error fetching coverages', error);
+      }
+    };
+
+    const fetchAuthorities = async () => {
+      try {
+        const { data } = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/authorities`);
+        setAuthorities(data.map((authority: any) => ({ value: authority.id, label: authority.name })));
+      } catch (error) {
+        console.error('Error fetching authorities', error);
+      }
+    };
+
+    fetchCoverages();
+    fetchAuthorities();
+  }, []);
+
   const handleCreateRaffle = async () => {
     try {
       const numericTotalValue = parseCurrency(totalValue);
-      const dateTimePublication = publicationDateTime?.toISOString();
+      
+      const formattedGameDate = gameDate?.toISOString().replace("T", " ").split(".")[0];
+      const formattedCloseDate = closeDate?.toISOString().replace("T", " ").split(".")[0];
+      const formattedExpirationDate = expirationDate?.toISOString().replace("T", " ").split(".")[0];
+      const dateTimePublication = publicationDateTime?.toISOString().replace("T", " ").split(".")[0];
+  
+      const raffleData = {
+        name,
+        description,
+        prize,
+        baseValue,
+        ivaValue,
+        totalValue: numericTotalValue,
+        lottery,
+        numberDigits,
+        numberSeries,
+        bearerCheck: bearerCheck.toString(),
+        gameDate: formattedGameDate,
+        closeDate: formattedCloseDate,
+        expirationDate: formattedExpirationDate,
+        coverageId,
+        authorityId,
+        active: active.toString(),
+        dateTimePublication,
+        imagesUrls: imageUrl.map((file, index) => `/assets/raffles/${name}Image${index + 1}.webp`)
+      };
+  
+      console.log("Datos enviados al backend:", raffleData);
 
-      const formData = new FormData();
-      formData.append('name', name);
-      formData.append('description', description);
-      formData.append('prize', prize);
-      formData.append('baseValue', baseValue.toString());
-      formData.append('ivaValue', ivaValue.toString());
-      formData.append('totalValue', numericTotalValue.toString());
-      formData.append('lottery', lottery);
-      formData.append('numberDigits', numberDigits.toString());
-      formData.append('numberSeries', numberSeries.toString());
-      formData.append('bearerCheck', bearerCheck.toString());
-      formData.append('gameDate', gameDate?.toISOString() || '');
-      formData.append('closeDate', closeDate?.toISOString() || '');
-      formData.append('expirationDate', expirationDate?.toISOString() || '');
-      formData.append('coverageId', coverageId || '');
-      formData.append('authorityId', authorityId || '');
-      formData.append('active', active.toString());
-      formData.append('dateTimePublication', dateTimePublication || '');
-
-      imageUrl.forEach((file, index) => {
-        formData.append(`images`, file, `${name}Image${index + 1}.webp`);
-      });
-
-      await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/raffles`, formData, {
+      await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/raffles`, raffleData, {
         withCredentials: true,
-        headers: { 'Content-Type': 'multipart/form-data' },
+        headers: { 'Content-Type': 'application/json' }
       });
-
+  
       showNotification({
         title: 'Rifa creada con éxito',
         message: 'La rifa se ha creado correctamente.',
         color: 'green',
       });
-
+  
       router.push("/admin/raffles");
     } catch (error) {
       console.error("Error al crear la rifa", error);
@@ -99,7 +128,7 @@ const CreateRafflePage = () => {
         color: 'red',
       });
     }
-  };
+  };  
 
   return (
     <Container>
@@ -233,20 +262,23 @@ const CreateRafflePage = () => {
       <Select
         label="Cobertura"
         placeholder="Seleccione la cobertura"
-        data={[{ value: '', label: 'Cobertura Nacional' }]}
+        data={coverages}
         value={coverageId}
         onChange={setCoverageId}
         mt="md"
+        withAsterisk
       />
 
       <Select
         label="Autoridad"
         placeholder="Seleccione la autoridad"
-        data={[{ value: '', label: 'Autoridad Nacional' }]}
+        data={authorities}
         value={authorityId}
         onChange={setAuthorityId}
         mt="md"
+        withAsterisk
       />
+      
       <DropzoneButton setImageUrl={setImageUrl} />
       <Group mt="xl" mb="xl">
         <Button color="green" onClick={handleCreateRaffle}>Crear Rifa</Button>
