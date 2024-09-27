@@ -1,11 +1,13 @@
 import type { Metadata } from "next";
 import '@mantine/notifications/styles.css';
 import '@mantine/core/styles.css';
-import { Navbar } from './components/Navbar';
-import { Footer } from "./components/Footer";
+import '@mantine/dates/styles.css';
+import '@mantine/dropzone/styles.css';
 import { Notifications } from '@mantine/notifications';
+import { AuthProvider } from './context/AuthContext';
 
 import { ColorSchemeScript, MantineProvider } from '@mantine/core';
+import RouteGuard from './components/RouteGuard';
 
 export const metadata: Metadata = {
   title: "Rifas",
@@ -24,12 +26,12 @@ export default function RootLayout({
       </head>
       <body>
         <MantineProvider defaultColorScheme="light">
-        <Notifications />
-          <>
-            <Navbar/>
-            {children}
-            <Footer/>
-          </>
+          <AuthProvider>
+            <Notifications />
+            <RouteGuard>
+              {children}
+            </RouteGuard>
+          </AuthProvider>
         </MantineProvider>
       </body>
     </html>
