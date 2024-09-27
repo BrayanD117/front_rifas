@@ -79,11 +79,18 @@ const CreateRafflePage = () => {
   const handleCreateRaffle = async () => {
     try {
       const numericTotalValue = parseCurrency(totalValue);
-      
-      const formattedGameDate = gameDate?.toISOString().replace("T", " ").split(".")[0];
-      const formattedCloseDate = closeDate?.toISOString().replace("T", " ").split(".")[0];
-      const formattedExpirationDate = expirationDate?.toISOString().replace("T", " ").split(".")[0];
-      const dateTimePublication = publicationDateTime?.toISOString().replace("T", " ").split(".")[0];
+  
+      const formatDateToDB = (date: Date | null) => {
+        if (!date) return '';
+        const offset = date.getTimezoneOffset() * 60000;
+        const localDate = new Date(date.getTime() - offset);
+        return localDate.toISOString().replace('T', ' ').split('.')[0];
+      };
+  
+      const formattedGameDate = formatDateToDB(gameDate);
+      const formattedCloseDate = formatDateToDB(closeDate);
+      const formattedExpirationDate = formatDateToDB(expirationDate);
+      const dateTimePublication = formatDateToDB(publicationDateTime);
   
       const raffleData = {
         name,
