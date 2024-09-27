@@ -2,20 +2,15 @@
 
 import React from 'react'
 import { useEffect, useState } from "react";
+import { DetailRaffleCard } from '@/app/components/DetailRaffleCard/DetailRaffleCard';
 import axios from "axios";
 import { useParams } from "next/navigation";
-import { Container, Title, Text, Image, Badge, Grid, Group } from "@mantine/core";
-import dayjs from "dayjs";
-import "dayjs/locale/es";
-import advancedFormat from "dayjs/plugin/advancedFormat";
-
-dayjs.locale("es");
-dayjs.extend(advancedFormat);
+import { Container, Grid} from "@mantine/core";
 
 interface Raffle {
   id: number;
   name: string;
-  imageUrl: string;
+  imagesUrls: string;
   description: string;
   prize: string;
   lottery: string;
@@ -52,37 +47,23 @@ const RaffleDetailPage: React.FC = () => {
     return <div>No se encontró la rifa</div>;
   }
 
-  const formatDate = (dateString: string) => {
-    return dayjs(dateString).format("dddd, D [de] MMMM [de] YYYY");
-  };
-
   return (
     <Container mt={90} size={"xl"}>
-        <Title order={1}>{raffle.name}</Title>
         <Grid>
-            <Grid.Col span={6}>
-                <Image src={raffle.imageUrl} alt={raffle.name} height={300} fit="contain" mt="md" />
-                <Text mt="md" size="lg">
-                    {raffle.description}
-                </Text>
-                <Text mt="md" size="lg">
-                    Premio: {raffle.prize}
-                </Text>
-                <Text size="lg">
-                    Lotería: {raffle.lottery}
-                </Text>
-                <Text size="lg">
-  Fecha de juego:
-  <Group inline>
-    <Badge color="yellow" mt={0}>
-      {formatDate(raffle.gameDate)}
-    </Badge>
-  </Group>
-</Text>
-                
+            <Grid.Col span={{base: 12, md: 6}}>
+              <DetailRaffleCard
+                image={raffle.imagesUrls[0]}
+                title={raffle.name}
+                description={raffle.description}
+                moreInfo={{
+                  prize: raffle.prize,
+                  lottery: raffle.lottery,
+                  gameDate: raffle.gameDate
+                }}
+              />
             </Grid.Col>
-            <Grid.Col span={6}>
-                
+            <Grid.Col span={{base: 12, md: 6}}>
+
             </Grid.Col>
         </Grid>
     </Container>

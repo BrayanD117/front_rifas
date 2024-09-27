@@ -1,6 +1,6 @@
 "use client"
 
-import { Card, Image, Text, Badge, Button, Group, Grid } from '@mantine/core';
+import { Card, Image, Text, Badge, Button, Grid } from '@mantine/core';
 import { PRIMARY_GREEN, PRIMARY_YELLOW } from '@/app/constants/colors';
 
 interface CustomCardProps {
