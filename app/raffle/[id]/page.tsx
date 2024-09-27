@@ -12,6 +12,7 @@ interface Raffle {
   name: string;
   imagesUrls: string;
   description: string;
+  totalValue: string;
   prize: string;
   lottery: string;
   gameDate: string;
@@ -54,6 +55,7 @@ const RaffleDetailPage: React.FC = () => {
               <DetailRaffleCard
                 image={raffle.imagesUrls[0]}
                 title={raffle.name}
+                totalValue={raffle.totalValue}
                 description={raffle.description}
                 moreInfo={{
                   prize: raffle.prize,

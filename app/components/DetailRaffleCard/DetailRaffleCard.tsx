@@ -10,16 +10,18 @@ dayjs.extend(advancedFormat);
 interface DetailRaffleCardProps {
     image: string;
     title: string;
+    totalValue: string;
     description: string;
     moreInfo: { prize: string; lottery: string; gameDate: string };
 }
 
-export function DetailRaffleCard({ image, title, description, moreInfo }: DetailRaffleCardProps) {
+export function DetailRaffleCard({ image, title, totalValue, description, moreInfo }: DetailRaffleCardProps) {
     const formatDate = (dateString: string) => {
         return dayjs(dateString).format("dddd, D [de] MMMM [de] YYYY");
     };
     
     const infoTitles = {
+        totalValue: 'Precio',
         prize: 'Premio',
         lottery: 'Lotería',
         gameDate: 'Fecha de juego',
@@ -47,6 +49,9 @@ export function DetailRaffleCard({ image, title, description, moreInfo }: Detail
                     <Text fz={25} fw={500}>
                         {title}
                     </Text>
+                    <Badge size="xl" variant="light">
+                        {totalValue}
+                    </Badge>
                 </Group>
                 <Text fz="md" mt="xs">
                     {description}
