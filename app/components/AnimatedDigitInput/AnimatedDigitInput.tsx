@@ -100,22 +100,28 @@ const AnimatedDigitInput = React.forwardRef<HTMLInputElement, AnimatedDigitInput
                 repeat: Infinity,
               },
             }}
-            style={{ position: "absolute", top: 0, left: 0 }}
+            style={{
+              position: "absolute",
+              top: 0,
+              left: 0,
+              width: '100%',
+            }}
           >
             {digitList.map((digit, idx) => (
-                <div
+              <div
                 key={idx}
                 style={{
-                    height: `${digitHeight}px`,
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    fontSize: '2rem',
-                    color: '#000',
+                  width: '100%',
+                  height: `${digitHeight}px`,
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  fontSize: "2rem",
+                  color: "#000",
                 }}
-                >
+              >
                 {digit}
-                </div>
+              </div>
             ))}
           </motion.div>
         </div>
