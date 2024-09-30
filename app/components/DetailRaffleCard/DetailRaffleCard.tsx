@@ -3,6 +3,7 @@ import classes from './DetailRaffleCard.module.css';
 import dayjs from "dayjs";
 import "dayjs/locale/es";
 import advancedFormat from "dayjs/plugin/advancedFormat";
+import { useCurrencyFormatter } from '../../hooks/useCurrencyFormatter';
 
 dayjs.locale("es");
 dayjs.extend(advancedFormat);
@@ -27,6 +28,8 @@ export function DetailRaffleCard({ image, title, totalValue, description, moreIn
         gameDate: 'Fecha de juego',
     };
 
+    const formatCurrency = useCurrencyFormatter();
+
     const items = Object.keys(moreInfo).map((key) => (
         <div key={key}>
             <Text size="xs" color="dimmed">
@@ -50,7 +53,7 @@ export function DetailRaffleCard({ image, title, totalValue, description, moreIn
                         {title}
                     </Text>
                     <Badge size="xl" variant="light">
-                        {totalValue}
+                        {formatCurrency(totalValue)}
                     </Badge>
                 </Group>
                 <Text fz="md" mt="xs">
