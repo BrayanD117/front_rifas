@@ -1,10 +1,10 @@
-"use client"
+"use client";
 
-import React, { useEffect, useState } from 'react'
-import { DetailRaffleCard } from '@/app/components/DetailRaffleCard/DetailRaffleCard';
+import React, { useEffect, useState } from "react";
+import { DetailRaffleCard } from "@/app/components/DetailRaffleCard/DetailRaffleCard";
 import axios from "axios";
 import { useParams } from "next/navigation";
-import { Button, Container, Grid, Text} from "@mantine/core";
+import { Button, Container, Grid, PinInput, Group } from "@mantine/core";
 
 interface Raffle {
   id: number;
@@ -22,7 +22,7 @@ const RaffleDetailPage: React.FC = () => {
   const { id } = useParams();
   const [raffle, setRaffle] = useState<Raffle | null>(null);
   const [loading, setLoading] = useState(true);
-  const [randomNumber, setRandomNumber] = useState<string>("");
+  const [manualNumber, setManualNumber] = useState<string>("");
 
   useEffect(() => {
     const fetchRaffle = async () => {
@@ -46,7 +46,7 @@ const RaffleDetailPage: React.FC = () => {
       const max = Math.pow(10, raffle.numberDigits) - 1;
       const min = Math.pow(10, raffle.numberDigits - 1);
       const randomNum = Math.floor(Math.random() * (max - min + 1)) + min;
-      setRandomNumber(randomNum.toString());
+      setManualNumber(randomNum.toString().padStart(raffle.numberDigits, '0'));
     }
   };
 
@@ -60,33 +60,35 @@ const RaffleDetailPage: React.FC = () => {
 
   return (
     <Container mt={90} size={"xl"}>
-        <Grid>
-            <Grid.Col span={{base: 12, md: 6}}>
-              <DetailRaffleCard
-                image={raffle.imagesUrls[0]}
-                title={raffle.name}
-                totalValue={raffle.totalValue}
-                description={raffle.description}
-                moreInfo={{
-                  prize: raffle.prize,
-                  lottery: raffle.lottery,
-                  gameDate: raffle.gameDate
-                }}
-              />
-            </Grid.Col>
-            <Grid.Col span={{base: 12, md: 6}}>
-              <Button onClick={generateRandomNumber} mt="md">
-              Generar Número Aleatorio
-              </Button>
-              {randomNumber && (
-                <Text size="xl" mt="md">
-                  Número generado: {randomNumber}
-                </Text>
-              )}
-            </Grid.Col>
-        </Grid>
+      <Grid>
+        <Grid.Col span={{ base: 12, md: 6 }}>
+          <DetailRaffleCard
+            image={raffle.imagesUrls[0]}
+            title={raffle.name}
+            totalValue={raffle.totalValue}
+            description={raffle.description}
+            moreInfo={{
+              prize: raffle.prize,
+              lottery: raffle.lottery,
+              gameDate: raffle.gameDate,
+            }}
+          />
+        </Grid.Col>
+        <Grid.Col span={{ base: 12, md: 6 }}>
+          <Button onClick={generateRandomNumber} mt="md">
+            Generar Número Aleatorio
+          </Button>
+          <Group mt="md">
+            <PinInput
+              length={raffle.numberDigits}
+              value={manualNumber}
+              onChange={setManualNumber}
+            />
+          </Group>
+        </Grid.Col>
+      </Grid>
     </Container>
-  )
-}
+  );
+};
 
-export default RaffleDetailPage
+export default RaffleDetailPage;
