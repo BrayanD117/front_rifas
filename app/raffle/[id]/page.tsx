@@ -7,6 +7,7 @@ import { useParams } from "next/navigation";
 import { Button, Container, Grid, Group, Title } from "@mantine/core";
 import AnimatedDigitInput from "../../components/AnimatedDigitInput/AnimatedDigitInput";
 import { motion } from "framer-motion";
+import PurchaseDetailDrawer from '@/app/components/PurchaseDetailDrawer/PurchaseDetailDrawer';
 
 interface Raffle {
   id: number;
@@ -126,6 +127,7 @@ const RaffleDetailPage: React.FC = () => {
   }
 
   return (
+    <>
     <Container mt={90} size={"xl"}>
       <Grid>
         <Grid.Col span={{ base: 12, md: 6 }}>
@@ -176,10 +178,15 @@ const RaffleDetailPage: React.FC = () => {
             >
               Generar Número Aleatorio
             </Button>
-          </Group>
+          </Group>              <PurchaseDetailDrawer 
+                prize={raffle.prize}
+                lottery={raffle.lottery}
+                gameDate={raffle.gameDate}
+              />
         </Grid.Col>
       </Grid>
     </Container>
+    </>
   );
 };
 
