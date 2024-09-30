@@ -52,7 +52,7 @@ export function DetailRaffleCard({ image, title, totalValue, description, moreIn
                     <Text fz={25} fw={500}>
                         {title}
                     </Text>
-                    <Badge size="xl" variant="light">
+                    <Badge fz={20} size="xl" variant="light">
                         {formatCurrency(totalValue)}
                     </Badge>
                 </Group>

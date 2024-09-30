@@ -1,11 +1,10 @@
 "use client"
 
-import React from 'react'
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from 'react'
 import { DetailRaffleCard } from '@/app/components/DetailRaffleCard/DetailRaffleCard';
 import axios from "axios";
 import { useParams } from "next/navigation";
-import { Container, Grid} from "@mantine/core";
+import { Button, Container, Grid, Text} from "@mantine/core";
 
 interface Raffle {
   id: number;
@@ -16,12 +15,14 @@ interface Raffle {
   prize: string;
   lottery: string;
   gameDate: string;
+  numberDigits: number;
 }
 
 const RaffleDetailPage: React.FC = () => {
   const { id } = useParams();
   const [raffle, setRaffle] = useState<Raffle | null>(null);
   const [loading, setLoading] = useState(true);
+  const [randomNumber, setRandomNumber] = useState<string>("");
 
   useEffect(() => {
     const fetchRaffle = async () => {
@@ -39,6 +40,15 @@ const RaffleDetailPage: React.FC = () => {
       fetchRaffle();
     }
   }, [id]);
+
+  const generateRandomNumber = () => {
+    if (raffle) {
+      const max = Math.pow(10, raffle.numberDigits) - 1;
+      const min = Math.pow(10, raffle.numberDigits - 1);
+      const randomNum = Math.floor(Math.random() * (max - min + 1)) + min;
+      setRandomNumber(randomNum.toString());
+    }
+  };
 
   if (loading) {
     return <div>Cargando...</div>;
@@ -65,7 +75,14 @@ const RaffleDetailPage: React.FC = () => {
               />
             </Grid.Col>
             <Grid.Col span={{base: 12, md: 6}}>
-
+              <Button onClick={generateRandomNumber} mt="md">
+              Generar Número Aleatorio
+              </Button>
+              {randomNumber && (
+                <Text size="xl" mt="md">
+                  Número generado: {randomNumber}
+                </Text>
+              )}
             </Grid.Col>
         </Grid>
     </Container>
