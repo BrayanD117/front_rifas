@@ -4,7 +4,8 @@ import React, { useEffect, useState } from "react";
 import { DetailRaffleCard } from "@/app/components/DetailRaffleCard/DetailRaffleCard";
 import axios from "axios";
 import { useParams } from "next/navigation";
-import { Button, Container, Grid, PinInput, Group } from "@mantine/core";
+import { Button, Container, Grid, PinInput, Group, Title } from "@mantine/core";
+import { motion } from "framer-motion";
 import styles from './RaffleDetail.module.css';
 
 interface Raffle {
@@ -24,6 +25,7 @@ const RaffleDetailPage: React.FC = () => {
   const [raffle, setRaffle] = useState<Raffle | null>(null);
   const [loading, setLoading] = useState(true);
   const [manualNumber, setManualNumber] = useState<string>("");
+  const [isMixing, setIsMixing] = useState<boolean>(false);
 
   useEffect(() => {
     const fetchRaffle = async () => {
@@ -50,18 +52,27 @@ const RaffleDetailPage: React.FC = () => {
       let intervalId: NodeJS.Timeout;
       let currentIteration = 0;
       const totalIterations = 20;
-      
+
+      setIsMixing(true);
+
       intervalId = setInterval(() => {
         const intermediateNum = Math.floor(Math.random() * (max - min + 1)) + min;
         setManualNumber(intermediateNum.toString().padStart(raffle.numberDigits, "0"));
-        
+
         currentIteration++;
         if (currentIteration >= totalIterations) {
           clearInterval(intervalId);
           setManualNumber(randomNum.toString().padStart(raffle.numberDigits, "0"));
+          setIsMixing(false);
         }
       }, 50);
     }
+  };
+
+  const pinInputVariants = {
+    initial: { scale: 1 },
+    mixing: { scale: 0.8, transition: { duration: 0.3, ease: "easeInOut" } },
+    final: { scale: 1, transition: { duration: 0.3, ease: "easeInOut" } },
   };
 
   if (loading) {
@@ -89,20 +100,32 @@ const RaffleDetailPage: React.FC = () => {
           />
         </Grid.Col>
         <Grid.Col span={{ base: 12, md: 6 }}>
+          <Title ta={"center"} order={2} mt={"md"}>Número a Jugar</Title>
           <Group justify="center" mt="md">
-            <PinInput
-              size="xl"
-              length={raffle.numberDigits}
-              value={manualNumber}
-              onChange={setManualNumber}
-              classNames={{
-                input: styles.pinInput,
-              }}
-            />
+            <motion.div
+              initial="initial"
+              animate={isMixing ? "mixing" : "final"}
+              variants={pinInputVariants}
+            >
+              <PinInput
+                size="xl"
+                length={raffle.numberDigits}
+                value={manualNumber}
+                onChange={setManualNumber}
+                classNames={{
+                  input: styles.pinInput,
+                }}
+              />
+            </motion.div>
           </Group>
           <Group justify="space-between" grow>
             <Button mt="md">Añadir al Carrito</Button>
-            <Button onClick={generateRandomNumber} mt="md">
+            <Button 
+              onClick={() => {
+                generateRandomNumber();
+              }} 
+              mt="md"
+            >
               Generar Número Aleatorio
             </Button>
           </Group>
