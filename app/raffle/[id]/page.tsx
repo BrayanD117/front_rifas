@@ -1,17 +1,17 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { DetailRaffleCard } from "@/app/components/DetailRaffleCard/DetailRaffleCard";
 import axios from "axios";
 import { useParams } from "next/navigation";
-import { Button, Container, Grid, PinInput, Group, Title } from "@mantine/core";
+import { Button, Container, Grid, Group, Title } from "@mantine/core";
+import AnimatedDigitInput from "../../components/AnimatedDigitInput/AnimatedDigitInput";
 import { motion } from "framer-motion";
-import styles from './RaffleDetail.module.css';
 
 interface Raffle {
   id: number;
   name: string;
-  imagesUrls: string;
+  imagesUrls: string[];
   description: string;
   totalValue: string;
   prize: string;
@@ -24,8 +24,17 @@ const RaffleDetailPage: React.FC = () => {
   const { id } = useParams();
   const [raffle, setRaffle] = useState<Raffle | null>(null);
   const [loading, setLoading] = useState(true);
-  const [manualNumber, setManualNumber] = useState<string>("");
-  const [isMixing, setIsMixing] = useState<boolean>(false);
+  const [finalNumber, setFinalNumber] = useState<string>("");
+  const [currentDigits, setCurrentDigits] = useState<string[]>([]);
+  const [isAnimating, setIsAnimating] = useState<boolean[]>([]);
+  const timeoutsRef = useRef<NodeJS.Timeout[]>([]);
+  const inputRefs = useRef<Array<HTMLInputElement | null>>([]);
+
+  const pinInputVariants = {
+    initial: { scale: 1 },
+    mixing: { scale: 1.3, transition: { duration: 0.3, ease: "easeInOut" } },
+    final: { scale: 1, transition: { duration: 0.3, ease: "easeInOut" } },
+  };
 
   useEffect(() => {
     const fetchRaffle = async () => {
@@ -44,35 +53,68 @@ const RaffleDetailPage: React.FC = () => {
     }
   }, [id]);
 
+  useEffect(() => {
+    if (raffle && currentDigits.length === 0) {
+      setCurrentDigits(Array(raffle.numberDigits).fill(''));
+      setIsAnimating(Array(raffle.numberDigits).fill(false));
+    }
+  }, [raffle, currentDigits.length]);
+
   const generateRandomNumber = () => {
+    timeoutsRef.current.forEach(clearTimeout);
+    timeoutsRef.current = [];
+
     if (raffle) {
       const max = Math.pow(10, raffle.numberDigits) - 1;
       const min = Math.pow(10, raffle.numberDigits - 1);
       const randomNum = Math.floor(Math.random() * (max - min + 1)) + min;
-      let intervalId: NodeJS.Timeout;
-      let currentIteration = 0;
-      const totalIterations = 20;
+      const finalNumStr = randomNum.toString().padStart(raffle.numberDigits, "0");
+      setFinalNumber(finalNumStr);
 
-      setIsMixing(true);
+      setIsAnimating(Array(raffle.numberDigits).fill(true));
 
-      intervalId = setInterval(() => {
-        const intermediateNum = Math.floor(Math.random() * (max - min + 1)) + min;
-        setManualNumber(intermediateNum.toString().padStart(raffle.numberDigits, "0"));
-
-        currentIteration++;
-        if (currentIteration >= totalIterations) {
-          clearInterval(intervalId);
-          setManualNumber(randomNum.toString().padStart(raffle.numberDigits, "0"));
-          setIsMixing(false);
-        }
-      }, 50);
+      for (let i = 0; i < raffle.numberDigits; i++) {
+        const timeout = setTimeout(() => {
+          setIsAnimating((prev) => {
+            const newAnimating = [...prev];
+            newAnimating[i] = false;
+            return newAnimating;
+          });
+          setCurrentDigits((prev) => {
+            const newDigits = [...prev];
+            newDigits[i] = finalNumStr[i];
+            return newDigits;
+          });
+        }, 1000 + i * 500);
+        timeoutsRef.current.push(timeout);
+      }
     }
   };
 
-  const pinInputVariants = {
-    initial: { scale: 1 },
-    mixing: { scale: 0.8, transition: { duration: 0.3, ease: "easeInOut" } },
-    final: { scale: 1, transition: { duration: 0.3, ease: "easeInOut" } },
+  useEffect(() => {
+    return () => {
+      timeoutsRef.current.forEach(clearTimeout);
+    };
+  }, []);
+
+  const handleDigitChange = (value: string, index: number) => {
+    setCurrentDigits((prev) => {
+      const newDigits = [...prev];
+      newDigits[index] = value;
+      return newDigits;
+    });
+  };
+
+  const focusNext = (index: number) => {
+    if (inputRefs.current[index + 1]) {
+      inputRefs.current[index + 1]?.focus();
+    }
+  };
+
+  const focusPrev = (index: number) => {
+    if (inputRefs.current[index - 1]) {
+      inputRefs.current[index - 1]?.focus();
+    }
   };
 
   if (loading) {
@@ -101,29 +143,35 @@ const RaffleDetailPage: React.FC = () => {
         </Grid.Col>
         <Grid.Col span={{ base: 12, md: 6 }}>
           <Title ta={"center"} order={2} mt={"md"}>Número a Jugar</Title>
-          <Group justify="center" mt="md">
+          <Group justify="center" mt="lg">
             <motion.div
               initial="initial"
-              animate={isMixing ? "mixing" : "final"}
+              animate={isAnimating.some((anim) => anim) ? "mixing" : "final"}
               variants={pinInputVariants}
             >
-              <PinInput
-                size="xl"
-                length={raffle.numberDigits}
-                value={manualNumber}
-                onChange={setManualNumber}
-                classNames={{
-                  input: styles.pinInput,
-                }}
-              />
+              <div style={{ display: 'flex' }}>
+                {currentDigits.map((digit, index) => (
+                  <AnimatedDigitInput
+                    key={index}
+                    value={digit}
+                    onChange={handleDigitChange}
+                    isAnimating={isAnimating[index]}
+                    finalDigit={digit}
+                    index={index}
+                    ref={(el) => {
+                      inputRefs.current[index] = el;
+                    }}                    
+                    focusNext={focusNext}
+                    focusPrev={focusPrev}
+                  />
+                ))}
+              </div>
             </motion.div>
           </Group>
-          <Group justify="space-between" grow>
+          <Group mt={"lg"} justify="space-between" grow>
             <Button mt="md">Añadir al Carrito</Button>
             <Button 
-              onClick={() => {
-                generateRandomNumber();
-              }} 
+              onClick={generateRandomNumber} 
               mt="md"
             >
               Generar Número Aleatorio
