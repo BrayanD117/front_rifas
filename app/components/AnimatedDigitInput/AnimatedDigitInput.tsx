@@ -1,4 +1,4 @@
-import { motion } from "framer-motion";
+import { motion, useAnimation } from "framer-motion";
 import React, { useEffect, useState, KeyboardEvent } from "react";
 
 interface AnimatedDigitInputProps {
@@ -19,9 +19,42 @@ const AnimatedDigitInput = React.forwardRef<HTMLInputElement, AnimatedDigitInput
 
   const [inputValue, setInputValue] = useState(value || "");
 
+  const controls = useAnimation();
+
   useEffect(() => {
     setInputValue(value);
   }, [value]);
+
+  useEffect(() => {
+    if (isAnimating) {
+      controls.start("animate");
+    } else {
+      controls.start("stop");
+    }
+  }, [isAnimating, controls]);
+
+  const variants = {
+    animate: {
+      y: -digitHeight * 10,
+      transition: {
+        y: {
+          duration: 1,
+          ease: "linear",
+          repeat: Infinity,
+          repeatType: "loop",
+        },
+      },
+    },
+    stop: {
+      y: -digitHeight * parseInt(finalDigit || '0'),
+      transition: {
+        y: {
+          duration: 1.5,
+          ease: "easeOut",
+        },
+      },
+    },
+  };
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const newValue = e.target.value;
@@ -71,61 +104,52 @@ const AnimatedDigitInput = React.forwardRef<HTMLInputElement, AnimatedDigitInput
           top: 0,
           left: 0,
           zIndex: 2,
-          color: isAnimating ? 'transparent' : '#000',
+          color: isAnimating ? 'transparent' : 'transparent',
           caretColor: isAnimating ? 'transparent' : '#000',
         }}
         {...rest}
       />
-      {isAnimating && (
-        <div
+      <div
+        style={{
+          position: "absolute",
+          top: 0,
+          left: 0,
+          width: "100%",
+          height: "100%",
+          overflow: "hidden",
+          zIndex: 1,
+          pointerEvents: "none",
+        }}
+      >
+        <motion.div
+          variants={variants}
+          initial="animate"
+          animate={controls}
           style={{
             position: "absolute",
             top: 0,
             left: 0,
-            width: "100%",
-            height: "100%",
-            overflow: "hidden",
-            zIndex: 1,
-            pointerEvents: "none",
+            width: '100%',
           }}
         >
-          <motion.div
-            animate={{
-              y: [0, -digitHeight * 10],
-            }}
-            transition={{
-              y: {
-                duration: 1,
-                ease: "linear",
-                repeat: Infinity,
-              },
-            }}
-            style={{
-              position: "absolute",
-              top: 0,
-              left: 0,
-              width: '100%',
-            }}
-          >
-            {digitList.map((digit, idx) => (
-              <div
-                key={idx}
-                style={{
-                  width: '100%',
-                  height: `${digitHeight}px`,
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  fontSize: "2rem",
-                  color: "#000",
-                }}
-              >
-                {digit}
-              </div>
-            ))}
-          </motion.div>
-        </div>
-      )}
+          {digitList.map((digit, idx) => (
+            <div
+              key={idx}
+              style={{
+                width: '100%',
+                height: `${digitHeight}px`,
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                fontSize: "2rem",
+                color: "#000",
+              }}
+            >
+              {digit}
+            </div>
+          ))}
+        </motion.div>
+      </div>
     </div>
   );
 });
