@@ -5,6 +5,7 @@ import { DetailRaffleCard } from "@/app/components/DetailRaffleCard/DetailRaffle
 import axios from "axios";
 import { useParams } from "next/navigation";
 import { Button, Container, Grid, PinInput, Group } from "@mantine/core";
+import styles from './RaffleDetail.module.css';
 
 interface Raffle {
   id: number;
@@ -46,7 +47,20 @@ const RaffleDetailPage: React.FC = () => {
       const max = Math.pow(10, raffle.numberDigits) - 1;
       const min = Math.pow(10, raffle.numberDigits - 1);
       const randomNum = Math.floor(Math.random() * (max - min + 1)) + min;
-      setManualNumber(randomNum.toString().padStart(raffle.numberDigits, '0'));
+      let intervalId: NodeJS.Timeout;
+      let currentIteration = 0;
+      const totalIterations = 20;
+      
+      intervalId = setInterval(() => {
+        const intermediateNum = Math.floor(Math.random() * (max - min + 1)) + min;
+        setManualNumber(intermediateNum.toString().padStart(raffle.numberDigits, "0"));
+        
+        currentIteration++;
+        if (currentIteration >= totalIterations) {
+          clearInterval(intervalId);
+          setManualNumber(randomNum.toString().padStart(raffle.numberDigits, "0"));
+        }
+      }, 50);
     }
   };
 
@@ -75,15 +89,22 @@ const RaffleDetailPage: React.FC = () => {
           />
         </Grid.Col>
         <Grid.Col span={{ base: 12, md: 6 }}>
-          <Button onClick={generateRandomNumber} mt="md">
-            Generar Número Aleatorio
-          </Button>
-          <Group mt="md">
+          <Group justify="center" mt="md">
             <PinInput
+              size="xl"
               length={raffle.numberDigits}
               value={manualNumber}
               onChange={setManualNumber}
+              classNames={{
+                input: styles.pinInput,
+              }}
             />
+          </Group>
+          <Group justify="space-between" grow>
+            <Button mt="md">Añadir al Carrito</Button>
+            <Button onClick={generateRandomNumber} mt="md">
+              Generar Número Aleatorio
+            </Button>
           </Group>
         </Grid.Col>
       </Grid>
