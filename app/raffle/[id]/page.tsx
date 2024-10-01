@@ -171,7 +171,7 @@ const RaffleDetailPage: React.FC = () => {
             </motion.div>
           </Group>
           <Group mt={"lg"} justify="space-between" grow>
-            <Button mt="md">Añadir al Carrito</Button>
+            <Button mt="md">Agregar Número</Button>
             <Button 
               onClick={generateRandomNumber} 
               mt="md"

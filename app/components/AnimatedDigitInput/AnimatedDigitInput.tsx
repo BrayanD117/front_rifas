@@ -82,7 +82,7 @@ const AnimatedDigitInput = React.forwardRef<HTMLInputElement, AnimatedDigitInput
         width: "60px",
         height: `${digitHeight}px`,
         overflow: "hidden",
-        borderRadius: "4px",
+        borderRadius: "25px",
         border: "1px solid #ccc",
         marginRight: "5px",
       }}
