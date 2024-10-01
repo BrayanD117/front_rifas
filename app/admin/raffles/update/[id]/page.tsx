@@ -40,7 +40,7 @@ const EditRafflePage = () => {
   const [lottery, setLottery] = useState<string>("");
   const [numberDigits, setNumberDigits] = useState<number>(4);
   const [numberSeries, setNumberSeries] = useState<number>(1);
-  const [imageUrl, setImageUrl] = useState<File[]>([]);
+  const [imageUrl, setImageUrl] = useState<File[]>([]); 
   const [existingImages, setExistingImages] = useState<string[]>([]);
   const [coverageId, setCoverageId] = useState<string | null>(null);
   const [authorityId, setAuthorityId] = useState<string | null>(null);
@@ -97,8 +97,8 @@ const EditRafflePage = () => {
         setNumberSeries(data.numberSeries);
         setCoverageId(data.coverageId);
         setAuthorityId(data.authorityId);
-        setBearerCheck(data.bearerCheck === "true");
-        setActive(data.active === "true");
+        setBearerCheck(data.bearerCheck);
+        setActive(data.active);
         setPublicationDateTime(new Date(data.dateTimePublication));
         setExistingImages(data.imagesUrls || []);
         setLoading(false);
@@ -262,7 +262,7 @@ const EditRafflePage = () => {
           <Group mt="md" justify="space-between">
             <Switch
               label="Activar publicación"
-              description="Esta opción activará la publicación de la rifa"
+              description={"Esta opción activará la publicación de la rifa"}
               checked={active}
               onChange={(event) => setActive(event.currentTarget.checked)}
               mt="md"
