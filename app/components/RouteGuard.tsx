@@ -13,7 +13,7 @@ export default function RouteGuard({ children }: { children: React.ReactNode }) 
   return (
     <>
       {!isAdminRoute && <Navbar />}
-      <div style={{ display: "flex", minHeight: "100vh" }}>
+      <div style={{ display: "flex" }}>
         {isAdminRoute && <Sidebar />}
         <div style={{ flexGrow: 1, paddingLeft: isAdminRoute ? '300px' : '0', transition: 'padding-left 0.3s ease' }}>
           {children}
