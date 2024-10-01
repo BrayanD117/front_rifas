@@ -5,7 +5,6 @@ import { useRouter } from "next/navigation";
 import { Container, Title, Table, Button, Loader, Group } from "@mantine/core";
 import axios from "axios";
 
-// Define la interfaz de la rifa basada en tu modelo
 interface Raffle {
   id: string;
   name: string;
@@ -17,7 +16,6 @@ interface Raffle {
   gameDate: string;
   closeDate: string;
   active: boolean;
-  // Agrega otras propiedades necesarias
 }
 
 const AdminRafflesPage = () => {
@@ -25,7 +23,6 @@ const AdminRafflesPage = () => {
   const [loading, setLoading] = useState(true);
   const router = useRouter();
 
-  // Función para obtener las rifas
   const fetchRaffles = async () => {
     try {
       const response = await axios.get<Raffle[]>(`${process.env.NEXT_PUBLIC_API_URL}/raffles`, {
@@ -48,7 +45,7 @@ const AdminRafflesPage = () => {
       await axios.delete(`${process.env.NEXT_PUBLIC_API_URL}/raffles/${raffleId}`, {
         withCredentials: true,
       });
-      fetchRaffles(); // Actualiza la lista de rifas después de eliminar
+      fetchRaffles();
     } catch (error) {
       console.error("Error al eliminar la rifa", error);
     }
@@ -91,7 +88,7 @@ const AdminRafflesPage = () => {
               <Table.Td>{raffle.totalValue}</Table.Td>
               <Table.Td>{new Date(raffle.gameDate).toLocaleDateString()}</Table.Td>
               <Table.Td>
-                <Button color="blue" onClick={() => router.push(`/admin/raffles/${raffle.id}/edit`)}>
+                <Button color="blue" onClick={() => router.push(`/admin/raffles/update/${raffle.id}`)}>
                   Editar
                 </Button>
                 <Button color="red" variant="outline" onClick={() => handleDeleteRaffle(raffle.id)}>
