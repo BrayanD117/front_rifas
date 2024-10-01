@@ -1,12 +1,7 @@
 import { Card, Image, Text, Group, Badge } from '@mantine/core';
 import classes from './DetailRaffleCard.module.css';
-import dayjs from "dayjs";
-import "dayjs/locale/es";
-import advancedFormat from "dayjs/plugin/advancedFormat";
+import { useFormattedDate } from '@/app/hooks/useFormattedDate';
 import { useCurrencyFormatter } from '../../hooks/useCurrencyFormatter';
-
-dayjs.locale("es");
-dayjs.extend(advancedFormat);
 
 interface DetailRaffleCardProps {
     image: string;
@@ -17,9 +12,7 @@ interface DetailRaffleCardProps {
 }
 
 export function DetailRaffleCard({ image, title, totalValue, description, moreInfo }: DetailRaffleCardProps) {
-    const formatDate = (dateString: string) => {
-        return dayjs(dateString).format("dddd, D [de] MMMM [de] YYYY");
-    };
+    const { formatLongDate } = useFormattedDate();
     
     const infoTitles = {
         totalValue: 'Precio',
@@ -36,7 +29,7 @@ export function DetailRaffleCard({ image, title, totalValue, description, moreIn
                 {infoTitles[key as keyof typeof moreInfo]}:
             </Text>
             <Badge key={key} variant="light" size="lg" className={classes.badge}>
-                {key === 'gameDate' ? formatDate(moreInfo[key]) : moreInfo[key as keyof typeof moreInfo]}
+                {key === 'gameDate' ? formatLongDate(moreInfo[key]) : moreInfo[key as keyof typeof moreInfo]}
             </Badge>
         </div>
     ));

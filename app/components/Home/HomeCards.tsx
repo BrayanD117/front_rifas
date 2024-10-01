@@ -5,10 +5,7 @@ import HomeRaffleCard from "../HomeRaffleCard/HomeRaffleCard";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import axios from "axios";
-import dayjs from 'dayjs';
-import 'dayjs/locale/es';
-
-dayjs.locale('es');
+import { useFormattedDate } from "@/app/hooks/useFormattedDate";
 
 interface Raffle {
   id: number;
@@ -21,6 +18,7 @@ interface Raffle {
 const HomeCards: React.FC = () => {
   const [raffles, setRaffles] = useState<Raffle[]>([]);
   const router = useRouter();
+  const { formatShortDate } = useFormattedDate();
 
   useEffect(() => {
     const fetchRaffles = async () => {
@@ -35,10 +33,6 @@ const HomeCards: React.FC = () => {
     fetchRaffles();
   }, []);
 
-  const formatDate = (dateString: string) => {
-    return dayjs(dateString).format('DD MMM.');
-  };
-
   return (
     <>
       <Container mt={"md"} size={"xl"}>
@@ -49,7 +43,7 @@ const HomeCards: React.FC = () => {
                 imageSrc={raffle.imagesUrls[0]}
                 imageAlt={raffle.name}
                 title={raffle.name}
-                badgeText={formatDate(raffle.gameDate)}
+                badgeText={formatShortDate(raffle.gameDate)}
                 description={raffle.description}
                 buttonText="¡Quiero Jugar!"
                 onButtonClick={() => router.push(`/raffle/${raffle.id}`)}

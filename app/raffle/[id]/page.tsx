@@ -15,6 +15,7 @@ interface Raffle {
   imagesUrls: string[];
   description: string;
   totalValue: string;
+  baseValue: string;
   prize: string;
   lottery: string;
   gameDate: string;
@@ -128,64 +129,70 @@ const RaffleDetailPage: React.FC = () => {
 
   return (
     <>
-    <Container mt={90} size={"xl"}>
-      <Grid>
-        <Grid.Col span={{ base: 12, md: 6 }}>
-          <DetailRaffleCard
-            image={raffle.imagesUrls[0]}
-            title={raffle.name}
-            totalValue={raffle.totalValue}
-            description={raffle.description}
-            moreInfo={{
-              prize: raffle.prize,
-              lottery: raffle.lottery,
-              gameDate: raffle.gameDate,
-            }}
-          />
-        </Grid.Col>
-        <Grid.Col span={{ base: 12, md: 6 }}>
-          <Title ta={"center"} order={2} mt={"md"}>Número a Jugar</Title>
-          <Group justify="center" mt="lg">
-            <motion.div
-              initial="initial"
-              animate={isAnimating.some((anim) => anim) ? "mixing" : "final"}
-              variants={pinInputVariants}
-            >
-              <div style={{ display: 'flex' }}>
-                {currentDigits.map((digit, index) => (
-                  <AnimatedDigitInput
-                    key={index}
-                    value={digit}
-                    onChange={handleDigitChange}
-                    isAnimating={isAnimating[index]}
-                    finalDigit={digit}
-                    index={index}
-                    ref={(el) => {
-                      inputRefs.current[index] = el;
-                    }}                    
-                    focusNext={focusNext}
-                    focusPrev={focusPrev}
-                  />
-                ))}
-              </div>
-            </motion.div>
-          </Group>
-          <Group mt={"lg"} justify="space-between" grow>
-            <Button mt="md">Agregar Número</Button>
-            <Button 
-              onClick={generateRandomNumber} 
-              mt="md"
-            >
-              Generar Número Aleatorio
-            </Button>
-          </Group>              <PurchaseDetailDrawer 
-                prize={raffle.prize}
-                lottery={raffle.lottery}
-                gameDate={raffle.gameDate}
-              />
-        </Grid.Col>
-      </Grid>
-    </Container>
+      <Container mt={90} size={"xl"}>
+        <Grid>
+          <Grid.Col span={{ base: 12, md: 6 }}>
+            <DetailRaffleCard
+              image={raffle.imagesUrls[0]}
+              title={raffle.name}
+              totalValue={raffle.totalValue}
+              description={raffle.description}
+              moreInfo={{
+                prize: raffle.prize,
+                lottery: raffle.lottery,
+                gameDate: raffle.gameDate,
+              }}
+            />
+          </Grid.Col>
+          <Grid.Col span={{ base: 12, md: 6 }}>
+            <Title ta={"center"} order={2} mt={"md"}>Número a Jugar</Title>
+            <Group justify="center" mt="lg">
+              <motion.div
+                initial="initial"
+                animate={isAnimating.some((anim) => anim) ? "mixing" : "final"}
+                variants={pinInputVariants}
+              >
+                <div style={{ display: 'flex' }}>
+                  {currentDigits.map((digit, index) => (
+                    <AnimatedDigitInput
+                      key={index}
+                      value={digit}
+                      onChange={handleDigitChange}
+                      isAnimating={isAnimating[index]}
+                      finalDigit={digit}
+                      index={index}
+                      ref={(el) => {
+                        inputRefs.current[index] = el;
+                      }}
+                      focusNext={focusNext}
+                      focusPrev={focusPrev}
+                    />
+                  ))}
+                </div>
+              </motion.div>
+            </Group>
+            <Group mt={"lg"} justify="space-between" grow>
+              <Button mt="md">Añadir al Carrito</Button>
+              <Button
+                onClick={generateRandomNumber}
+                mt="md"
+              >
+                Generar Número Aleatorio
+              </Button>
+            </Group>
+            <PurchaseDetailDrawer
+              name={raffle.name}
+              prize={raffle.prize}
+              gameDate={raffle.gameDate}
+              elements={[
+                { number: '4842', value: raffle.baseValue },
+                { number: '7845', value: raffle.baseValue },
+                { number: '9742', value: raffle.baseValue },
+              ]}
+            />
+          </Grid.Col>
+        </Grid>
+      </Container>
     </>
   );
 };
