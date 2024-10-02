@@ -16,6 +16,7 @@ interface Raffle {
   description: string;
   totalValue: string;
   baseValue: string;
+  ivaValue: string;
   prize: string;
   lottery: string;
   gameDate: string;
@@ -185,9 +186,9 @@ const RaffleDetailPage: React.FC = () => {
               prize={raffle.prize}
               gameDate={raffle.gameDate}
               elements={[
-                { number: '4842', value: raffle.baseValue },
-                { number: '7845', value: raffle.baseValue },
-                { number: '9742', value: raffle.baseValue },
+                { number: '4842', baseValue: raffle.baseValue, tax: raffle.ivaValue, totalValue: raffle.totalValue },
+                { number: '7845', baseValue: raffle.baseValue, tax: raffle.ivaValue, totalValue: raffle.totalValue },
+                { number: '9742', baseValue: raffle.baseValue, tax: raffle.ivaValue, totalValue: raffle.totalValue },
               ]}
             />
           </Grid.Col>

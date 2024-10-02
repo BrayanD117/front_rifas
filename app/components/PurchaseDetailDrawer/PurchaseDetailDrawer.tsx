@@ -6,7 +6,9 @@ import { useCurrencyFormatter } from '../../hooks/useCurrencyFormatter';
 
 interface Element {
   number: string;
-  value: string;
+  baseValue: string;
+  tax: string;
+  totalValue: string;
 }
 
 interface PurchaseDetailDrawerProps {
@@ -21,7 +23,7 @@ const PurchaseDetailDrawer: React.FC<PurchaseDetailDrawerProps> = ({ name, prize
   const { formatShortDate } = useFormattedDate();
   const formatCurrency = useCurrencyFormatter();
 
-  const totalWithoutTax = elements.reduce((acc, element) => acc + Number(element.value), 0);
+  const totalWithoutTax = elements.reduce((acc, element) => acc + Number(element.baseValue), 0);
   console.log(totalWithoutTax);
   const tax = totalWithoutTax * 0.19;
   //console.log(tax);
@@ -31,7 +33,9 @@ const PurchaseDetailDrawer: React.FC<PurchaseDetailDrawerProps> = ({ name, prize
   const rows = elements.map((element) => (
     <Table.Tr key={element.number}>
       <Table.Td>{element.number}</Table.Td>
-      <Table.Td>{formatCurrency(element.value)}</Table.Td>
+      <Table.Td>{formatCurrency(element.baseValue)}</Table.Td>
+      <Table.Td>{formatCurrency(element.tax)}</Table.Td>
+      <Table.Td>{formatCurrency(element.totalValue)}</Table.Td>
     </Table.Tr>
   ));
 
@@ -64,7 +68,9 @@ const PurchaseDetailDrawer: React.FC<PurchaseDetailDrawerProps> = ({ name, prize
                 <Table.Thead>
                   <Table.Tr>
                     <Table.Th>Número</Table.Th>
-                    <Table.Th>Valor</Table.Th>
+                    <Table.Th>Precio Base</Table.Th>
+                    <Table.Th>IVA</Table.Th>
+                    <Table.Th>Total</Table.Th>
                   </Table.Tr>
                 </Table.Thead>
                 <Table.Tbody>{rows}</Table.Tbody>
@@ -73,32 +79,17 @@ const PurchaseDetailDrawer: React.FC<PurchaseDetailDrawerProps> = ({ name, prize
           </Card.Section>
 
           <Card.Section className={classes.section}>
-            <Group gap={30}>
-              <div className={classes.root}>
-                <div className={classes.stat}>
-                  <Text className={classes.count}>{formatCurrency(totalWithoutTax)}</Text>
-                  <Text className={classes.title}>Base</Text>
-                  <Text className={classes.description}>Importe base sin impuestos</Text>
-                </div>
-
-                <div className={classes.stat}>
-                  <Text className={classes.count}>{formatCurrency(tax)}</Text>
-                  <Text className={classes.title}>IVA (19%)</Text>
-                  <Text className={classes.description}>Impuesto sobre el valor añadido</Text>
-                </div>
-
-                <div className={classes.stat}>
-                  <Text className={classes.count}>{formatCurrency(totalWithTax)}</Text>
-                  <Text className={classes.title}>Total a pagar</Text>
-                  <Text className={classes.description}>Importe total con impuestos incluidos</Text>
-                </div>
-              </div>
-
-              
-            </Group>
-            <Button radius="xl" style={{ flex: 1 }}>
-                Rent now
-              </Button>
+            <Card withBorder radius="md" p="xl" className={classes.valueCard}>
+              <Text fz="xs" tt="uppercase" fw={700} className={classes.valueTitle}>
+                Precio base: { formatCurrency(totalWithoutTax.toFixed()) }
+              </Text>
+              <Text fz="xs" tt="uppercase" fw={700} className={classes.valueTitle}>
+                Total a pagar:
+              </Text>
+              <Text fz="lg" fw={500} className={classes.valueStats}>
+                { formatCurrency(totalWithTax.toFixed()) }
+              </Text>
+            </Card>
           </Card.Section>
         </Card>
       </Drawer>
