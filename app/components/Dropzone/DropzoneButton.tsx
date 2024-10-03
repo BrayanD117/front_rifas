@@ -2,6 +2,7 @@ import { useRef, useState } from 'react';
 import { Text, Group, Button, rem, useMantineTheme, Container, SimpleGrid, ActionIcon } from '@mantine/core';
 import { Dropzone, IMAGE_MIME_TYPE } from '@mantine/dropzone';
 import { IconCloudUpload, IconX, IconDownload } from '@tabler/icons-react';
+import Image from 'next/image';
 import classes from './DropzoneButton.module.css';
 
 interface DropzoneButtonProps {
@@ -132,7 +133,7 @@ export function DropzoneButton({ setImageUrl }: DropzoneButtonProps) {
         <SimpleGrid cols={3} mt="md">
           {previews.map((url, index) => (
             <div key={index} style={{ position: 'relative' }}>
-              <img
+              <Image
                 src={url}
                 alt={`Preview ${index}`}
                 onLoad={() => URL.revokeObjectURL(url)}

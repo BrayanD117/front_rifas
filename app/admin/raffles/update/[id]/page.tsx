@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useRouter, useParams } from "next/navigation";
+import Image from 'next/image';
 import { Container, TextInput, NumberInput, Textarea, Button, Title, Group, Switch, Select, SimpleGrid, ActionIcon } from "@mantine/core";
 import { DateTimePicker } from '@mantine/dates';
 import { DropzoneButton } from "@/app/components/Dropzone/DropzoneButton";
@@ -339,7 +340,7 @@ const EditRafflePage = () => {
           <SimpleGrid cols={3} mt="md">
             {existingImages.map((imageUrl, index) => (
               <div key={index} style={{ position: 'relative' }}>
-                <img
+                <Image
                   src={imageUrl}
                   alt={`Rifa ${name} Imagen ${index + 1}`}
                   style={{ width: '100%', borderRadius: '8px' }}
