@@ -1,19 +1,20 @@
 "use client"
 
-import { Card, Image, Text, Badge, Button, Group, Grid } from '@mantine/core';
+import { Card, Image, Text, Badge, Button, Grid } from '@mantine/core';
 import { PRIMARY_GREEN, PRIMARY_YELLOW } from '@/app/constants/colors';
 
-interface CustomCardProps {
+interface HomeRaffleCardProps {
     imageSrc: string;
     imageAlt: string;
     title: string;
     badgeText: string;
     description: string;
     buttonText: string;
+    onButtonClick: () => void;
 }
 
-const CustomCard: React.FC<CustomCardProps> = ({
-    imageSrc, imageAlt, title, badgeText, description, buttonText
+const HomeRaffleCard: React.FC<HomeRaffleCardProps> = ({
+    imageSrc, imageAlt, title, badgeText, description, buttonText, onButtonClick
 }) => {
     return (
         <Card shadow="sm" padding="lg" radius="md" withBorder style={{ display: 'flex', flexDirection: 'column', justifyContent: 'space-between', minHeight: '400px', height: '100%'}}>
@@ -38,11 +39,11 @@ const CustomCard: React.FC<CustomCardProps> = ({
                 {description}
             </Text>
 
-            <Button color={PRIMARY_GREEN} fullWidth mt="md" radius="md">
+            <Button color={PRIMARY_GREEN} fullWidth mt="md" radius="md" onClick={onButtonClick}>
                 {buttonText}
             </Button>
         </Card>
     );
 }
 
-export default CustomCard;
+export default HomeRaffleCard;
