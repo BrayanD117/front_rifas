@@ -293,7 +293,7 @@ const CreateRafflePage = () => {
         withAsterisk
       />
       
-      <DropzoneButton setImageUrl={setImageUrl} />
+      <DropzoneButton setImageUrl={setImageUrl} raffleName={name}/>
       <Group mt="xl" mb="xl">
         <Button color="green" onClick={handleCreateRaffle}>Crear Rifa</Button>
         <Button color="red" variant="outline" onClick={() => router.push("/admin/raffles")}>

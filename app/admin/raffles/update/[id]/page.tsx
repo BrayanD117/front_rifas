@@ -139,7 +139,7 @@ const EditRafflePage = () => {
         dateTimePublication: formatDateToDB(publicationDateTime),
         imagesUrls: [
           ...existingImages,
-          ...imageUrl.map((file, index) => `/assets/raffles/${name}Image${index + 1}.webp`),
+          ...imageUrl.map((file, index) => `/assets/raffles/${name}/${name}-${index + 1}${file.name.substring(file.name.lastIndexOf('.'))}`),
         ],
       };
 
@@ -148,6 +148,9 @@ const EditRafflePage = () => {
         headers: { 'Content-Type': 'application/json' },
       });
 
+      if (imageUrl.length > 0) {
+        await uploadFilesToServer(imageUrl, name);
+      }
       showNotification({
         title: 'Rifa actualizada con éxito',
         message: 'La rifa se ha actualizado correctamente.',
@@ -162,6 +165,29 @@ const EditRafflePage = () => {
         message: 'Ocurrió un error al actualizar la rifa. Por favor, inténtalo de nuevo.',
         color: 'red',
       });
+    }
+  };
+
+  const uploadFilesToServer = async (files: File[], raffleName: string) => {
+    console.log('Inicio de uploadFilesToServer');
+    console.log('Archivos recibidos para subir:', files);
+    console.log('Nombre de la rifa al subir archivos:', raffleName);
+  
+    const data = new FormData();
+  
+    files.forEach((file) => {
+      console.log('Agregando archivo al FormData:', file.name);
+      data.append('files', file);
+    });
+  
+    data.append('raffleName', raffleName);
+    console.log('Nombre de la rifa agregado al FormData:', raffleName);
+  
+    try {
+      const response = await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/upload/files`, data);
+      console.log('Archivos subidos con éxito', response.data);
+    } catch (error) {
+      console.error('Error al subir los archivos', error);
     }
   };
 
@@ -333,8 +359,7 @@ const EditRafflePage = () => {
             withAsterisk
           />
 
-          <DropzoneButton setImageUrl={setImageUrl} />
-
+          <DropzoneButton setImageUrl={setImageUrl} raffleName={name}/>
           <Title order={3} mt="xl">Imágenes Existentes</Title>
           <SimpleGrid cols={3} mt="md">
             {existingImages.map((imageUrl, index) => (
