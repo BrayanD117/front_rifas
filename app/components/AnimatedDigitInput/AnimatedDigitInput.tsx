@@ -88,6 +88,7 @@ const AnimatedDigitInput = React.forwardRef<HTMLInputElement, AnimatedDigitInput
           zIndex: 2,
           color: 'transparent',
           caretColor: '#000',
+          outline: 'none',
         }}
         {...rest}
       />
