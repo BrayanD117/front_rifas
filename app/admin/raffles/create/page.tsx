@@ -2,12 +2,26 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { Container, TextInput, NumberInput, Textarea, Button, Title, Group, Switch, Select } from "@mantine/core";
+import { Container, TextInput, NumberInput, Textarea, Button, Title, Group, Switch, Select, Divider, Grid, Text, Center } from "@mantine/core";
 import { DateTimePicker } from '@mantine/dates';
 import { DropzoneButton } from "@/app/components/Dropzone/DropzoneButton";
 import { showNotification } from '@mantine/notifications';
+import dayjs from "dayjs";
 import 'dayjs/locale/es';
 import axios from "axios";
+import { IconMap2 } from "@tabler/icons-react";
+import { MapContainer, TileLayer, Marker, Popup, Circle } from "react-leaflet";
+import L from "leaflet";
+import "leaflet/dist/leaflet.css";
+import icon from "leaflet/dist/images/marker-icon.png";
+import iconShadow from "leaflet/dist/images/marker-shadow.png";
+
+let DefaultIcon = L.icon({
+  iconUrl: "https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png",
+  shadowUrl: "https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png",
+});
+
+L.Marker.prototype.options.icon = DefaultIcon;
 
 const formatCurrency = (value: number) => {
   return new Intl.NumberFormat('es-CO', {
@@ -23,16 +37,22 @@ const parseCurrency = (value: string) => {
 
 const CreateRafflePage = () => {
   const router = useRouter();
+  const [center] = useState<[number, number]>([4.4447, -75.2421]);
   const [name, setName] = useState<string>("");
+  const [slogan, setSlogan] = useState<string>("");
   const [description, setDescription] = useState<string>("");
   const [prize, setPrize] = useState<string>("");
+  const [prizeSpecifications, setPrizeSpecifications] = useState<string>("");
   const [baseValue, setBaseValue] = useState<number>(0);
   const [ivaValue, setIvaValue] = useState<number>(0);
   const [totalValue, setTotalValue] = useState<string>("0");
   const [gameDate, setGameDate] = useState<Date | null>(null);
+  const [daysCloseDate, setDaysCloseDate] = useState<number>(2);
   const [closeDate, setCloseDate] = useState<Date | null>(null);
+  const [daysExpirationDate, setDaysExpirationDate] = useState<number>(30);
   const [expirationDate, setExpirationDate] = useState<Date | null>(null);
   const [publicationDateTime, setPublicationDateTime] = useState<Date | null>(null);
+  const [saleDateTime, setSaleDateTime] = useState<Date | null>(null);
   const [lottery, setLottery] = useState<string>("");
   const [numberDigits, setNumberDigits] = useState<number>(4);
   const [numberSeries, setNumberSeries] = useState<number>(1);
@@ -43,6 +63,9 @@ const CreateRafflePage = () => {
   const [authorities, setAuthorities] = useState<{ value: string; label: string }[]>([]);
   const [bearerCheck, setBearerCheck] = useState(false);
   const [active, setActive] = useState(true);
+  const [raffleManager, setRaffleManager] = useState<string>("");
+  const [contactManagerRaffle, setContactManagerRaffle] = useState<string>("");
+  const [addressManagerRaffle, setAddressManagerRaffle] = useState<string>("");
 
   useEffect(() => {
     const numericTotalValue = parseCurrency(totalValue);
@@ -88,6 +111,35 @@ const CreateRafflePage = () => {
     setPublicationDateTime(currentDate);
   };
 
+  const handleSellImmediately = () => {
+    const currentDate = new Date();
+    setSaleDateTime(currentDate);
+  };
+
+  useEffect(() => {
+    if (gameDate) {
+      const calculatedCloseDate = dayjs(gameDate).subtract(daysCloseDate, 'day').toDate();
+      setCloseDate(calculatedCloseDate);
+    }
+  }, [gameDate, daysCloseDate]);
+
+  useEffect(() => {
+    if (gameDate) {
+      const calculatedExpirationDate = dayjs(gameDate).add(daysExpirationDate, 'day').toDate();
+      setExpirationDate(calculatedExpirationDate);
+    }
+  }, [gameDate, daysExpirationDate]);
+
+  useEffect(() => {
+    if (publicationDateTime && saleDateTime && dayjs(saleDateTime).isBefore(publicationDateTime)) {
+      showNotification({
+        title: 'Advertencia',
+        message: 'La fecha de inicio de venta no puede ser anterior a la fecha de publicación.',
+        color: 'yellow',
+      });
+    }
+  }, [publicationDateTime, saleDateTime]);
+
   const handleCreateRaffle = async () => {
     try {
       const numericTotalValue = parseCurrency(totalValue);
@@ -100,8 +152,10 @@ const CreateRafflePage = () => {
   
       const raffleData = {
         name: normalizedRaffleName,
+        slogan,
         description,
         prize,
+        prizeSpecifications,
         baseValue,
         ivaValue,
         totalValue: numericTotalValue,
@@ -116,7 +170,10 @@ const CreateRafflePage = () => {
         authorityId,
         active: active.toString(),
         dateTimePublication,
-        imagesUrls: imageUrl.map((file, index) => `/uploads/raffles/${normalizedRaffleName}/${normalizedRaffleName}_${index + 1}.webp`),
+        imagesUrls: imageUrl.map((file, index) => `/assets/raffles/${name}Image${index + 1}.webp`),
+        raffleManager,
+        contactManagerRaffle,
+        addressManagerRaffle
       };
   
       if (imageUrl.length > 0) {
@@ -127,13 +184,13 @@ const CreateRafflePage = () => {
         withCredentials: true,
         headers: { 'Content-Type': 'application/json' },
       });
-  
+
       showNotification({
         title: 'Rifa creada con éxito',
         message: 'La rifa se ha creado correctamente.',
         color: 'green',
       });
-  
+
       router.push("/admin/raffles");
     } catch (error) {
       console.error("Error al crear la rifa", error);
@@ -177,6 +234,15 @@ const CreateRafflePage = () => {
       />
 
       <Textarea
+        label="Eslogan"
+        placeholder="Ingrese el eslogan de la rifa"
+        value={slogan}
+        onChange={(event) => setSlogan(event.currentTarget.value)}
+        withAsterisk
+        mt="md"
+      />
+
+      <Textarea
         label="Descripción"
         placeholder="Ingrese la descripción de la rifa"
         value={description}
@@ -194,84 +260,159 @@ const CreateRafflePage = () => {
         mt="md"
       />
 
-      <Group grow mt="md">
-        <TextInput
-          label="Valor Total"
-          value={totalValue}
-          onChange={(event) => setTotalValue(formatCurrency(parseCurrency(event.currentTarget.value)))}
-          placeholder="Ingrese el valor total"
-          withAsterisk
-        />
-        <TextInput
-          label="Valor Base"
-          value={formatCurrency(baseValue)}
-          readOnly
-          variant="filled"
-        />
-        <TextInput
-          label="Valor IVA"
-          value={formatCurrency(ivaValue)}
-          readOnly
-          variant="filled"
-        />
-      </Group>
+      <Textarea
+        label="Especificaciones del premio"
+        placeholder="Ingrese las especificaciones del premio"
+        value={prizeSpecifications}
+        onChange={(event) => setPrizeSpecifications(event.currentTarget.value)}
+        withAsterisk
+        mt="md"
+      />
 
       <Group grow mt="md">
-        <DateTimePicker
-          locale="es"
-          label="Fecha del Sorteo"
-          placeholder="Seleccione la fecha y hora del sorteo"
-          value={gameDate}
-          onChange={setGameDate}
-          withAsterisk
-        />
-        <DateTimePicker
-          locale="es"
-          label="Fecha de Cierre"
-          placeholder="Seleccione la fecha y hora de cierre"
-          value={closeDate}
-          onChange={setCloseDate}
-          withAsterisk
-        />
-        <DateTimePicker
-          locale="es"
-          label="Fecha de Expiración"
-          placeholder="Seleccione la fecha y hora de expiración"
-          value={expirationDate}
-          onChange={setExpirationDate}
-          withAsterisk
-        />
-      </Group>
-      <Group mt="md" justify="space-between">
-        <Switch
-          label="Activar publicación"
-          description="Esta opción activará la publicación de la rifa"
-          checked={active}
-          onChange={(event) => setActive(event.currentTarget.checked)}
-          mt="md"
-        />
-        <Switch
-          label="Cheque al portador"
-          checked={bearerCheck}
-          onChange={(event) => setBearerCheck(event.currentTarget.checked)}
-          description="Esta opción hará que el premio sea entregado al portador de la boleta"
-          mt="md"
-        />
-      </Group>
-      <Group grow mt="md" align="center">
-        <DateTimePicker
-          locale="es"
-          label="Fecha de Publicación"
-          placeholder="Seleccione la fecha y hora de publicación"
-          value={publicationDateTime}
-          onChange={setPublicationDateTime}
-          withAsterisk
-        />
-        <Button mt="md" onClick={handlePublishImmediately}>
-          Publicar inmediatamente
-        </Button>
+        <Grid>
+          <Grid.Col span={{ base: 12, lg: 4 }}>
+            <TextInput
+              label="Valor Total"
+              value={totalValue}
+              onChange={(event) => setTotalValue(formatCurrency(parseCurrency(event.currentTarget.value)))}
+              placeholder="Ingrese el valor total"
+              withAsterisk
+            />
+          </Grid.Col>
+          <Grid.Col span={{ base: 12, lg: 4 }}>
+            <TextInput
+              label="Valor Base"
+              value={formatCurrency(baseValue)}
+              readOnly
+              variant="filled"
+            />
+          </Grid.Col>
+          <Grid.Col span={{ base: 12, lg: 4 }}>
+            <TextInput
+              label="Valor IVA"
+              value={formatCurrency(ivaValue)}
+              readOnly
+              variant="filled"
+            />
+          </Grid.Col>
+        </Grid>
       </Group>
 
+      <Divider my="md" />
+
+      <Group grow>
+        <Grid>
+          <Grid.Col span={{ base: 12, lg: 4 }}>
+            <DateTimePicker
+              locale="es"
+              label="Fecha del Sorteo"
+              placeholder="Seleccione la fecha y hora del sorteo"
+              value={gameDate}
+              onChange={setGameDate}
+              withAsterisk
+            />
+          </Grid.Col>
+          <Grid.Col span={{ base: 12, lg: 4 }}>
+            <Switch
+              label="Activar publicación"
+              description="Esta opción activará la publicación de la rifa"
+              checked={active}
+              onChange={(event) => setActive(event.currentTarget.checked)}
+              mt="md"
+            />
+          </Grid.Col>
+          <Grid.Col span={{ base: 12, lg: 4 }}>
+            <Switch
+              label="Cheque al portador"
+              checked={bearerCheck}
+              onChange={(event) => setBearerCheck(event.currentTarget.checked)}
+              description="Esta opción hará que el premio sea entregado al portador de la boleta"
+              mt="md"
+            />
+          </Grid.Col>
+        </Grid>
+      </Group>
+      <Group grow mt="md">
+        <Grid align="center">
+          <Grid.Col span={{ base: 12, lg: 3 }}>
+            <DateTimePicker
+              locale="es"
+              label="Fecha de Publicación"
+              placeholder="Seleccione la fecha y hora"
+              value={publicationDateTime}
+              onChange={setPublicationDateTime}
+              withAsterisk
+            />
+          </Grid.Col>
+          <Grid.Col span={{ base: 12, lg: 3 }}>
+            <Button fullWidth onClick={handlePublishImmediately}>
+              Publicar inmediatamente
+            </Button>
+          </Grid.Col>
+          <Grid.Col span={{ base: 12, lg: 3 }}>
+            <DateTimePicker
+              locale="es"
+              label="Fecha de Inicio de Venta"
+              placeholder="Seleccione la fecha y hora"
+              value={saleDateTime}
+              onChange={setSaleDateTime}
+              withAsterisk
+            />
+          </Grid.Col>
+          <Grid.Col span={{ base: 12, lg: 3 }}>
+            <Button fullWidth onClick={handleSellImmediately}>
+              Iniciar venta inmediatamente
+            </Button>
+          </Grid.Col>
+        </Grid>
+      </Group>
+      <Group grow mt="md">
+        <Grid>
+          <Grid.Col span={{ base: 12, lg: 3 }}>
+            <NumberInput
+              label="Fecha de Cierre"
+              description="Días antes de la fecha del sorteo"
+              placeholder="Ingrese el número de días"
+              value={daysCloseDate}
+              onChange={(value) => setDaysCloseDate(typeof value === 'number' ? value : 2)}
+              withAsterisk
+            />
+          </Grid.Col>
+          <Grid.Col span={{ base: 12, lg: 3 }}>
+            <DateTimePicker
+              locale="es"
+              label="Fecha de Cierre"
+              description="Fecha según días fijados"
+              placeholder="Seleccione la fecha y hora"
+              value={closeDate}
+              onChange={setCloseDate}
+              disabled
+            />
+          </Grid.Col>
+          <Grid.Col span={{ base: 12, lg: 3 }}>
+            <NumberInput
+              label="Término Caducidad Premio"
+              description="Días después de la fecha del sorteo"
+              placeholder="Ingrese el número de días"
+              value={daysExpirationDate}
+              onChange={(value) => setDaysExpirationDate(typeof value === 'number' ? value : 30)}
+              withAsterisk
+            />
+          </Grid.Col>
+          <Grid.Col span={{ base: 12, lg: 3 }}>
+            <DateTimePicker
+              locale="es"
+              label="Término Caducidad Premio"
+              description="Fecha según días fijados"
+              placeholder="Seleccione la fecha y hora"
+              value={expirationDate}
+              onChange={setExpirationDate}
+              disabled
+            />
+          </Grid.Col>
+        </Grid>
+      </Group>
       <TextInput
         label="Lotería"
         placeholder="Ingrese la lotería"
@@ -281,41 +422,113 @@ const CreateRafflePage = () => {
       />
 
       <Group grow mt="md">
-        <NumberInput
-          label="Número de Dígitos"
-          value={numberDigits}
-          onChange={(value: string | number) => setNumberDigits(typeof value === 'number' ? value : 4)}
-          hideControls
-        />
-        <NumberInput
-          label="Número de Series"
-          value={numberSeries}
-          onChange={(value: string | number) => setNumberSeries(typeof value === 'number' ? value : 1)}
-          hideControls
-        />
+        <Grid>
+          <Grid.Col span={{ base: 12, lg: 6 }}>
+            <NumberInput
+              label="Número de Dígitos"
+              value={numberDigits}
+              onChange={(value: string | number) => setNumberDigits(typeof value === 'number' ? value : 4)}
+              hideControls
+            />
+          </Grid.Col>
+          <Grid.Col span={{ base: 12, lg: 6 }}>
+            <NumberInput
+              label="Número de Series"
+              value={numberSeries}
+              onChange={(value: string | number) => setNumberSeries(typeof value === 'number' ? value : 1)}
+              hideControls
+            />
+          </Grid.Col>
+        </Grid>
       </Group>
 
-      <Select
-        label="Cobertura"
-        placeholder="Seleccione la cobertura"
-        data={coverages}
-        value={coverageId}
-        onChange={setCoverageId}
-        mt="md"
-        withAsterisk
-      />
+      <Group grow>
+        <Grid>
+          <Grid.Col span={{ base: 12, lg: 4 }}>
+            <TextInput
+              label="Responsable de la Rifa"
+              placeholder="Ingrese el nombre del responsable"
+              value={lottery}
+              onChange={(event) => setLottery(event.currentTarget.value)}
+              mt="md"
+            />
+          </Grid.Col>
+          <Grid.Col span={{ base: 12, lg: 4 }}>
+            <TextInput
+              label="Contacto del Responsable"
+              placeholder="Ingrese el contacto"
+              value={lottery}
+              onChange={(event) => setLottery(event.currentTarget.value)}
+              mt="md"
+            />
+          </Grid.Col>
+          <Grid.Col span={{ base: 12, lg: 4 }}>
+            <TextInput
+              label="Dirección del Responsable"
+              placeholder="Ingrese la dirección"
+              value={lottery}
+              onChange={(event) => setLottery(event.currentTarget.value)}
+              mt="md"
+            />
+          </Grid.Col>
+        </Grid>
+      </Group>
 
-      <Select
-        label="Autoridad"
-        placeholder="Seleccione la autoridad"
-        data={authorities}
-        value={authorityId}
-        onChange={setAuthorityId}
-        mt="md"
-        withAsterisk
-      />
-      
-      <DropzoneButton setImageUrl={setImageUrl} raffleName={name}/>
+      <Group grow>
+        <Grid align="center">
+          <Grid.Col span={{ base: 12, lg: 6 }}>
+            <Select
+              label="Cobertura"
+              placeholder="Seleccione la cobertura"
+              data={coverages}
+              value={coverageId}
+              onChange={setCoverageId}
+              mt="md"
+              withAsterisk
+            />
+          </Grid.Col>
+          <Grid.Col span={{ base: 12, lg: 6 }}>
+            <Select
+              label="Autoridad"
+              placeholder="Seleccione la autoridad"
+              data={authorities}
+              value={authorityId}
+              onChange={setAuthorityId}
+              mt="md"
+              withAsterisk
+            />
+          </Grid.Col>
+        </Grid>
+      </Group>
+
+      <Group grow mt="md">
+        <MapContainer
+          center={center}
+          zoom={13}
+          style={{ height: "200px", width: "100%", zIndex: 1 }}
+        >
+          <TileLayer
+            url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+            attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+          />
+          <Marker position={center} icon={DefaultIcon}>
+            <Popup>Disponible solo en Ibagué, Tolima.</Popup>
+          </Marker>
+
+          {/* <Circle
+                  center={center}
+                  radius={5000} // Radio en metros
+                  color="red"
+                  fillColor="#f03"
+                  fillOpacity={0.5}
+                /> */}
+        </MapContainer>
+        {/* <Text ta="center" c="dimmed">Esta rifa utiliza georeferenciación y solo estará disponible en Ibagué - Tolima.</Text> */}
+      </Group>
+
+      <Divider my="md" />
+
+      <DropzoneButton setImageUrl={setImageUrl} raffleName={name} />
       <Group mt="xl" mb="xl">
         <Button color="green" onClick={handleCreateRaffle}>Crear Rifa</Button>
         <Button color="red" variant="outline" onClick={() => router.push("/admin/raffles")}>
