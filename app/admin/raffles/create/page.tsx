@@ -114,10 +114,12 @@ const CreateRafflePage = () => {
         authorityId,
         active: active.toString(),
         dateTimePublication,
-        imagesUrls: imageUrl.map((file, index) => `/assets/raffles/${name}Image${index + 1}.webp`)
+        imagesUrls: imageUrl.map((file, index) => `/uploads/raffles/${name}Image${index + 1}.webp`)
       };
-  
-      console.log("Datos enviados al backend:", raffleData);
+
+      if (imageUrl.length > 0) {
+        await uploadFilesToServer(imageUrl, name);
+      }
 
       await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/raffles`, raffleData, {
         withCredentials: true,
@@ -140,6 +142,23 @@ const CreateRafflePage = () => {
       });
     }
   };  
+
+  const uploadFilesToServer = async (files: File[], raffleName: string) => {
+
+    const data = new FormData();
+
+    files.forEach((file) => {
+      data.append('files', file);
+    });
+
+    data.append('raffleName', raffleName);
+
+    try {
+      const response = await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/upload/files`, data);
+    } catch (error) {
+      console.error('Error al subir los archivos', error);
+    }
+  };
 
   return (
     <Container>

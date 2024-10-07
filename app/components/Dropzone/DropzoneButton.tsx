@@ -16,8 +16,6 @@ export function DropzoneButton({ setImageUrl, raffleName }: DropzoneButtonProps)
   const [previews, setPreviews] = useState<string[]>([]);
 
   const handleDrop = async (files: File[]) => {
-    console.log('Archivos recibidos en handleDrop:', files);
-    console.log('Nombre de la rifa dentro de handleDrop:', raffleName);
   
     const optimizedFiles: File[] = [];
     const previewUrls: string[] = [];
@@ -31,7 +29,6 @@ export function DropzoneButton({ setImageUrl, raffleName }: DropzoneButtonProps)
     setPreviews((prev) => [...prev, ...previewUrls]);
     setImageUrl((prev) => [...prev, ...optimizedFiles]);
   
-    console.log('Archivos optimizados listos para subir:', optimizedFiles);
   };
 
   const optimizeFile = async (file: File): Promise<File> => {

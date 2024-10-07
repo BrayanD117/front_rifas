@@ -139,7 +139,7 @@ const EditRafflePage = () => {
         dateTimePublication: formatDateToDB(publicationDateTime),
         imagesUrls: [
           ...existingImages,
-          ...imageUrl.map((file, index) => `/assets/raffles/${name}/${name}-${index + 1}${file.name.substring(file.name.lastIndexOf('.'))}`),
+          ...imageUrl.map((file, index) => `/uploads/raffles/${name}/${name}-${index + 1}${file.name.substring(file.name.lastIndexOf('.'))}`),
         ],
       };
 
@@ -169,23 +169,17 @@ const EditRafflePage = () => {
   };
 
   const uploadFilesToServer = async (files: File[], raffleName: string) => {
-    console.log('Inicio de uploadFilesToServer');
-    console.log('Archivos recibidos para subir:', files);
-    console.log('Nombre de la rifa al subir archivos:', raffleName);
   
     const data = new FormData();
   
     files.forEach((file) => {
-      console.log('Agregando archivo al FormData:', file.name);
       data.append('files', file);
     });
   
     data.append('raffleName', raffleName);
-    console.log('Nombre de la rifa agregado al FormData:', raffleName);
   
     try {
       const response = await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/upload/files`, data);
-      console.log('Archivos subidos con éxito', response.data);
     } catch (error) {
       console.error('Error al subir los archivos', error);
     }
