@@ -197,6 +197,8 @@ const EditRafflePage = () => {
     setPublicationDateTime(currentDate);
   };
 
+  const normalizedRaffleName = name.replace(/\s+/g, '_');
+
   return (
     <Container>
       <Title order={2} mt="xl">Editar Rifa</Title>
@@ -359,7 +361,7 @@ const EditRafflePage = () => {
             {existingImages.map((imageUrl, index) => (
               <div key={index} style={{ position: 'relative' }}>
                 <img
-                  src={imageUrl}
+                  src={`${process.env.NEXT_PUBLIC_UPLOADS_URL}/${normalizedRaffleName}/${normalizedRaffleName}_${index + 1}.webp`}
                   alt={`Rifa ${name} Imagen ${index + 1}`}
                   style={{ width: '100%', borderRadius: '8px' }}
                 />

@@ -96,8 +96,10 @@ const CreateRafflePage = () => {
       const formattedExpirationDate = formatDateToDB(expirationDate);
       const dateTimePublication = formatDateToDB(publicationDateTime);
   
+      const normalizedRaffleName = name.replace(/\s+/g, '_');
+  
       const raffleData = {
-        name,
+        name: normalizedRaffleName,
         description,
         prize,
         baseValue,
@@ -114,16 +116,16 @@ const CreateRafflePage = () => {
         authorityId,
         active: active.toString(),
         dateTimePublication,
-        imagesUrls: imageUrl.map((file, index) => `/uploads/raffles/${name}Image${index + 1}.webp`)
+        imagesUrls: imageUrl.map((file, index) => `/uploads/raffles/${normalizedRaffleName}/${normalizedRaffleName}_${index + 1}.webp`),
       };
-
+  
       if (imageUrl.length > 0) {
-        await uploadFilesToServer(imageUrl, name);
+        await uploadFilesToServer(imageUrl, normalizedRaffleName);
       }
-
+  
       await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/raffles`, raffleData, {
         withCredentials: true,
-        headers: { 'Content-Type': 'application/json' }
+        headers: { 'Content-Type': 'application/json' },
       });
   
       showNotification({
@@ -144,17 +146,18 @@ const CreateRafflePage = () => {
   };  
 
   const uploadFilesToServer = async (files: File[], raffleName: string) => {
-
+    const normalizedRaffleName = raffleName.replace(/\s+/g, '_');
     const data = new FormData();
-
+  
     files.forEach((file) => {
       data.append('files', file);
     });
-
-    data.append('raffleName', raffleName);
-
+  
+    data.append('raffleName', normalizedRaffleName);
+  
     try {
       const response = await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/upload/files`, data);
+      console.log('Archivos subidos con éxito', response.data);
     } catch (error) {
       console.error('Error al subir los archivos', error);
     }
