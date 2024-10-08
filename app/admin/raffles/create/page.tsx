@@ -163,6 +163,12 @@ const CreateRafflePage = () => {
       const dateTimePublication = formatDateToDB(publicationDateTime);
   
       const normalizedRaffleName = name.replace(/\s+/g, '_');
+
+      const imageFilenames = imageUrl.map((file, index) => {
+        return `${normalizedRaffleName}_${index + 1}.webp`;
+      });
+
+      const imagesUrls = imageFilenames.map((filename) => `${normalizedRaffleName}/${filename}`);
   
       const raffleData = {
         name: normalizedRaffleName,
@@ -186,7 +192,7 @@ const CreateRafflePage = () => {
         active: active.toString(),
         dateTimePublication,
         dateTimeSale: formatDateToDB(saleDateTime),
-        imagesUrls: imageUrl.map((file, index) => `${process.env.NEXT_PUBLIC_UPLOADS_URL}/${normalizedRaffleName}/${normalizedRaffleName}_${index + 1}.webp`),
+        imagesUrls,
         managerName: raffleManager,
         managerContact: contactManagerRaffle,
         managerAddress: addressManagerRaffle,
@@ -194,7 +200,7 @@ const CreateRafflePage = () => {
       };
   
       if (imageUrl.length > 0) {
-        await uploadFilesToServer(imageUrl, normalizedRaffleName);
+        await uploadFilesToServer(imageUrl, normalizedRaffleName, imageFilenames);
       }
       console.log("GO GO GO GO",raffleData)
       await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/raffles`, raffleData, {
@@ -219,15 +225,14 @@ const CreateRafflePage = () => {
     }
   };  
 
-  const uploadFilesToServer = async (files: File[], raffleName: string) => {
-    const normalizedRaffleName = raffleName.replace(/\s+/g, '_');
+  const uploadFilesToServer = async (files: File[], raffleName: string, filenames: string[]) => {
     const data = new FormData();
   
-    files.forEach((file) => {
-      data.append('files', file);
+    files.forEach((file, index) => {
+      data.append('files', file, filenames[index]);
     });
   
-    data.append('raffleName', normalizedRaffleName);
+    data.append('raffleName', raffleName);
   
     try {
       const response = await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/upload/files`, data);
@@ -235,7 +240,7 @@ const CreateRafflePage = () => {
     } catch (error) {
       console.error('Error al subir los archivos', error);
     }
-  };
+  };  
 
   return (
     <Container>
