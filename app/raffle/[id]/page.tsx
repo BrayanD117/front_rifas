@@ -134,7 +134,7 @@ const RaffleDetailPage: React.FC = () => {
         <Grid>
           <Grid.Col span={{ base: 12, md: 6 }}>
             <DetailRaffleCard
-              image={raffle.imagesUrls[0]}
+              imageUrl={raffle.imagesUrls[0]}
               title={raffle.name}
               totalValue={raffle.totalValue}
               description={raffle.description}

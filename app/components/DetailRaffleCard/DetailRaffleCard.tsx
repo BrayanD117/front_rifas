@@ -4,14 +4,14 @@ import { useFormattedDate } from '@/app/hooks/useFormattedDate';
 import { useCurrencyFormatter } from '../../hooks/useCurrencyFormatter';
 
 interface DetailRaffleCardProps {
-    image: string;
+    imageUrl: string;
     title: string;
     totalValue: string;
     description: string;
     moreInfo: { prize: string; lottery: string; gameDate: string };
 }
 
-export function DetailRaffleCard({ image, title, totalValue, description, moreInfo }: DetailRaffleCardProps) {
+export function DetailRaffleCard({ imageUrl, title, totalValue, description, moreInfo }: DetailRaffleCardProps) {
     const { formatLongDate } = useFormattedDate();
     
     const infoTitles = {
@@ -37,7 +37,7 @@ export function DetailRaffleCard({ image, title, totalValue, description, moreIn
     return (
         <Card withBorder radius="md" p="md" className={classes.card}>
             <Card.Section>
-                <Image src={image} alt={title} height={300} />
+                <Image src={`${process.env.NEXT_PUBLIC_UPLOADS_URL}/${imageUrl}`} alt={title} height={300} />
             </Card.Section>
 
             <Card.Section className={classes.section} mt="md">
