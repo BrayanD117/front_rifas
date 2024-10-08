@@ -3,7 +3,6 @@ import { Text, Group, Button, rem, useMantineTheme, Container, SimpleGrid, Actio
 import { Dropzone, IMAGE_MIME_TYPE } from '@mantine/dropzone';
 import { IconCloudUpload, IconX, IconDownload } from '@tabler/icons-react';
 import axios from 'axios';
-import Image from 'next/image';
 import classes from './DropzoneButton.module.css';
 
 interface DropzoneButtonProps {
@@ -136,7 +135,7 @@ export function DropzoneButton({ setImageUrl, raffleName }: DropzoneButtonProps)
         <SimpleGrid cols={3} mt="md">
           {previews.map((url, index) => (
             <div key={index} style={{ position: 'relative' }}>
-              <Image
+              <img
                 src={url}
                 alt={`Preview ${index}`}
                 onLoad={() => URL.revokeObjectURL(url)}
