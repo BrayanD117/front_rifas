@@ -8,6 +8,7 @@ interface AnimatedDigitInputProps {
   index: number;
   focusNext: (currentIndex: number) => void;
   focusPrev: (currentIndex: number) => void;
+  finalDigit: string;
 }
 
 const AnimatedDigitInput = React.forwardRef<HTMLInputElement, AnimatedDigitInputProps>((props, ref) => {

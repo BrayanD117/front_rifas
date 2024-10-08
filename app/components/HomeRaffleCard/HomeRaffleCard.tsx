@@ -1,6 +1,6 @@
 "use client"
 
-import { Card, Image, Text, Badge, Button, Grid } from '@mantine/core';
+import { Card, Image, Text, Badge, Button, Grid, Progress, Group } from '@mantine/core';
 import { PRIMARY_GREEN, PRIMARY_YELLOW } from '@/app/constants/colors';
 
 interface HomeRaffleCardProps {
@@ -26,7 +26,7 @@ const HomeRaffleCard: React.FC<HomeRaffleCardProps> = ({
                 />
             </Card.Section>
 
-            <Grid mt={"md"} mb={"xs"} align='center'>
+            <Grid mt={"sm"} mb={"xs"} align='center'>
                 <Grid.Col span={8} >
                     <Text fw={500}>{title}</Text>
                 </Grid.Col>
@@ -35,9 +35,14 @@ const HomeRaffleCard: React.FC<HomeRaffleCardProps> = ({
                 </Grid.Col>
             </Grid>
 
-            <Text size="sm" c="dimmed" lineClamp={3}>
+            <Text size="sm" c="dimmed" lineClamp={3} mb={0}>
                 {description}
             </Text>
+
+            <Group mt={0} mb={0}>
+                <Progress radius="md" size="md" value={70} animated style={{ flexGrow: 1 }} />
+                <Text size="sm" fw={700} variant="gradient" gradient={{ from: 'blue', to: 'yellow', deg: 90 }}>70% vendido</Text>
+            </Group>
 
             <Button color={PRIMARY_GREEN} fullWidth mt="md" radius="md" onClick={onButtonClick}>
                 {buttonText}
