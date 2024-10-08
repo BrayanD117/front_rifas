@@ -11,7 +11,7 @@ dayjs.locale('es');
 
 interface Raffle {
   id: number;
-  imageUrl: string;
+  imagesUrls: string[];
   name: string;
   gameDate: string;
   description: string;
@@ -38,6 +38,13 @@ const HomeCards: React.FC = () => {
     return dayjs(dateString).format('DD MMM.');
   };
 
+  const getFirstImageUrl = (imagesUrls: string[]) => {
+    if (imagesUrls && imagesUrls.length > 0) {
+      return `${process.env.NEXT_PUBLIC_UPLOADS_URL}/${imagesUrls[0]}`;
+    }
+    return '/default-image-path.webp';
+  };
+
   return (
     <>
       <Container mt={"md"} size={"xl"}>
@@ -45,7 +52,7 @@ const HomeCards: React.FC = () => {
           {raffles.map((raffle) => (
             <Grid.Col key={raffle.id} span={{ base: 12, xs: 6, md: 4, lg: 3 }}>
               <CustomCard
-                imageSrc={raffle.imageUrl}
+                imageSrc={getFirstImageUrl(raffle.imagesUrls)}
                 imageAlt={raffle.name}
                 title={raffle.name}
                 badgeText={formatDate(raffle.gameDate)}

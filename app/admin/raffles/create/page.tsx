@@ -186,7 +186,7 @@ const CreateRafflePage = () => {
         active: active.toString(),
         dateTimePublication,
         dateTimeSale: formatDateToDB(saleDateTime),
-        imagesUrls: imageUrl.map((file, index) => `/assets/raffles/${name}Image${index + 1}.webp`),
+        imagesUrls: imageUrl.map((file, index) => `${process.env.NEXT_PUBLIC_UPLOADS_URL}/${normalizedRaffleName}/${normalizedRaffleName}_${index + 1}.webp`),
         managerName: raffleManager,
         managerContact: contactManagerRaffle,
         managerAddress: addressManagerRaffle,
