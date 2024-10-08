@@ -1,77 +1,60 @@
-import { motion, useAnimation } from "framer-motion";
+import { motion, useMotionValue, animate } from "framer-motion";
 import React, { useEffect, useState, KeyboardEvent } from "react";
 
 interface AnimatedDigitInputProps {
   value: string;
   onChange: (value: string, index: number) => void;
   isAnimating: boolean;
-  finalDigit: string;
   index: number;
   focusNext: (currentIndex: number) => void;
   focusPrev: (currentIndex: number) => void;
+  finalDigit: string;
 }
 
 const AnimatedDigitInput = React.forwardRef<HTMLInputElement, AnimatedDigitInputProps>((props, ref) => {
-  const { value, onChange, isAnimating, finalDigit, index, focusNext, focusPrev, ...rest } = props;
+  const { value, onChange, isAnimating, index, focusNext, focusPrev, ...rest } = props;
 
   const digitHeight = 60;
   const digitList = Array.from({ length: 10 }, (_, i) => i.toString());
 
-  const [inputValue, setInputValue] = useState(value || "");
-
-  const controls = useAnimation();
-
-  useEffect(() => {
-    setInputValue(value);
-  }, [value]);
+  const y = useMotionValue(0);
 
   useEffect(() => {
     if (isAnimating) {
-      controls.start("animate");
+      const animation = animate(y, -digitHeight * 10, {
+        duration: 1,
+        ease: "linear",
+        repeat: Infinity,
+      });
+      return () => animation.stop();
     } else {
-      controls.start("stop");
+      const targetY = -digitHeight * parseInt(value || '0');
+      animate(y, targetY, {
+        duration: 0.5,
+        ease: "easeOut",
+      });
     }
-  }, [isAnimating, controls]);
-
-  const variants = {
-    animate: {
-      y: -digitHeight * 10,
-      transition: {
-        y: {
-          duration: 1,
-          ease: "linear",
-          repeat: Infinity,
-          repeatType: "loop",
-        },
-      },
-    },
-    stop: {
-      y: -digitHeight * parseInt(finalDigit || '0'),
-      transition: {
-        y: {
-          duration: 1.5,
-          ease: "easeOut",
-        },
-      },
-    },
-  };
+  }, [isAnimating, value]);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const newValue = e.target.value;
     if (/^\d$/.test(newValue)) {
-      setInputValue(newValue);
       onChange(newValue, index);
       focusNext(index);
     } else if (newValue === "") {
-      setInputValue("");
-      onChange("", index);
+      onChange("0", index);
     }
   };
 
   const handleKeyDown = (e: KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === "Backspace" && inputValue === "") {
-      e.preventDefault();
-      focusPrev(index);
+    if (e.key === "Backspace") {
+      if (value === "" || value === "0") {
+        e.preventDefault();
+        onChange("0", index);
+        focusPrev(index);
+      } else {
+        onChange("0", index);
+      }
     }
   };
 
@@ -89,7 +72,7 @@ const AnimatedDigitInput = React.forwardRef<HTMLInputElement, AnimatedDigitInput
     >
       <input
         ref={ref}
-        value={inputValue}
+        value={value !== "0" ? value : ""}
         onChange={handleInputChange}
         onKeyDown={handleKeyDown}
         maxLength={1}
@@ -104,8 +87,9 @@ const AnimatedDigitInput = React.forwardRef<HTMLInputElement, AnimatedDigitInput
           top: 0,
           left: 0,
           zIndex: 2,
-          color: isAnimating ? 'transparent' : 'transparent',
-          caretColor: isAnimating ? 'transparent' : '#000',
+          color: 'transparent',
+          caretColor: '#000',
+          outline: 'none',
         }}
         {...rest}
       />
@@ -122,14 +106,12 @@ const AnimatedDigitInput = React.forwardRef<HTMLInputElement, AnimatedDigitInput
         }}
       >
         <motion.div
-          variants={variants}
-          initial="animate"
-          animate={controls}
           style={{
             position: "absolute",
             top: 0,
             left: 0,
             width: '100%',
+            y: y,
           }}
         >
           {digitList.map((digit, idx) => (
