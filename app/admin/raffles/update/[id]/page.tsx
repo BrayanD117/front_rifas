@@ -177,6 +177,8 @@ const EditRafflePage = () => {
       const formattedCloseDate = formatDateToDB(closeDate);
       const formattedExpirationDate = formatDateToDB(expirationDate);
       const dateTimePublication = formatDateToDB(publicationDateTime);
+
+      const raffleTitle = name;
   
       const normalizedRaffleName = name.replace(/\s+/g, '_');
   
@@ -203,7 +205,7 @@ const EditRafflePage = () => {
       ];
   
       const raffleData = {
-        name,
+        name: raffleTitle,
         slogan,
         description,
         prize,

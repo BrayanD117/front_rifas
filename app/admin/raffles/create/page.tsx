@@ -161,6 +161,8 @@ const CreateRafflePage = () => {
       const formattedCloseDate = formatDateToDB(closeDate);
       const formattedExpirationDate = formatDateToDB(expirationDate);
       const dateTimePublication = formatDateToDB(publicationDateTime);
+
+      const raffleTitle = name;
   
       const normalizedRaffleName = name.replace(/\s+/g, '_');
 
@@ -171,7 +173,7 @@ const CreateRafflePage = () => {
       const imagesUrls = imageFilenames.map((filename) => `${normalizedRaffleName}/${filename}`);
   
       const raffleData = {
-        name: normalizedRaffleName,
+        name: raffleTitle,
         slogan,
         description,
         prize,
