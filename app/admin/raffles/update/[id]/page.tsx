@@ -154,9 +154,20 @@ const EditRafflePage = () => {
     fetchRaffle();
   }, [id]);
 
-  const handleRemoveExistingImage = (index: number) => {
+  const handleRemoveExistingImage = async (index: number) => {
+    const imageToRemove = existingImages[index];
+  
     setExistingImages((prev) => prev.filter((_, i) => i !== index));
-  };
+  
+    try {
+      await axios.delete(`${process.env.NEXT_PUBLIC_API_URL}/upload/file`, {
+        data: { imagePath: imageToRemove },
+        headers: { 'Content-Type': 'application/json' },
+      });
+    } catch (error) {
+      console.error('Error al eliminar la imagen del servidor', error);
+    }
+  };  
 
   const handleUpdateRaffle = async () => {
     try {
@@ -168,9 +179,29 @@ const EditRafflePage = () => {
       const dateTimePublication = formatDateToDB(publicationDateTime);
   
       const normalizedRaffleName = name.replace(/\s+/g, '_');
-
-      const updatedImagesUrls = [...existingImages, ...imageUrl.map((file, index) => `${process.env.NEXT_PUBLIC_UPLOADS_URL}/${normalizedRaffleName}/${normalizedRaffleName}_${index + 1}.webp`)];
-
+  
+      const getNextImageIndex = () => {
+        const indices = existingImages.map((imageUrl) => {
+          const filename = imageUrl.split('/').pop();
+          const match = filename ? filename.match(/_(\d+)\./) : null;
+          return match ? parseInt(match[1], 10) : 0;
+        });
+        const maxIndex = indices.length > 0 ? Math.max(...indices) : 0;
+        return maxIndex + 1;
+      };
+  
+      const nextImageIndex = getNextImageIndex();
+  
+      const newImageFilenames = imageUrl.map((file, index) => {
+        const extension = file.name.substring(file.name.lastIndexOf('.'));
+        return `${normalizedRaffleName}_${nextImageIndex + index}${extension}`;
+      });
+  
+      const updatedImagesUrls = [
+        ...existingImages,
+        ...newImageFilenames.map((filename) => `${normalizedRaffleName}/${filename}`),
+      ];
+  
       const raffleData = {
         name,
         slogan,
@@ -199,25 +230,25 @@ const EditRafflePage = () => {
         managerAddress: addressManagerRaffle,
         categoryId: category,
       };
-
+  
       if (imageUrl.length > 0) {
-        await uploadFilesToServer(imageUrl, normalizedRaffleName);
+        await uploadFilesToServer(imageUrl, normalizedRaffleName, newImageFilenames);
       }
-
+  
       await axios.put(`${process.env.NEXT_PUBLIC_API_URL}/raffles/${id}`, raffleData, {
         withCredentials: true,
         headers: { 'Content-Type': 'application/json' },
       });
-
+  
       showNotification({
         title: 'Rifa actualizada con éxito',
         message: 'La rifa se ha actualizado correctamente.',
         color: 'green',
       });
-
-      router.push("/admin/raffles");
+  
+      router.push('/admin/raffles');
     } catch (error) {
-      console.error("Error al actualizar la rifa", error);
+      console.error('Error al actualizar la rifa', error);
       showNotification({
         title: 'Error al actualizar la rifa',
         message: 'Ocurrió un error al actualizar la rifa. Por favor, inténtalo de nuevo.',
@@ -225,18 +256,25 @@ const EditRafflePage = () => {
       });
     }
   };
-
-  const uploadFilesToServer = async (files: File[], raffleName: string) => {
+  
+  const uploadFilesToServer = async (
+    files: File[],
+    raffleName: string,
+    filenames: string[]
+  ) => {
     const data = new FormData();
-    files.forEach((file) => data.append('files', file));
+  
+    files.forEach((file, index) => {
+      data.append('files', file, filenames[index]);
+    });
     data.append('raffleName', raffleName);
-
+  
     try {
       await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/upload/files`, data);
     } catch (error) {
       console.error('Error al subir los archivos', error);
     }
-  };
+  };  
 
   const formatDateToDB = (date: Date | null) => {
     if (!date) return '';
