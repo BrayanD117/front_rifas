@@ -118,6 +118,17 @@ const EditRafflePage = () => {
   const handleUpdateRaffle = async () => {
     try {
       const numericTotalValue = parseCurrency(totalValue);
+      const normalizedRaffleName = name.replace(/\s+/g, '_');
+
+      const newFilenames = imageUrl.map((file) => {
+        const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1e9);
+        const ext = file.name.substring(file.name.lastIndexOf('.'));
+        return `${normalizedRaffleName}_${uniqueSuffix}${ext}`;
+      });
+
+      const newImagesUrls = newFilenames.map((filename) => `/uploads/raffles/${normalizedRaffleName}/${filename}`);
+  
+      const updatedImagesUrls = [...existingImages, ...newImagesUrls];
 
       const raffleData = {
         name,
@@ -137,26 +148,21 @@ const EditRafflePage = () => {
         authorityId,
         active: active.toString(),
         dateTimePublication: formatDateToDB(publicationDateTime),
-        imagesUrls: [
-          ...existingImages,
-          ...imageUrl.map((file, index) => `/uploads/raffles/${name}/${name}-${index + 1}${file.name.substring(file.name.lastIndexOf('.'))}`),
-        ],
+        imagesUrls: updatedImagesUrls,
       };
-
+      if (imageUrl.length > 0) {
+        await uploadFilesToServer(imageUrl, name);
+      }
       await axios.put(`${process.env.NEXT_PUBLIC_API_URL}/raffles/${id}`, raffleData, {
         withCredentials: true,
         headers: { 'Content-Type': 'application/json' },
       });
-
-      if (imageUrl.length > 0) {
-        await uploadFilesToServer(imageUrl, name);
-      }
       showNotification({
         title: 'Rifa actualizada con éxito',
         message: 'La rifa se ha actualizado correctamente.',
         color: 'green',
       });
-
+  
       router.push("/admin/raffles");
     } catch (error) {
       console.error("Error al actualizar la rifa", error);
@@ -166,24 +172,24 @@ const EditRafflePage = () => {
         color: 'red',
       });
     }
-  };
+  };  
 
-  const uploadFilesToServer = async (files: File[], raffleName: string) => {
-  
+  const uploadFilesToServer = async (
+    files: File[],
+    raffleName: string,
+  ) => {
     const data = new FormData();
-  
     files.forEach((file) => {
-      data.append('files', file);
+      data.append("files", file);
     });
-  
-    data.append('raffleName', raffleName);
-  
+    data.append("raffleName", raffleName);
+
     try {
-      const response = await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/upload/files`, data);
+      await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/upload/files`, data);
     } catch (error) {
-      console.error('Error al subir los archivos', error);
+      console.error("Error al subir los archivos", error);
     }
-  };
+  };  
 
   const formatDateToDB = (date: Date | null) => {
     if (!date) return '';
@@ -361,7 +367,7 @@ const EditRafflePage = () => {
             {existingImages.map((imageUrl, index) => (
               <div key={index} style={{ position: 'relative' }}>
                 <img
-                  src={`${process.env.NEXT_PUBLIC_UPLOADS_URL}/${normalizedRaffleName}/${normalizedRaffleName}_${index + 1}.webp`}
+                  src={`${process.env.NEXT_PUBLIC_UPLOADS_URL}${imageUrl}`}
                   alt={`Rifa ${name} Imagen ${index + 1}`}
                   style={{ width: '100%', borderRadius: '8px' }}
                 />

@@ -43,6 +43,7 @@ const CreateRafflePage = () => {
   const [description, setDescription] = useState<string>("");
   const [prize, setPrize] = useState<string>("");
   const [prizeSpecifications, setPrizeSpecifications] = useState<string>("");
+  const [prizeCommercialValue, setPrizeCommercialValue] = useState<string>("0");
   const [baseValue, setBaseValue] = useState<number>(0);
   const [ivaValue, setIvaValue] = useState<number>(0);
   const [totalValue, setTotalValue] = useState<string>("0");
@@ -69,6 +70,7 @@ const CreateRafflePage = () => {
 
   useEffect(() => {
     const numericTotalValue = parseCurrency(totalValue);
+    const numericPrizeCommercialValue = parseCurrency(prizeCommercialValue);
     const calculatedBaseValue = numericTotalValue / 1.19;
     const calculatedIvaValue = numericTotalValue - calculatedBaseValue;
 
@@ -143,6 +145,7 @@ const CreateRafflePage = () => {
   const handleCreateRaffle = async () => {
     try {
       const numericTotalValue = parseCurrency(totalValue);
+      const numericPrizeCommercialValue = parseCurrency(prizeCommercialValue);
       const formattedGameDate = formatDateToDB(gameDate);
       const formattedCloseDate = formatDateToDB(closeDate);
       const formattedExpirationDate = formatDateToDB(expirationDate);
@@ -156,6 +159,7 @@ const CreateRafflePage = () => {
         description,
         prize,
         prizeSpecifications,
+        prizeCommercialValuation: numericPrizeCommercialValue,
         baseValue,
         ivaValue,
         totalValue: numericTotalValue,
@@ -170,16 +174,17 @@ const CreateRafflePage = () => {
         authorityId,
         active: active.toString(),
         dateTimePublication,
+        dateTimeSale: formatDateToDB(saleDateTime),
         imagesUrls: imageUrl.map((file, index) => `/assets/raffles/${name}Image${index + 1}.webp`),
-        raffleManager,
-        contactManagerRaffle,
-        addressManagerRaffle
+        managerName: raffleManager,
+        managerContact: contactManagerRaffle,
+        managerAddress: addressManagerRaffle
       };
   
       if (imageUrl.length > 0) {
         await uploadFilesToServer(imageUrl, normalizedRaffleName);
       }
-  
+      console.log("GO GO GO GO",raffleData)
       await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/raffles`, raffleData, {
         withCredentials: true,
         headers: { 'Content-Type': 'application/json' },
@@ -265,6 +270,15 @@ const CreateRafflePage = () => {
         placeholder="Ingrese las especificaciones del premio"
         value={prizeSpecifications}
         onChange={(event) => setPrizeSpecifications(event.currentTarget.value)}
+        withAsterisk
+        mt="md"
+      />
+      
+      <TextInput
+        label="Avaluo comercial del premio"
+        placeholder="Ingrese el avaluo comercial del premio"
+        value={prizeCommercialValue}
+        onChange={(event) => setPrizeCommercialValue(formatCurrency(parseCurrency(event.currentTarget.value)))}
         withAsterisk
         mt="md"
       />
@@ -448,8 +462,8 @@ const CreateRafflePage = () => {
             <TextInput
               label="Responsable de la Rifa"
               placeholder="Ingrese el nombre del responsable"
-              value={lottery}
-              onChange={(event) => setLottery(event.currentTarget.value)}
+              value={raffleManager}
+              onChange={(event) => setRaffleManager(event.currentTarget.value)}
               mt="md"
             />
           </Grid.Col>
@@ -457,8 +471,8 @@ const CreateRafflePage = () => {
             <TextInput
               label="Contacto del Responsable"
               placeholder="Ingrese el contacto"
-              value={lottery}
-              onChange={(event) => setLottery(event.currentTarget.value)}
+              value={contactManagerRaffle}
+              onChange={(event) => setContactManagerRaffle(event.currentTarget.value)}
               mt="md"
             />
           </Grid.Col>
@@ -466,8 +480,8 @@ const CreateRafflePage = () => {
             <TextInput
               label="Dirección del Responsable"
               placeholder="Ingrese la dirección"
-              value={lottery}
-              onChange={(event) => setLottery(event.currentTarget.value)}
+              value={addressManagerRaffle}
+              onChange={(event) => setAddressManagerRaffle(event.currentTarget.value)}
               mt="md"
             />
           </Grid.Col>
