@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { Container, Title, Table, Button, Loader, Group } from "@mantine/core";
+import { Container, Title, Table, Button, Loader, Group, Center } from "@mantine/core";
 import axios from "axios";
 
 interface Raffle {
@@ -54,7 +54,9 @@ const AdminRafflesPage = () => {
   if (loading) {
     return (
       <Container>
-        <Loader size="xl" />
+        <Center style={{ height: "100vh" }}>
+          <Loader size="xl" />
+        </Center>
       </Container>
     );
   }

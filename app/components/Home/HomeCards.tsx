@@ -4,12 +4,17 @@ import { Container, Grid } from "@mantine/core";
 import HomeRaffleCard from "../HomeRaffleCard/HomeRaffleCard";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import axios from "axios";
 import { useFormattedDate } from "@/app/hooks/useFormattedDate";
+import axios from "axios";
+import dayjs from 'dayjs';
+import 'dayjs/locale/es';
+
+dayjs.locale('es');
+
 
 interface Raffle {
   id: number;
-  imagesUrls: string;
+  imagesUrls: string[];
   name: string;
   gameDate: string;
   description: string;
@@ -33,6 +38,17 @@ const HomeCards: React.FC = () => {
     fetchRaffles();
   }, []);
 
+  const formatDate = (dateString: string) => {
+    return dayjs(dateString).format('DD MMM.');
+  };
+
+  const getFirstImageUrl = (imagesUrls: string[]) => {
+    if (imagesUrls && imagesUrls.length > 0) {
+      return `${process.env.NEXT_PUBLIC_UPLOADS_URL}/${imagesUrls[0]}`;
+    }
+    return '/default-image-path.webp';
+  };
+
   return (
     <>
       <Container mt={"md"} size={"xl"}>
@@ -40,7 +56,7 @@ const HomeCards: React.FC = () => {
           {raffles.map((raffle) => (
             <Grid.Col key={raffle.id} span={{ base: 12, xs: 6, md: 4, lg: 3 }}>
               <HomeRaffleCard
-                imageSrc={raffle.imagesUrls[0]}
+                imageSrc={getFirstImageUrl(raffle.imagesUrls)}
                 imageAlt={raffle.name}
                 title={raffle.name}
                 badgeText={formatShortDate(raffle.gameDate)}
