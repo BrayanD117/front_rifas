@@ -1,5 +1,4 @@
 "use client";
-
 import {
   Group,
   Button,
@@ -19,58 +18,27 @@ import {
   Text,
 } from "@mantine/core";
 import { useDisclosure } from "@mantine/hooks";
-import { useEffect, useState } from "react";
+import { useAuth } from "../context/AuthContext"; // Importamos el contexto de autenticación
 import { useRouter } from "next/navigation";
 import { IconShoppingCartFilled } from "@tabler/icons-react";
-import axios from "axios";
 import classes from "./styles/Navbar.module.css";
 import { PRIMARY_GREEN } from "../constants/colors";
 
 export function Navbar() {
-  const [drawerOpened, { toggle: toggleDrawer, close: closeDrawer }] =
-    useDisclosure(false);
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const [logoutModalOpened, { open: openLogoutModal, close: closeLogoutModal }] =
-    useDisclosure(false);
+  const [drawerOpened, { toggle: toggleDrawer, close: closeDrawer }] = useDisclosure(false);
+  const [logoutModalOpened, { open: openLogoutModal, close: closeLogoutModal }] = useDisclosure(false);
   const theme = useMantineTheme();
   const router = useRouter();
-
-  useEffect(() => {
-    const checkAuth = async () => {
-      try {
-        const response = await axios.get(
-          `${process.env.NEXT_PUBLIC_API_URL}/auth/check-auth`,
-          {
-            withCredentials: true,
-          }
-        );
-        if (response.status === 200) {
-          setIsLoggedIn(true);
-        }
-      } catch (error) {
-        setIsLoggedIn(false);
-      }
-    };
-    checkAuth();
-  }, []);
+  const { isLoggedIn, logout } = useAuth();
 
   const handleLoginClick = () => {
     router.push("/login");
   };
 
   const handleLogout = async () => {
-    try {
-      await axios.post(
-        `${process.env.NEXT_PUBLIC_API_URL}/auth/logout`,
-        {},
-        { withCredentials: true }
-      );
-      setIsLoggedIn(false);
-      closeLogoutModal();
-      router.push("/login");
-    } catch (error) {
-      console.error("Error al cerrar sesión", error);
-    }
+    await logout();
+    closeLogoutModal();
+    router.push("/login");
   };
 
   const handleBrandClick = () => {
@@ -195,13 +163,15 @@ export function Navbar() {
           </Group>
         </ScrollArea>
       </Drawer>
-
-      {/* Modal de Confirmación para Cerrar Sesión */}
       <Modal
         opened={logoutModalOpened}
         onClose={closeLogoutModal}
         title="Confirmar Cierre de Sesión"
         centered
+        overlayProps={{
+          backgroundOpacity: 0.55,
+          blur: 3,
+        }}
       >
         <Text>¿Estás seguro que deseas cerrar sesión?</Text>
         <Group justify="center" mt="md">
