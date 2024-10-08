@@ -134,5 +134,5 @@ const AnimatedDigitInput = React.forwardRef<HTMLInputElement, AnimatedDigitInput
     </div>
   );
 });
-
+AnimatedDigitInput.displayName = "AnimatedDigitInput";
 export default AnimatedDigitInput;

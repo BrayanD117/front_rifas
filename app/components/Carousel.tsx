@@ -49,7 +49,7 @@ const CarouselComponent = () => {
 
   const slides = images.map((url) => (
     <Carousel.Slide key={url}>
-        <Image src={url} />
+        <Image src={url} alt="Carousel image"/>
     </Carousel.Slide>
   ));
 
