@@ -67,10 +67,11 @@ const CreateRafflePage = () => {
   const [raffleManager, setRaffleManager] = useState<string>("");
   const [contactManagerRaffle, setContactManagerRaffle] = useState<string>("");
   const [addressManagerRaffle, setAddressManagerRaffle] = useState<string>("");
+  const [categories, setCategories] = useState<{ value: string; label: string }[]>([]);
+  const [category, setCategory] = useState<string | null>(null);
 
   useEffect(() => {
     const numericTotalValue = parseCurrency(totalValue);
-    const numericPrizeCommercialValue = parseCurrency(prizeCommercialValue);
     const calculatedBaseValue = numericTotalValue / 1.19;
     const calculatedIvaValue = numericTotalValue - calculatedBaseValue;
 
@@ -97,8 +98,18 @@ const CreateRafflePage = () => {
       }
     };
 
+    const fetchCategories = async () => {
+      try {
+        const { data } = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/categories`);
+        setCategories(data.map((category: any) => ({ value: category.id, label: category.name })));
+      } catch (error) {
+        console.error('Error fetching categories', error);
+      }
+    };
+
     fetchCoverages();
     fetchAuthorities();
+    fetchCategories();
   }, []);
 
   const formatDateToDB = (date: Date | null) => {
@@ -178,7 +189,8 @@ const CreateRafflePage = () => {
         imagesUrls: imageUrl.map((file, index) => `/assets/raffles/${name}Image${index + 1}.webp`),
         managerName: raffleManager,
         managerContact: contactManagerRaffle,
-        managerAddress: addressManagerRaffle
+        managerAddress: addressManagerRaffle,
+        categoryId: category,
       };
   
       if (imageUrl.length > 0) {
@@ -272,6 +284,18 @@ const CreateRafflePage = () => {
         onChange={(event) => setPrizeSpecifications(event.currentTarget.value)}
         withAsterisk
         mt="md"
+      />
+
+      <Select
+        label="Categoría"
+        placeholder="Seleccione una categoría"
+        data={categories}
+        value={category}
+        onChange={setCategory}
+        searchable
+        allowDeselect={false}
+        mt="md"
+        withAsterisk
       />
       
       <TextInput
@@ -455,7 +479,7 @@ const CreateRafflePage = () => {
           </Grid.Col>
         </Grid>
       </Group>
-
+      <Divider mt="md" />
       <Group grow>
         <Grid>
           <Grid.Col span={{ base: 12, lg: 4 }}>
