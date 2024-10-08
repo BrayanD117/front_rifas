@@ -2,8 +2,8 @@ import { useRef, useState, useEffect } from 'react';
 import { Text, Group, Button, rem, useMantineTheme, Container, SimpleGrid, ActionIcon } from '@mantine/core';
 import { Dropzone, IMAGE_MIME_TYPE } from '@mantine/dropzone';
 import { IconCloudUpload, IconX, IconDownload } from '@tabler/icons-react';
-import Image from 'next/image';
 import axios from 'axios';
+import Image from 'next/image';
 import classes from './DropzoneButton.module.css';
 
 interface DropzoneButtonProps {
