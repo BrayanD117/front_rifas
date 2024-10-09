@@ -12,7 +12,7 @@ export const useFormattedDate = () => {
   };
 
   const formatLongDate = (dateString: string) => {
-    return dayjs(dateString).format('dddd, D [de] MMMM [de] YYYY');
+    return dayjs(dateString).format('dddd, D [de] MMMM [de] YYYY, h:mm A');
   };
 
   return {
