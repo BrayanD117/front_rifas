@@ -1,8 +1,8 @@
 import { useRef, useState, useEffect } from 'react';
-import { Text, Group, Button, rem, useMantineTheme, Container, SimpleGrid, ActionIcon } from '@mantine/core';
+import { Text, Group, Button, rem, useMantineTheme, Container, ActionIcon } from '@mantine/core';
 import { Dropzone, IMAGE_MIME_TYPE } from '@mantine/dropzone';
 import { IconCloudUpload, IconX, IconDownload } from '@tabler/icons-react';
-import axios from 'axios';
+import { DragDropContext, Droppable, Draggable } from '@hello-pangea/dnd';
 import classes from './DropzoneButton.module.css';
 
 interface DropzoneButtonProps {
@@ -13,22 +13,18 @@ interface DropzoneButtonProps {
 export function DropzoneButton({ setImageUrl, raffleName }: DropzoneButtonProps) {
   const theme = useMantineTheme();
   const openRef = useRef<() => void>(null);
-  const [previews, setPreviews] = useState<string[]>([]);
+  const [previews, setPreviews] = useState<{ url: string, file: File }[]>([]);
 
   const handleDrop = async (files: File[]) => {
-  
-    const optimizedFiles: File[] = [];
-    const previewUrls: string[] = [];
-  
+    const optimizedFiles: { url: string, file: File }[] = [];
+
     for (const file of files) {
       const optimizedFile = await optimizeFile(file);
-      optimizedFiles.push(optimizedFile);
-      previewUrls.push(URL.createObjectURL(optimizedFile));
+      optimizedFiles.push({ url: URL.createObjectURL(optimizedFile), file: optimizedFile });
     }
-  
-    setPreviews((prev) => [...prev, ...previewUrls]);
-    setImageUrl((prev) => [...prev, ...optimizedFiles]);
-  
+
+    setPreviews((prev) => [...prev, ...optimizedFiles]);
+    setImageUrl((prev) => [...prev, ...optimizedFiles.map(item => item.file)]);
   };
 
   const optimizeFile = async (file: File): Promise<File> => {
@@ -41,6 +37,17 @@ export function DropzoneButton({ setImageUrl, raffleName }: DropzoneButtonProps)
   const handleRemoveFile = (index: number) => {
     setPreviews((prev) => prev.filter((_, i) => i !== index));
     setImageUrl((prev) => prev.filter((_, i) => i !== index));
+  };
+
+  const handleDragEnd = (result: any) => {
+    if (!result.destination) return;
+
+    const reorderedPreviews = Array.from(previews);
+    const [removed] = reorderedPreviews.splice(result.source.index, 1);
+    reorderedPreviews.splice(result.destination.index, 0, removed);
+
+    setPreviews(reorderedPreviews);
+    setImageUrl(reorderedPreviews.map(item => item.file));
   };
 
   const optimizeImage = (file: File): Promise<File> => {
@@ -132,26 +139,61 @@ export function DropzoneButton({ setImageUrl, raffleName }: DropzoneButtonProps)
       </div>
 
       {previews.length > 0 && (
-        <SimpleGrid cols={3} mt="md">
-          {previews.map((url, index) => (
-            <div key={index} style={{ position: 'relative' }}>
-              <img
-                src={url}
-                alt={`Preview ${index}`}
-                onLoad={() => URL.revokeObjectURL(url)}
-                style={{ width: '100%', borderRadius: '8px' }}
-              />
-              <ActionIcon
-                color="red"
-                variant="filled"
-                style={{ position: 'absolute', top: '5px', right: '5px', zIndex: 10 }}
-                onClick={() => handleRemoveFile(index)}
+        <DragDropContext onDragEnd={handleDragEnd}>
+          <Droppable droppableId="previews" direction="horizontal">
+            {(provided) => (
+              <div
+                ref={provided.innerRef}
+                {...provided.droppableProps}
+                style={{
+                  display: 'flex',
+                  flexWrap: 'wrap',
+                  maxWidth: '100%',
+                  padding: '10px 0',
+                }}
               >
-                <IconX size={16} />
-              </ActionIcon>
-            </div>
-          ))}
-        </SimpleGrid>
+                {previews.map((item, index) => (
+                  <Draggable key={item.url} draggableId={item.url} index={index}>
+                    {(provided, snapshot) => (
+                      <div
+                        ref={provided.innerRef}
+                        {...provided.draggableProps}
+                        {...provided.dragHandleProps}
+                        style={{
+                          position: 'relative',
+                          width: 170,
+                          height: 170,
+                          margin: '5px',
+                          backgroundColor: snapshot.isDragging ? 'lightgray' : 'white',
+                          transition: 'background-color 0.2s ease',
+                          display: 'flex',
+                          justifyContent: 'center',
+                          alignItems: 'center',
+                          ...provided.draggableProps.style,
+                        }}
+                      >
+                        <img
+                          src={item.url}
+                          alt={`Preview ${index}`}
+                          style={{ width: '100%', height: '100%', borderRadius: '8px', objectFit: 'cover' }}
+                        />
+                        <ActionIcon
+                          color="red"
+                          variant="filled"
+                          style={{ position: 'absolute', top: '5px', right: '5px', zIndex: 10 }}
+                          onClick={() => handleRemoveFile(index)}
+                        >
+                          <IconX size={16} />
+                        </ActionIcon>
+                      </div>
+                    )}
+                  </Draggable>
+                ))}
+                {provided.placeholder}
+              </div>
+            )}
+          </Droppable>
+        </DragDropContext>
       )}
     </Container>
   );
