@@ -1,5 +1,4 @@
 import { Drawer, Button, Card, Text, Group, Badge, Table } from '@mantine/core';
-import { useDisclosure } from '@mantine/hooks';
 import classes from './PurchaseDetailDrawer.module.css';
 import { useFormattedDate } from '@/app/hooks/useFormattedDate';
 import { useCurrencyFormatter } from '../../hooks/useCurrencyFormatter';
@@ -16,19 +15,18 @@ interface PurchaseDetailDrawerProps {
   prize: string;
   gameDate: string;
   elements: Element[];
+  opened: boolean;
+  close: () => void;
 }
 
-const PurchaseDetailDrawer: React.FC<PurchaseDetailDrawerProps> = ({ name, prize, gameDate, elements }) => {
-  const [opened, { open, close }] = useDisclosure(false);
+const PurchaseDetailDrawer: React.FC<PurchaseDetailDrawerProps> = ({ name, prize, gameDate, elements, opened, close }) => {
   const { formatShortDate } = useFormattedDate();
   const formatCurrency = useCurrencyFormatter();
 
   const totalWithoutTax = elements.reduce((acc, element) => acc + Number(element.baseValue), 0);
   console.log(totalWithoutTax);
   const tax = totalWithoutTax * 0.19;
-  //console.log(tax);
   const totalWithTax = totalWithoutTax + tax;
-  //console.log(totalWithTax);
 
   const rows = elements.map((element) => (
     <Table.Tr key={element.number}>
@@ -41,11 +39,8 @@ const PurchaseDetailDrawer: React.FC<PurchaseDetailDrawerProps> = ({ name, prize
 
   return (
     <>
-      <Button onClick={open}>Abrir Información</Button>
       <Drawer position="right" offset={8} radius="md" zIndex={1100} opened={opened} onClose={close} title="Detalle de tu compra">
-
         <Card withBorder radius="md" className={classes.card}>
-
           <Group justify="space-between">
             <div>
               <Text fw={500}>{name}</Text>

@@ -1,14 +1,12 @@
-"use client";
-
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 
 interface CartItem {
+  raffleId: number;
+  raffleName: string;
   number: string;
   baseValue: string;
   tax: string;
   totalValue: string;
-  raffleId: number;
-  raffleName: string;
 }
 
 interface CartState {
@@ -26,11 +24,9 @@ const cartSlice = createSlice({
     addToCart: (state, action: PayloadAction<CartItem>) => {
       state.items.push(action.payload);
     },
-    clearRaffleItems: (state, action: PayloadAction<number>) => {
-      state.items = state.items.filter(item => item.raffleId !== action.payload);
-    },
+    // Puedes agregar otras acciones como eliminar o vaciar el carrito
   },
 });
 
-export const { addToCart, clearRaffleItems } = cartSlice.actions;
+export const { addToCart } = cartSlice.actions;
 export default cartSlice.reducer;

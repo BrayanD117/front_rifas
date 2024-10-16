@@ -10,6 +10,7 @@ import { motion } from "framer-motion";
 import PurchaseDetailDrawer from '@/app/components/PurchaseDetailDrawer/PurchaseDetailDrawer';
 import { useDispatch } from "react-redux";
 import { addToCart } from "@/features/cart/cartSlice";
+import { useDisclosure } from "@mantine/hooks";
 
 interface Raffle {
   id: number;
@@ -32,6 +33,7 @@ interface Raffle {
 
 const RaffleDetailPage: React.FC = () => {
   const { id } = useParams();
+  const dispatch = useDispatch();
   const [raffle, setRaffle] = useState<Raffle | null>(null);
   const [loading, setLoading] = useState(true);
   const [finalNumber, setFinalNumber] = useState<string>("");
@@ -40,7 +42,8 @@ const RaffleDetailPage: React.FC = () => {
   const [isAnimating, setIsAnimating] = useState<boolean[]>([]);
   const timeoutsRef = useRef<NodeJS.Timeout[]>([]);
   const inputRefs = useRef<Array<HTMLInputElement | null>>([]);
-  const dispatch = useDispatch();
+
+  const [opened, { open, close }] = useDisclosure(false);
 
   const pinInputVariants = {
     initial: { scale: 1 },
@@ -129,7 +132,7 @@ const RaffleDetailPage: React.FC = () => {
     }
   };
 
-  const handleAddToCart = () => {
+  const handleAddAndOpenDrawer = () => {
     if (raffle && currentDigits.length === raffle.numberDigits) {
       const numberPlayed = currentDigits.join('');
       const newPlayedNumber = {
@@ -137,13 +140,17 @@ const RaffleDetailPage: React.FC = () => {
         baseValue: raffle.baseValue,
         tax: raffle.ivaValue,
         totalValue: raffle.totalValue,
-        raffleId: raffle.id,
-        raffleName: raffle.slogan,
       };
 
       setRaffleNumbers([...raffleNumbers, newPlayedNumber]);
 
-      dispatch(addToCart(newPlayedNumber));
+      dispatch(addToCart({
+        raffleId: raffle.id,
+        raffleName: raffle.slogan,
+        ...newPlayedNumber
+      }));
+
+      open();
     }
   };
 
@@ -214,7 +221,7 @@ const RaffleDetailPage: React.FC = () => {
               </motion.div>
             </Group>
             <Group mt={"lg"} justify="space-between" grow>
-              <Button mt="md" onClick={handleAddToCart}>Añadir al Carrito</Button>
+              <Button mt="md" onClick={handleAddAndOpenDrawer}>Jugar número</Button>
               <Button
                 onClick={generateRandomNumber}
                 mt="md"
@@ -226,15 +233,14 @@ const RaffleDetailPage: React.FC = () => {
               name={raffle.slogan}
               prize={raffle.prize}
               gameDate={raffle.gameDate}
-              elements={[
-                { number: '4842', baseValue: raffle.baseValue, tax: raffle.ivaValue, totalValue: raffle.totalValue },
-                { number: '7845', baseValue: raffle.baseValue, tax: raffle.ivaValue, totalValue: raffle.totalValue },
-                { number: '9742', baseValue: raffle.baseValue, tax: raffle.ivaValue, totalValue: raffle.totalValue },
-              ]}
+              elements={raffleNumbers}
+              opened={opened}
+              close={close}
             />
           </Grid.Col>
         </Grid>
       </Container>
+
     </>
   );
 };

@@ -32,7 +32,7 @@ export default function RootLayout({
               <RouteGuard>
                 <ClientProvider>
                   {children}
-                </ClientProvider> 
+                </ClientProvider>
               </RouteGuard>
           </AuthProvider>
         </MantineProvider>

@@ -44,7 +44,7 @@ export function ContactIconsList({ data, numCifras }: ContactIconsListProps) {
                 ))}
             </div>
 
-            <Divider my="md" style={{ width: '100%', margin: 0 }} />
+            <Divider my="sm" style={{ width: '100%', marginBottom: 0, marginTop: 0 }} />
 
             <div className={classes.wrapper} style={{ marginTop: 0 }}>
                 <Box mr="md">

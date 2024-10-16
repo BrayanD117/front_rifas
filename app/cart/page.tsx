@@ -1,25 +1,21 @@
 "use client";
 
 import { useSelector } from 'react-redux';
-import { RootState } from '../../store'; // Importa el tipo del estado global
+import { RootState } from '../../store';
 
-const CartPage: React.FC = () => {
-  const cartItems = useSelector((state: RootState) => state.cart.items); // Obtener los ítems del carrito desde Redux
+const CartPage = () => {
+  const cartItems = useSelector((state: RootState) => state.cart.items);
 
   return (
     <div>
-      <h1>Carrito de Compras</h1>
-      {cartItems.length === 0 ? (
-        <p>El carrito está vacío</p>
-      ) : (
-        cartItems.map((item, index) => (
-          <div key={index}>
-            <p>Rifa: {item.raffleName}</p>
-            <p>Número: {item.number}</p>
-            <p>Total: {item.totalValue}</p>
-          </div>
-        ))
-      )}
+      <h2>Carrito</h2>
+      {cartItems.map((item, index) => (
+        <div key={index}>
+          <p>Rifa: {item.raffleName}</p>
+          <p>Número Jugado: {item.number}</p>
+          <p>Total: {item.totalValue}</p>
+        </div>
+      ))}
     </div>
   );
 };
