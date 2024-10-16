@@ -5,7 +5,6 @@ import {
   IconLogout,
   IconTicket,
   IconHome,
-  IconSettingsFilled,
 } from '@tabler/icons-react';
 import { useRouter, usePathname } from 'next/navigation';
 import { useAuth } from '../context/AuthContext';
@@ -67,16 +66,20 @@ export function Sidebar({ opened, setOpened }: { opened: boolean, setOpened: Rea
     <>
       <nav className={`${classes.navbar} ${opened ? classes.navbarOpen : classes.navbarCompressed}`}>
         <div className={classes.navbarMain}>
-          <Group className={classes.header}>
-            <Burger
+          <Group className={classes.header} justify="center">
+            <Center>
+              <Burger
                 opened={opened}
                 onClick={() => setOpened((o) => !o)}
                 size="sm"
                 color="black"
               />
-            <Title ta={"center"} order={4} style={{ visibility: opened ? 'visible' : 'hidden' }}>
-              Panel de administración
-            </Title>
+            </Center>
+            {opened && (
+              <Title ta={"center"} order={4}>
+                Panel Administrador
+              </Title>
+            )}
           </Group>
           {links}
         </div>

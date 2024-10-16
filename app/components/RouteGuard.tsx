@@ -16,6 +16,8 @@ export default function RouteGuard({ children }: { children: React.ReactNode }) 
 
   const isAdminRoute = pathname.startsWith("/admin");
 
+  const sidebarWidth = sidebarOpened ? 200 : 80;
+
   return (
     <>
       {!isAdminRoute && <Navbar />}
@@ -24,7 +26,7 @@ export default function RouteGuard({ children }: { children: React.ReactNode }) 
         <div
           style={{
             flexGrow: 1,
-            paddingLeft: isAdminRoute && !isSmallScreen ? (sidebarOpened ? '200px' : '10px') : '0',
+            paddingLeft: isAdminRoute ? (sidebarWidth + 10) + 'px' : '0',
             transition: 'padding-left 0.3s ease',
           }}
         >
