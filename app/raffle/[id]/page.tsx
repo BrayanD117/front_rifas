@@ -8,6 +8,8 @@ import { Button, Container, Grid, Group, Title } from "@mantine/core";
 import AnimatedDigitInput from "../../components/AnimatedDigitInput/AnimatedDigitInput";
 import { motion } from "framer-motion";
 import PurchaseDetailDrawer from '@/app/components/PurchaseDetailDrawer/PurchaseDetailDrawer';
+import { useDispatch } from "react-redux";
+import { addToCart } from "@/features/cart/cartSlice";
 
 interface Raffle {
   id: number;
@@ -34,9 +36,11 @@ const RaffleDetailPage: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [finalNumber, setFinalNumber] = useState<string>("");
   const [currentDigits, setCurrentDigits] = useState<string[]>([]);
+  const [raffleNumbers, setRaffleNumbers] = useState<any[]>([]);
   const [isAnimating, setIsAnimating] = useState<boolean[]>([]);
   const timeoutsRef = useRef<NodeJS.Timeout[]>([]);
   const inputRefs = useRef<Array<HTMLInputElement | null>>([]);
+  const dispatch = useDispatch();
 
   const pinInputVariants = {
     initial: { scale: 1 },
@@ -125,6 +129,24 @@ const RaffleDetailPage: React.FC = () => {
     }
   };
 
+  const handleAddToCart = () => {
+    if (raffle && currentDigits.length === raffle.numberDigits) {
+      const numberPlayed = currentDigits.join('');
+      const newPlayedNumber = {
+        number: numberPlayed,
+        baseValue: raffle.baseValue,
+        tax: raffle.ivaValue,
+        totalValue: raffle.totalValue,
+        raffleId: raffle.id,
+        raffleName: raffle.slogan,
+      };
+
+      setRaffleNumbers([...raffleNumbers, newPlayedNumber]);
+
+      dispatch(addToCart(newPlayedNumber));
+    }
+  };
+
   if (loading) {
     return <div>Cargando...</div>;
   }
@@ -192,7 +214,7 @@ const RaffleDetailPage: React.FC = () => {
               </motion.div>
             </Group>
             <Group mt={"lg"} justify="space-between" grow>
-              <Button mt="md">Añadir al Carrito</Button>
+              <Button mt="md" onClick={handleAddToCart}>Añadir al Carrito</Button>
               <Button
                 onClick={generateRandomNumber}
                 mt="md"

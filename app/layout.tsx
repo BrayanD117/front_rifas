@@ -8,6 +8,8 @@ import { AuthProvider } from './context/AuthContext';
 
 import { ColorSchemeScript, MantineProvider } from '@mantine/core';
 import RouteGuard from './components/RouteGuard';
+import { Provider } from "react-redux";
+import store from "../store";
 
 export const metadata: Metadata = {
   title: "Rifas",
@@ -20,17 +22,19 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
+    <html lang="es">
       <head>
         <ColorSchemeScript />
       </head>
       <body>
         <MantineProvider defaultColorScheme="light">
           <AuthProvider>
-            <Notifications />
-            <RouteGuard>
-              {children}
-            </RouteGuard>
+            <Provider store={store}>
+              <Notifications />
+              <RouteGuard>
+                {children}
+              </RouteGuard>
+            </Provider>
           </AuthProvider>
         </MantineProvider>
       </body>
