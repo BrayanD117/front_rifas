@@ -5,6 +5,7 @@ import '@mantine/dates/styles.css';
 import '@mantine/dropzone/styles.css';
 import { Notifications } from '@mantine/notifications';
 import { AuthProvider } from './context/AuthContext';
+import { TelemetryProvider } from "./context/TelemetryProvider";
 
 import { ColorSchemeScript, MantineProvider } from '@mantine/core';
 import RouteGuard from './components/RouteGuard';
@@ -27,10 +28,12 @@ export default function RootLayout({
       <body>
         <MantineProvider defaultColorScheme="light">
           <AuthProvider>
+            <TelemetryProvider>
             <Notifications />
             <RouteGuard>
               {children}
             </RouteGuard>
+            </TelemetryProvider>
           </AuthProvider>
         </MantineProvider>
       </body>
