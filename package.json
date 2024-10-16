@@ -9,6 +9,7 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@hello-pangea/dnd": "^17.0.0",
     "@mantine/carousel": "^7.12.1",
     "@mantine/charts": "^7.12.1",
     "@mantine/code-highlight": "^7.12.1",
@@ -30,8 +31,8 @@
     "dayjs": "^1.11.13",
     "embla-carousel-autoplay": "^7.1.0",
     "embla-carousel-react": "^7.1.0",
-    "leaflet": "^1.9.4",
     "framer-motion": "^11.9.0",
+    "leaflet": "^1.9.4",
     "next": "14.2.6",
     "react": "^18",
     "react-dom": "^18",

@@ -2,29 +2,47 @@
 
 import { useState, useEffect } from "react";
 import { useRouter, useParams } from "next/navigation";
-import { Container, TextInput, NumberInput, Textarea, Button, Title, Group, Switch, Select, Divider, Grid, Text, Center, SimpleGrid, ActionIcon } from "@mantine/core";
-import { DateTimePicker } from '@mantine/dates';
+import {
+  Container,
+  TextInput,
+  NumberInput,
+  Textarea,
+  Button,
+  Title,
+  Group,
+  Switch,
+  Select,
+  Divider,
+  Grid,
+  Text,
+  Center,
+  ActionIcon,
+} from "@mantine/core";
+import { DateTimePicker } from "@mantine/dates";
 import { DropzoneButton } from "@/app/components/Dropzone/DropzoneButton";
-import { showNotification } from '@mantine/notifications';
-import { IconX } from '@tabler/icons-react';
+import { showNotification } from "@mantine/notifications";
+import { IconX } from "@tabler/icons-react";
 import dayjs from "dayjs";
-import 'dayjs/locale/es';
+import "dayjs/locale/es";
 import axios from "axios";
 import { MapContainer, TileLayer, Marker, Popup } from "react-leaflet";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
+import { DragDropContext, Droppable, Draggable } from "@hello-pangea/dnd";
 
 let DefaultIcon = L.icon({
-  iconUrl: "https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png",
-  shadowUrl: "https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png",
+  iconUrl:
+    "https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png",
+  shadowUrl:
+    "https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png",
 });
 
 L.Marker.prototype.options.icon = DefaultIcon;
 
 const formatCurrency = (value: number) => {
-  return new Intl.NumberFormat('es-CO', {
-    style: 'currency',
-    currency: 'COP',
+  return new Intl.NumberFormat("es-CO", {
+    style: "currency",
+    currency: "COP",
     minimumFractionDigits: 0,
   }).format(value);
 };
@@ -45,7 +63,9 @@ const EditRafflePage = () => {
   const [description, setDescription] = useState<string>("");
   const [prize, setPrize] = useState<string>("");
   const [prizeSpecifications, setPrizeSpecifications] = useState<string>("");
-  const [prizeCommercialValue, setPrizeCommercialValue] = useState<string>("0");
+  const [prizeCommercialValue, setPrizeCommercialValue] = useState<string>(
+    "0"
+  );
   const [baseValue, setBaseValue] = useState<number>(0);
   const [ivaValue, setIvaValue] = useState<number>(0);
   const [totalValue, setTotalValue] = useState<string>("0");
@@ -54,24 +74,33 @@ const EditRafflePage = () => {
   const [closeDate, setCloseDate] = useState<Date | null>(null);
   const [daysExpirationDate, setDaysExpirationDate] = useState<number>(30);
   const [expirationDate, setExpirationDate] = useState<Date | null>(null);
-  const [publicationDateTime, setPublicationDateTime] = useState<Date | null>(null);
+  const [publicationDateTime, setPublicationDateTime] =
+    useState<Date | null>(null);
   const [saleDateTime, setSaleDateTime] = useState<Date | null>(null);
   const [lottery, setLottery] = useState<string>("");
   const [numberDigits, setNumberDigits] = useState<number>(4);
   const [numberSeries, setNumberSeries] = useState<number>(1);
-  const [imageUrl, setImageUrl] = useState<File[]>([]);
-  const [existingImages, setExistingImages] = useState<string[]>([]);
   const [coverageId, setCoverageId] = useState<string | null>(null);
   const [authorityId, setAuthorityId] = useState<string | null>(null);
-  const [coverages, setCoverages] = useState<{ value: string; label: string }[]>([]);
-  const [authorities, setAuthorities] = useState<{ value: string; label: string }[]>([]);
+  const [coverages, setCoverages] = useState<
+    { value: string; label: string }[]
+  >([]);
+  const [authorities, setAuthorities] = useState<
+    { value: string; label: string }[]
+  >([]);
   const [bearerCheck, setBearerCheck] = useState(false);
   const [active, setActive] = useState(true);
-  const [categories, setCategories] = useState<{ value: string; label: string }[]>([]);
+  const [categories, setCategories] = useState<
+    { value: string; label: string }[]
+  >([]);
   const [category, setCategory] = useState<string | null>(null);
   const [raffleManager, setRaffleManager] = useState<string>("");
   const [contactManagerRaffle, setContactManagerRaffle] = useState<string>("");
   const [addressManagerRaffle, setAddressManagerRaffle] = useState<string>("");
+
+  const [images, setImages] = useState<
+    Array<{ id: string; url: string; file?: File; isNew: boolean }>
+  >([]);
 
   useEffect(() => {
     const numericTotalValue = parseCurrency(totalValue);
@@ -85,28 +114,49 @@ const EditRafflePage = () => {
   useEffect(() => {
     const fetchCoverages = async () => {
       try {
-        const { data } = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/coverages`);
-        setCoverages(data.map((coverage: any) => ({ value: coverage.id, label: coverage.name })));
+        const { data } = await axios.get(
+          `${process.env.NEXT_PUBLIC_API_URL}/coverages`
+        );
+        setCoverages(
+          data.map((coverage: any) => ({
+            value: coverage.id,
+            label: coverage.name,
+          }))
+        );
       } catch (error) {
-        console.error('Error fetching coverages', error);
+        console.error("Error fetching coverages", error);
       }
     };
 
     const fetchAuthorities = async () => {
       try {
-        const { data } = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/authorities`);
-        setAuthorities(data.map((authority: any) => ({ value: authority.id, label: authority.name })));
+        const { data } = await axios.get(
+          `${process.env.NEXT_PUBLIC_API_URL}/authorities`
+        );
+        setAuthorities(
+          data.map((authority: any) => ({
+            value: authority.id,
+            label: authority.name,
+          }))
+        );
       } catch (error) {
-        console.error('Error fetching authorities', error);
+        console.error("Error fetching authorities", error);
       }
     };
 
     const fetchCategories = async () => {
       try {
-        const { data } = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/categories`);
-        setCategories(data.map((category: any) => ({ value: category.id, label: category.name })));
+        const { data } = await axios.get(
+          `${process.env.NEXT_PUBLIC_API_URL}/categories`
+        );
+        setCategories(
+          data.map((category: any) => ({
+            value: category.id,
+            label: category.name,
+          }))
+        );
       } catch (error) {
-        console.error('Error fetching categories', error);
+        console.error("Error fetching categories", error);
       }
     };
 
@@ -118,8 +168,10 @@ const EditRafflePage = () => {
   useEffect(() => {
     const fetchRaffle = async () => {
       try {
-        const { data } = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/raffles/${id}`);
-        console.log("DATAAAAAAAA",data);
+        const { data } = await axios.get(
+          `${process.env.NEXT_PUBLIC_API_URL}/raffles/${id}`
+        );
+
         setName(data.name);
         setSlogan(data.slogan);
         setDescription(data.description);
@@ -138,12 +190,23 @@ const EditRafflePage = () => {
         setBearerCheck(data.bearerCheck);
         setActive(data.active);
         setPublicationDateTime(new Date(data.dateTimePublication));
-        setSaleDateTime(data.dateTimeSale ? new Date(data.dateTimeSale) : null);
-        setExistingImages(data.imagesUrls || []);
+        setSaleDateTime(
+          data.dateTimeSale ? new Date(data.dateTimeSale) : null
+        );
         setRaffleManager(data.managerName);
         setContactManagerRaffle(data.managerContact);
         setAddressManagerRaffle(data.managerAddress);
         setCategory(data.categoryId);
+
+        const existingImagesFormatted = (data.imagesUrls || []).map(
+          (url: string) => ({
+            id: url,
+            url: `${process.env.NEXT_PUBLIC_UPLOADS_URL}/${url}`,
+            isNew: false,
+          })
+        );
+        setImages(existingImagesFormatted);
+
         setLoading(false);
       } catch (error) {
         console.error("Error al obtener los datos de la rifa", error);
@@ -154,20 +217,35 @@ const EditRafflePage = () => {
     fetchRaffle();
   }, [id]);
 
-  const handleRemoveExistingImage = async (index: number) => {
-    const imageToRemove = existingImages[index];
-  
-    setExistingImages((prev) => prev.filter((_, i) => i !== index));
-  
-    try {
-      await axios.delete(`${process.env.NEXT_PUBLIC_API_URL}/upload/file`, {
-        data: { imagePath: imageToRemove },
-        headers: { 'Content-Type': 'application/json' },
-      });
-    } catch (error) {
-      console.error('Error al eliminar la imagen del servidor', error);
+  const handleRemoveImage = async (index: number) => {
+    const imageToRemove = images[index];
+
+    if (!imageToRemove.isNew) {
+      try {
+        await axios.delete(
+          `${process.env.NEXT_PUBLIC_API_URL}/upload/file`,
+          {
+            data: { imagePath: imageToRemove.id },
+            headers: { "Content-Type": "application/json" },
+          }
+        );
+      } catch (error) {
+        console.error("Error al eliminar la imagen del servidor", error);
+      }
     }
-  };  
+
+    setImages((prev) => prev.filter((_, i) => i !== index));
+  };
+
+  const handleDragEnd = (result: any) => {
+    if (!result.destination) return;
+
+    const reorderedImages = Array.from(images);
+    const [removed] = reorderedImages.splice(result.source.index, 1);
+    reorderedImages.splice(result.destination.index, 0, removed);
+
+    setImages(reorderedImages);
+  };
 
   const handleUpdateRaffle = async () => {
     try {
@@ -179,31 +257,46 @@ const EditRafflePage = () => {
       const dateTimePublication = formatDateToDB(publicationDateTime);
 
       const raffleTitle = name;
-  
-      const normalizedRaffleName = name.replace(/\s+/g, '_');
-  
+      const normalizedRaffleName = name.replace(/\s+/g, "_");
+
+      const existingImagesUrls = images
+        .filter((img) => !img.isNew)
+        .map((img) => img.id);
+
+      const newImages = images.filter((img) => img.isNew && img.file);
+
       const getNextImageIndex = () => {
-        const indices = existingImages.map((imageUrl) => {
-          const filename = imageUrl.split('/').pop();
+        const indices = existingImagesUrls.map((imageUrl) => {
+          const filename = imageUrl.split("/").pop();
           const match = filename ? filename.match(/_(\d+)\./) : null;
           return match ? parseInt(match[1], 10) : 0;
         });
         const maxIndex = indices.length > 0 ? Math.max(...indices) : 0;
         return maxIndex + 1;
       };
-  
+
       const nextImageIndex = getNextImageIndex();
-  
-      const newImageFilenames = imageUrl.map((file, index) => {
-        const extension = file.name.substring(file.name.lastIndexOf('.'));
-        return `${normalizedRaffleName}_${nextImageIndex + index}${extension}`;
+
+      const newImageFilenames = newImages.map((_, index) => {
+        return `${normalizedRaffleName}_${
+          nextImageIndex + index
+        }.webp`;
       });
-  
-      const updatedImagesUrls = [
-        ...existingImages,
-        ...newImageFilenames.map((filename) => `${normalizedRaffleName}/${filename}`),
-      ];
-  
+
+      const updatedImagesUrls: string[] = [];
+      let newImageIndex = 0;
+
+      images.forEach((img) => {
+        if (img.isNew) {
+          updatedImagesUrls.push(
+            `${normalizedRaffleName}/${newImageFilenames[newImageIndex]}`
+          );
+          newImageIndex++;
+        } else {
+          updatedImagesUrls.push(img.id);
+        }
+      });
+
       const raffleData = {
         name: raffleTitle,
         slogan,
@@ -232,70 +325,82 @@ const EditRafflePage = () => {
         managerAddress: addressManagerRaffle,
         categoryId: category,
       };
-  
-      if (imageUrl.length > 0) {
-        await uploadFilesToServer(imageUrl, normalizedRaffleName, newImageFilenames);
+
+      if (newImages.length > 0) {
+        await uploadFilesToServer(
+          newImages.map((img) => img.file!),
+          normalizedRaffleName,
+          newImageFilenames
+        );
       }
-  
-      await axios.put(`${process.env.NEXT_PUBLIC_API_URL}/raffles/${id}`, raffleData, {
-        withCredentials: true,
-        headers: { 'Content-Type': 'application/json' },
-      });
-  
+
+      await axios.put(
+        `${process.env.NEXT_PUBLIC_API_URL}/raffles/${id}`,
+        raffleData,
+        {
+          withCredentials: true,
+          headers: { "Content-Type": "application/json" },
+        }
+      );
+
       showNotification({
-        title: 'Rifa actualizada con éxito',
-        message: 'La rifa se ha actualizado correctamente.',
-        color: 'green',
+        title: "Rifa actualizada con éxito",
+        message: "La rifa se ha actualizado correctamente.",
+        color: "green",
       });
-  
-      router.push('/admin/raffles');
+
+      router.push("/admin/raffles");
     } catch (error) {
-      console.error('Error al actualizar la rifa', error);
+      console.error("Error al actualizar la rifa", error);
       showNotification({
-        title: 'Error al actualizar la rifa',
-        message: 'Ocurrió un error al actualizar la rifa. Por favor, inténtalo de nuevo.',
-        color: 'red',
+        title: "Error al actualizar la rifa",
+        message:
+          "Ocurrió un error al actualizar la rifa. Por favor, inténtalo de nuevo.",
+        color: "red",
       });
     }
   };
-  
+
   const uploadFilesToServer = async (
     files: File[],
     raffleName: string,
     filenames: string[]
   ) => {
     const data = new FormData();
-  
+
     files.forEach((file, index) => {
-      data.append('files', file, filenames[index]);
+      data.append("files", file, filenames[index]);
     });
-    data.append('raffleName', raffleName);
-  
+    data.append("raffleName", raffleName);
+
     try {
-      await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/upload/files`, data);
+      await axios.post(
+        `${process.env.NEXT_PUBLIC_API_URL}/upload/files`,
+        data
+      );
     } catch (error) {
-      console.error('Error al subir los archivos', error);
+      console.error("Error al subir los archivos", error);
     }
-  };  
+  };
 
   const formatDateToDB = (date: Date | null) => {
-    if (!date) return '';
+    if (!date) return "";
     const offset = date.getTimezoneOffset() * 60000;
     const localDate = new Date(date.getTime() - offset);
-    return localDate.toISOString().replace('T', ' ').split('.')[0];
+    return localDate.toISOString().replace("T", " ").split(".")[0];
   };
 
   const handlePublishImmediately = () => {
     const currentDate = new Date();
     setPublicationDateTime(currentDate);
   };
-  
+
   const handleSellImmediately = () => {
     const currentDate = new Date();
     setSaleDateTime(currentDate);
   };
 
-  const normalizedRaffleName = name.replace(/\s+/g, '_');
+  const normalizedRaffleName = name.replace(/\s+/g, "_");
 
   return (
     <Container>
@@ -628,33 +733,105 @@ const EditRafflePage = () => {
 
       <Divider my="md" />
 
-      <DropzoneButton setImageUrl={setImageUrl} raffleName={name}/>
-          <Title order={3} mt="xl">Imágenes Existentes</Title>
-            <SimpleGrid cols={3} mt="md" mb={"lg"}>
-              {existingImages.map((imageUrl, index) => (
-                <div key={index} style={{ position: 'relative' }}>
-                  <img
-                    src={`${process.env.NEXT_PUBLIC_UPLOADS_URL}/${imageUrl}`}
-                    alt={`Rifa ${name} Imagen ${index + 1}`}
-                    style={{ width: '100%', borderRadius: '8px' }}
-                  />
-                  <ActionIcon
-                    color="red"
-                    variant="filled"
-                    style={{ position: 'absolute', top: '5px', right: '5px', zIndex: 10 }}
-                    onClick={() => handleRemoveExistingImage(index)}
+      <DropzoneButton
+        onFilesAdded={(newFiles) =>
+          setImages((prev) => [...prev, ...newFiles])
+        }
+        raffleName={name}
+        />
+
+        <Divider my="md" />
+        {images.length > 0 && (
+          <DragDropContext onDragEnd={handleDragEnd}>
+            <Droppable droppableId="images" direction="horizontal">
+              {(provided) => (
+                <div
+                  ref={provided.innerRef}
+                  {...provided.droppableProps}
+                  style={{
+                    display: "flex",
+                    flexWrap: "wrap",
+                    padding: "10px 0",
+                  }}
                   >
-                    <IconX size={16} />
-                  </ActionIcon>
-                </div>
-              ))}
-            </SimpleGrid>
-            <Group mt="xl" mb="xl">
-              <Button color="green" onClick={handleUpdateRaffle}>Guardar Cambios</Button>
-              <Button color="red" variant="outline" onClick={() => router.push("/admin/raffles")}>
-                Cancelar
-              </Button>
-            </Group>
+                    {images.map((image, index) => (
+                      <Draggable
+                        key={image.id}
+                        draggableId={image.id}
+                        index={index}
+                      >
+                        {(provided, snapshot) => (
+                          <div
+                            ref={provided.innerRef}
+                            {...provided.draggableProps}
+                            {...provided.dragHandleProps}
+                            style={{
+                              width: 170,
+                              height: 170,
+                              margin: "5px",
+                              position: "relative",
+                              backgroundColor: snapshot.isDragging
+                                ? "lightgray"
+                                : "white",
+                              transition: "background-color 0.2s ease",
+                              display: "flex",
+                              justifyContent: "center",
+                              alignItems: "center",
+                              ...provided.draggableProps.style,
+                            }}
+                          >
+                            <img
+                              src={image.url}
+                              alt={`Imagen ${index + 1}`}
+                              style={{
+                                width: "100%",
+                                height: "100%",
+                                borderRadius: "8px",
+                                objectFit: "cover",
+                              }}
+                            />
+                            <ActionIcon
+                              color="red"
+                              variant="filled"
+                              style={{
+                                position: "absolute",
+                                top: "5px",
+                                right: "5px",
+                                zIndex: 10,
+                              }}
+                              onClick={() => handleRemoveImage(index)}
+                            >
+                              <IconX size={16} />
+                            </ActionIcon>
+                          </div>
+                        )}
+                      </Draggable>
+                    ))}
+                    {provided.placeholder && (
+                      <div
+                        style={{ width: 170, height: 170, margin: "5px" }}
+                      >
+                        {provided.placeholder}
+                      </div>
+                    )}
+                  </div>
+                )}
+              </Droppable>
+            </DragDropContext>
+          )}
+
+          <Group mt="xl" mb="xl">
+            <Button color="green" onClick={handleUpdateRaffle}>
+              Guardar Cambios
+            </Button>
+            <Button
+              color="red"
+              variant="outline"
+              onClick={() => router.push("/admin/raffles")}
+            >
+              Cancelar
+            </Button>
+          </Group>
         </>
       )}
     </Container>
