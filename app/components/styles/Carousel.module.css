@@ -15,11 +15,3 @@
   transition: opacity 150ms ease;
   opacity: 0;
 }
-
-.root {
-  &:hover {
-    .indicators {
-      opacity: 1;
-    }
-  }
-}

@@ -11,16 +11,21 @@ import PurchaseDetailDrawer from '@/app/components/PurchaseDetailDrawer/Purchase
 
 interface Raffle {
   id: number;
-  name: string;
+  slogan: string;
   imagesUrls: string[];
   description: string;
   totalValue: string;
   baseValue: string;
   ivaValue: string;
   prize: string;
+  prizeCommercialValuation: string;
   lottery: string;
   gameDate: string;
   numberDigits: number;
+  numberSeries: string;
+  managerName: string;
+  managerContact: string;
+  managerAddress: string;
 }
 
 const RaffleDetailPage: React.FC = () => {
@@ -128,21 +133,35 @@ const RaffleDetailPage: React.FC = () => {
     return <div>No se encontró la rifa</div>;
   }
 
+  const getAllImagesUrls = (imagesUrls: string[]) => {
+    if (imagesUrls && imagesUrls.length > 0) {
+      return imagesUrls.map((imageUrl) => `${process.env.NEXT_PUBLIC_UPLOADS_URL}/${imageUrl}`);
+    }
+    return ['/default-image-path.webp'];
+  };
+
   return (
     <>
       <Container mt={90} size={"xl"}>
         <Grid>
           <Grid.Col span={{ base: 12, md: 6 }}>
             <DetailRaffleCard
-              imageUrl={raffle.imagesUrls[0]}
-              title={raffle.name}
+              imagesUrls={getAllImagesUrls(raffle.imagesUrls)}
+              slogan={raffle.slogan}
               totalValue={raffle.totalValue}
               description={raffle.description}
               moreInfo={{
                 prize: raffle.prize,
+                prizeCommercialValuation: raffle.prizeCommercialValuation,
                 lottery: raffle.lottery,
                 gameDate: raffle.gameDate,
+                winnerNumbers: raffle.numberSeries
               }}
+              numberDigits={raffle.numberDigits}
+              managerName={raffle.managerName}
+              managerContact={raffle.managerContact}
+              managerAddress={raffle.managerAddress}
+
             />
           </Grid.Col>
           <Grid.Col span={{ base: 12, md: 6 }}>
@@ -182,7 +201,7 @@ const RaffleDetailPage: React.FC = () => {
               </Button>
             </Group>
             <PurchaseDetailDrawer
-              name={raffle.name}
+              name={raffle.slogan}
               prize={raffle.prize}
               gameDate={raffle.gameDate}
               elements={[
