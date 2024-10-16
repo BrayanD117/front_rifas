@@ -6,6 +6,7 @@ import '@mantine/carousel/styles.css';
 import Autoplay from 'embla-carousel-autoplay';
 import { useRef } from 'react';
 import { Carousel } from '@mantine/carousel';
+import { ContactIconsList } from '../ContactIcons/ContactIcons';
 
 interface DetailRaffleCardProps {
     imagesUrls: string[];
@@ -35,7 +36,7 @@ export function DetailRaffleCard({ imagesUrls, slogan, totalValue, description, 
 
     const items = Object.keys(moreInfo).map((key) => (
         <div key={key}>
-            <Text size="xs" color="dimmed">
+            <Text size="xs" c="dimmed">
                 {infoTitles[key as keyof typeof moreInfo]}:
             </Text>
             <Badge key={key} variant="light" size="lg" className={classes.badge}>
@@ -87,7 +88,7 @@ export function DetailRaffleCard({ imagesUrls, slogan, totalValue, description, 
 
             <Card.Section className={classes.section}>
                 <Text mt="md" c="dimmed" className={classes.label}>
-                    Más información
+                    Información del Juego
                 </Text>
                 <Group mt={5}>
                     {items}
@@ -95,21 +96,17 @@ export function DetailRaffleCard({ imagesUrls, slogan, totalValue, description, 
             </Card.Section>
             <Card.Section className={classes.section}>
                 <Text mt="md" c="dimmed" className={classes.label}>
-                    Más información
+                    Información del Responsable
                 </Text>
-                <Group mt={5}>
-                    <List withPadding>
-                        <List.Item>Nombre Responsable: { managerName }</List.Item>
-                        <List.Item>Contacto Responsable: { managerContact }</List.Item>
-                        <List.Item>Dirección Responsable: { managerAddress }</List.Item>
-                    </List>
-                    
-                </Group>
-                <Divider my="md" />
-                <Group mt={0}>
-                    <List withPadding>
-                        <List.Item>Número de cifras a jugar: { numberDigits }</List.Item>
-                    </List>
+                <Group grow mt={5} justify="space-between">
+                    <ContactIconsList
+                        data={[
+                            { description: managerName },
+                            { description: managerContact },
+                            { description: managerAddress }
+                        ]}
+                        numCifras={ numberDigits }
+                    />
                 </Group>
             </Card.Section>
         </Card>
