@@ -25,19 +25,13 @@ import { IconX } from "@tabler/icons-react";
 import dayjs from "dayjs";
 import "dayjs/locale/es";
 import axios from "axios";
-import { MapContainer, TileLayer, Marker, Popup } from "react-leaflet";
-import L from "leaflet";
-import "leaflet/dist/leaflet.css";
 import { DragDropContext, Droppable, Draggable } from "@hello-pangea/dnd";
+import dynamic from "next/dynamic";
 
-let DefaultIcon = L.icon({
-  iconUrl:
-    "https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png",
-  shadowUrl:
-    "https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png",
-});
-
-L.Marker.prototype.options.icon = DefaultIcon;
+const MapComponent = dynamic(
+  () => import("@/app/components/MapComponent/MapComponent"),
+  { ssr: false }
+);
 
 const formatCurrency = (value: number) => {
   return new Intl.NumberFormat("es-CO", {
@@ -707,28 +701,7 @@ const EditRafflePage = () => {
       </Group>
 
       <Group grow mt="md">
-        <MapContainer
-          center={center}
-          zoom={13}
-          style={{ height: "200px", width: "100%", zIndex: 1 }}
-        >
-          <TileLayer
-            url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-            attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-          />
-          <Marker position={center} icon={DefaultIcon}>
-            <Popup>Disponible solo en Ibagué, Tolima.</Popup>
-          </Marker>
-
-          {/* <Circle
-                  center={center}
-                  radius={5000} // Radio en metros
-                  color="red"
-                  fillColor="#f03"
-                  fillOpacity={0.5}
-                /> */}
-        </MapContainer>
-        {/* <Text ta="center" c="dimmed">Esta rifa utiliza georeferenciación y solo estará disponible en Ibagué - Tolima.</Text> */}
+        <MapComponent center={center} />
       </Group>
 
       <Divider my="md" />
