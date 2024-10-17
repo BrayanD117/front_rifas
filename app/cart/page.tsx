@@ -8,18 +8,27 @@ import { removeSelectedItems } from '../../features/cart/cartSlice';
 
 const CartPage = () => {
   const cartItems = useSelector((state: RootState) => state.cart.items);
-  const [selectedItems, setSelectedItems] = useState<number[]>([]);
+  const [selectedItems, setSelectedItems] = useState<string[]>([]);
   const [opened, setOpened] = useState(false);
   const dispatch = useDispatch();
 
-  const handleSelectItem = (raffleId: number) => {
+  const handleSelectItem = (cartItemId: string) => {
     setSelectedItems((prev) =>
-      prev.includes(raffleId) ? prev.filter((id) => id !== raffleId) : [...prev, raffleId]
+      prev.includes(cartItemId) ? prev.filter((id) => id !== cartItemId) : [...prev, cartItemId]
     );
   };
 
+  const handleSelectAll = () => {
+    if (selectedItems.length === cartItems.length) {
+      setSelectedItems([]);
+    } else {
+      const allIds = cartItems.map((item) => item.cartItemId);
+      setSelectedItems(allIds);
+    }
+  };
+
   const handleRemoveItems = () => {
-    dispatch(removeSelectedItems());
+    dispatch(removeSelectedItems(selectedItems));
     setSelectedItems([]);
     setOpened(false);
   };
@@ -47,23 +56,28 @@ const CartPage = () => {
           <Table highlightOnHover>
             <Table.Thead>
               <Table.Tr>
-                <Table.Th><Checkbox /></Table.Th>
+                <Table.Th>
+                  <Checkbox
+                    checked={selectedItems.length === cartItems.length && cartItems.length > 0}
+                    indeterminate={selectedItems.length > 0 && selectedItems.length < cartItems.length}
+                    onChange={handleSelectAll}
+                  />
+                </Table.Th>
                 <Table.Th>Imagen</Table.Th>
                 <Table.Th>Rifa</Table.Th>
                 <Table.Th>Premio</Table.Th>
                 <Table.Th>Precio Base</Table.Th>
                 <Table.Th>IVA</Table.Th>
                 <Table.Th>Total</Table.Th>
-                <Table.Th>Acciones</Table.Th>
               </Table.Tr>
             </Table.Thead>
             <Table.Tbody>
               {cartItems.map((item, index) => (
-                <Table.Tr key={item.raffleId}>
+                <Table.Tr key={item.cartItemId}>
                   <Table.Td>
                     <Checkbox
-                      checked={selectedItems.includes(item.raffleId)}
-                      onChange={() => handleSelectItem(item.raffleId)}
+                      checked={selectedItems.includes(item.cartItemId)}
+                      onChange={() => handleSelectItem(item.cartItemId)}
                     />
                   </Table.Td>
                   <Table.Td>
@@ -74,13 +88,16 @@ const CartPage = () => {
                   <Table.Td>{item.baseValue}</Table.Td>
                   <Table.Td>{item.tax}</Table.Td>
                   <Table.Td>{item.totalValue}</Table.Td>
-                  <Table.Td>
-                    <Button color="red" onClick={() => setOpened(true)}>Eliminar</Button>
-                  </Table.Td>
                 </Table.Tr>
               ))}
             </Table.Tbody>
           </Table>
+
+          <Group justify="center" mt="xl">
+            <Button color="red" onClick={() => setOpened(true)} disabled={selectedItems.length === 0}>
+              Eliminar seleccionados
+            </Button>
+          </Group>
 
           <Modal
             opened={opened}
