@@ -1,8 +1,10 @@
-import { Drawer, Button, Card, Text, Group, Badge, Table } from '@mantine/core';
-import { useDisclosure } from '@mantine/hooks';
+"use client";
+
+import { Drawer, Button, Card, Text, Group, Badge, Table, Grid } from '@mantine/core';
 import classes from './PurchaseDetailDrawer.module.css';
 import { useFormattedDate } from '@/app/hooks/useFormattedDate';
 import { useCurrencyFormatter } from '../../hooks/useCurrencyFormatter';
+import { useRouter } from 'next/navigation';
 
 interface Element {
   number: string;
@@ -16,19 +18,20 @@ interface PurchaseDetailDrawerProps {
   prize: string;
   gameDate: string;
   elements: Element[];
+  opened: boolean;
+  close: () => void;
+  resetInputs: () => void;
 }
 
-const PurchaseDetailDrawer: React.FC<PurchaseDetailDrawerProps> = ({ name, prize, gameDate, elements }) => {
-  const [opened, { open, close }] = useDisclosure(false);
+const PurchaseDetailDrawer: React.FC<PurchaseDetailDrawerProps> = ({ name, prize, gameDate, elements, opened, close, resetInputs }) => {
+  const router = useRouter();
   const { formatShortDate } = useFormattedDate();
   const formatCurrency = useCurrencyFormatter();
 
   const totalWithoutTax = elements.reduce((acc, element) => acc + Number(element.baseValue), 0);
   console.log(totalWithoutTax);
   const tax = totalWithoutTax * 0.19;
-  //console.log(tax);
   const totalWithTax = totalWithoutTax + tax;
-  //console.log(totalWithTax);
 
   const rows = elements.map((element) => (
     <Table.Tr key={element.number}>
@@ -39,13 +42,21 @@ const PurchaseDetailDrawer: React.FC<PurchaseDetailDrawerProps> = ({ name, prize
     </Table.Tr>
   ));
 
+  const handleContinuePlaying = () => {
+    close();
+    resetInputs();
+  };
+
+  const handleGoToCart = () => {
+    close();
+    resetInputs();
+    router.push('/cart');
+  };
+
   return (
     <>
-      <Button onClick={open}>Abrir Información</Button>
       <Drawer position="right" offset={8} radius="md" zIndex={1100} opened={opened} onClose={close} title="Detalle de tu compra">
-
         <Card withBorder radius="md" className={classes.card}>
-
           <Group justify="space-between">
             <div>
               <Text fw={500}>{name}</Text>
@@ -90,6 +101,17 @@ const PurchaseDetailDrawer: React.FC<PurchaseDetailDrawerProps> = ({ name, prize
                 { formatCurrency(totalWithTax.toFixed()) }
               </Text>
             </Card>
+          </Card.Section>
+
+          <Card.Section className={classes.section} pt={0}>
+            <Grid grow gutter="xs">
+              <Grid.Col span={{ base: 12, md: 6, lg: 6 }}>
+                <Button fullWidth size="md" radius="md" onClick={handleContinuePlaying}>Seguir jugando</Button>
+              </Grid.Col>
+              <Grid.Col span={{ base: 12, md: 6, lg: 6 }}>
+                <Button fullWidth size="md" radius="md" onClick={handleGoToCart}>Ir al Carrito</Button>
+              </Grid.Col>
+            </Grid>
           </Card.Section>
         </Card>
       </Drawer>
