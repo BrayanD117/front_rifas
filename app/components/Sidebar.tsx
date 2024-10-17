@@ -38,7 +38,7 @@ export function Sidebar({ opened, setOpened }: { opened: boolean, setOpened: Rea
     try {
       await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/auth/logout`, {}, { withCredentials: true });
       logout();
-      router.push('/login');
+      router.push('/');
     } catch (error) {
       console.error('Error al cerrar sesión', error);
     }

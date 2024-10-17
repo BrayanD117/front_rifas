@@ -155,7 +155,9 @@ const RaffleDetailPage: React.FC = () => {
       dispatch(addToCart({
         raffleId: raffle.id,
         raffleName: raffle.slogan,
-        ...newPlayedNumber
+        ...newPlayedNumber,
+        imageUrl: raffle.imagesUrls[0],
+        prize: raffle.prize
       }));
 
       open();
