@@ -4,7 +4,7 @@ import React, { useEffect, useState, useRef } from "react";
 import { DetailRaffleCard } from "@/app/components/DetailRaffleCard/DetailRaffleCard";
 import axios from "axios";
 import { useParams } from "next/navigation";
-import { Button, Container, Grid, Group, Title } from "@mantine/core";
+import { Button, Container, Grid, Group, Title, Tooltip } from "@mantine/core";
 import AnimatedDigitInput from "../../components/AnimatedDigitInput/AnimatedDigitInput";
 import { motion } from "framer-motion";
 import PurchaseDetailDrawer from '@/app/components/PurchaseDetailDrawer/PurchaseDetailDrawer';
@@ -44,6 +44,8 @@ const RaffleDetailPage: React.FC = () => {
   const inputRefs = useRef<Array<HTMLInputElement | null>>([]);
 
   const [opened, { open, close }] = useDisclosure(false);
+
+  const allInputsFilled = currentDigits.every(digit => digit !== '');
 
   const pinInputVariants = {
     initial: { scale: 1 },
@@ -139,7 +141,7 @@ const RaffleDetailPage: React.FC = () => {
   };
 
   const handleAddAndOpenDrawer = () => {
-    if (raffle && currentDigits.length === raffle.numberDigits) {
+    if (raffle && currentDigits.length === raffle.numberDigits && allInputsFilled) {
       const numberPlayed = currentDigits.join('');
       const newPlayedNumber = {
         number: numberPlayed,
@@ -227,7 +229,11 @@ const RaffleDetailPage: React.FC = () => {
               </motion.div>
             </Group>
             <Group mt={"lg"} justify="space-between" grow>
-              <Button mt="md" onClick={handleAddAndOpenDrawer}>Jugar número</Button>
+              <Tooltip label="Escribe los números a jugar" disabled={allInputsFilled}>
+                <Button mt="md" onClick={handleAddAndOpenDrawer} disabled={!allInputsFilled}>
+                  Jugar número
+                </Button>
+              </Tooltip>
               <Button
                 onClick={generateRandomNumber}
                 mt="md"

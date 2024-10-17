@@ -15,26 +15,26 @@ const AnimatedDigitInput = React.forwardRef<HTMLInputElement, AnimatedDigitInput
   const { value, onChange, isAnimating, index, focusNext, focusPrev, ...rest } = props;
 
   const digitHeight = 60;
-  const digitList = Array.from({ length: 10 }, (_, i) => i.toString());
+  const digitList = [''].concat(Array.from({ length: 10 }, (_, i) => i.toString()));
 
   const y = useMotionValue(0);
 
   useEffect(() => {
     if (isAnimating) {
-      const animation = animate(y, -digitHeight * 10, {
+      const animation = animate(y, -digitHeight * (digitList.length - 1), {
         duration: 1,
         ease: "linear",
         repeat: Infinity,
       });
       return () => animation.stop();
     } else {
-      const targetY = -digitHeight * parseInt(value || '0');
+      const targetY = -digitHeight * digitList.indexOf(value);
       animate(y, targetY, {
         duration: 0.5,
         ease: "easeOut",
       });
     }
-  }, [isAnimating, value]);
+  }, [isAnimating, value]);  
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const newValue = e.target.value;
@@ -42,7 +42,7 @@ const AnimatedDigitInput = React.forwardRef<HTMLInputElement, AnimatedDigitInput
       onChange(newValue, index);
       focusNext(index);
     } else if (newValue === "") {
-      onChange("0", index);
+      onChange("", index);
     }
   };
 
@@ -50,10 +50,10 @@ const AnimatedDigitInput = React.forwardRef<HTMLInputElement, AnimatedDigitInput
     if (e.key === "Backspace") {
       if (value === "" || value === "0") {
         e.preventDefault();
-        onChange("0", index);
+        onChange("", index);
         focusPrev(index);
       } else {
-        onChange("0", index);
+        onChange("", index);
       }
     }
   };
@@ -72,7 +72,7 @@ const AnimatedDigitInput = React.forwardRef<HTMLInputElement, AnimatedDigitInput
     >
       <input
         ref={ref}
-        value={value !== "0" ? value : ""}
+        value={value || ""}
         onChange={handleInputChange}
         onKeyDown={handleKeyDown}
         maxLength={1}
@@ -87,7 +87,7 @@ const AnimatedDigitInput = React.forwardRef<HTMLInputElement, AnimatedDigitInput
           top: 0,
           left: 0,
           zIndex: 2,
-          color: 'transparent',
+          color: value ? 'transparent' : '#000',
           caretColor: '#000',
           outline: 'none',
         }}
