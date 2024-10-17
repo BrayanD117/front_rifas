@@ -23,7 +23,7 @@ export default function RouteGuard({ children }: { children: React.ReactNode }) 
 
   useEffect(() => {
     if (!loading) {
-      if (isAdminRoute && (!isLoggedIn || user?.role !== "admin")) {
+      if (isAdminRoute && (!isLoggedIn || user?.role !== "Admin")) {
         router.push("/unauthorized");
       }
     }

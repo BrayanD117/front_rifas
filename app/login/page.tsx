@@ -46,7 +46,7 @@ export default function LoginPage() {
       );
       const { role } = response.data.user;
 
-      login(role);
+      login({ id: response.data.user.id, role: response.data.user.role });
 
       if (role === "Admin") {
         router.push("/admin/dashboard");
