@@ -2,15 +2,23 @@
 
 import { useSelector, useDispatch } from 'react-redux';
 import { RootState } from '../../store';
-import { Container, Text, Group, Button, Table, Checkbox, Modal, Title, Stack, Divider, Paper } from '@mantine/core';
+import { Container, Text, Group, Button, Table, Checkbox, Modal, Title, Stack, Divider, Paper, Image } from '@mantine/core';
 import { useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { removeSelectedItems } from '../../features/cart/cartSlice';
+import { useCurrencyFormatter } from '@/app/hooks/useCurrencyFormatter';
 
 const CartPage = () => {
   const cartItems = useSelector((state: RootState) => state.cart.items);
   const [selectedItems, setSelectedItems] = useState<string[]>([]);
   const [opened, setOpened] = useState(false);
   const dispatch = useDispatch();
+  const formatCurrency = useCurrencyFormatter();
+  const router = useRouter();
+
+  const handleGoHome = () => {
+    router.push('/');
+  };
 
   const handleSelectItem = (cartItemId: string) => {
     setSelectedItems((prev) =>
@@ -36,6 +44,10 @@ const CartPage = () => {
   const totalTickets = cartItems.length;
   const totalPrice = cartItems.reduce((acc, item) => acc + parseFloat(item.totalValue), 0).toFixed(2);
 
+  const getFullImageUrl = (imageUrl: string) => {
+    return `${process.env.NEXT_PUBLIC_UPLOADS_URL}/${imageUrl}`;
+  };
+
   return (
     <Container mt={80}>
       <Title order={2} ta="center" mb={30}>
@@ -43,11 +55,11 @@ const CartPage = () => {
       </Title>
 
       {cartItems.length === 0 ? (
-        <div style={{ textAlign: 'center', marginTop: '50px' }}>
-          <Text size="xl" w={500} mb="md">
+        <div style={{ textAlign: 'center' }}>
+          <Text size="xl" ta='center'mb="md">
             No tienes rifas en el carrito.
           </Text>
-          <Button size="lg" onClick={() => window.location.href = '/'}>
+          <Button size="lg" onClick={handleGoHome}>
             Volver al Inicio
           </Button>
         </div>
@@ -81,13 +93,19 @@ const CartPage = () => {
                     />
                   </Table.Td>
                   <Table.Td>
-                    <img src={item.imageUrl} alt={item.raffleName} width={50} height={50} />
+                    <Image
+                      src={getFullImageUrl(item.imageUrl)}
+                      alt={item.raffleName}
+                      width={50}
+                      height={50}
+                      radius="md"
+                    />
                   </Table.Td>
                   <Table.Td>{item.raffleName}</Table.Td>
                   <Table.Td>{item.prize}</Table.Td>
-                  <Table.Td>{item.baseValue}</Table.Td>
-                  <Table.Td>{item.tax}</Table.Td>
-                  <Table.Td>{item.totalValue}</Table.Td>
+                  <Table.Td>{formatCurrency(item.baseValue)}</Table.Td>
+                  <Table.Td>{formatCurrency(item.tax)}</Table.Td>
+                  <Table.Td>{formatCurrency(item.totalValue)}</Table.Td>
                 </Table.Tr>
               ))}
             </Table.Tbody>
@@ -124,7 +142,7 @@ const CartPage = () => {
               </Group>
               <Group justify="apart">
                 <Text>Total a pagar:</Text>
-                <Text>{totalPrice}</Text>
+                <Text>{formatCurrency(totalPrice)}</Text>
               </Group>
               <Button fullWidth size="lg" color="blue">
                 Ir a Pagar

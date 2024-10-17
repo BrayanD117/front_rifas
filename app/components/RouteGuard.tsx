@@ -7,7 +7,7 @@ import { Sidebar } from './Sidebar';
 import { useAuth } from '../context/AuthContext';
 import { useEffect, useState } from 'react';
 import { useMediaQuery } from '@mantine/hooks';
-import { useMantineTheme } from '@mantine/core';
+import { Center, Loader, useMantineTheme } from '@mantine/core';
 
 export default function RouteGuard({ children }: { children: React.ReactNode }) {
   const { user, isLoggedIn, loading } = useAuth();
@@ -30,7 +30,11 @@ export default function RouteGuard({ children }: { children: React.ReactNode }) 
   }, [isAdminRoute, isLoggedIn, user, loading, router]);
 
   if (loading) {
-    return <div>Cargando...</div>;
+    return (
+      <Center h="100vh" w="100vw">
+        <Loader size="xl" />
+      </Center>
+    );
   }
 
   return (
