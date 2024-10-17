@@ -2,7 +2,7 @@
 
 import { useSelector, useDispatch } from 'react-redux';
 import { RootState } from '../../store';
-import { Container, Text, Group, Button, Table, Checkbox, Modal, Title, Stack, Divider, Paper, Image } from '@mantine/core';
+import { Container, Text, Group, Button, Table, Checkbox, Modal, Title, Stack, Divider, Paper, Image, Center } from '@mantine/core';
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { removeSelectedItems } from '../../features/cart/cartSlice';
@@ -77,6 +77,7 @@ const CartPage = () => {
                 </Table.Th>
                 <Table.Th>Imagen</Table.Th>
                 <Table.Th>Rifa</Table.Th>
+                <Table.Th>Numero Jugado</Table.Th>
                 <Table.Th>Premio</Table.Th>
                 <Table.Th>Precio Base</Table.Th>
                 <Table.Th>IVA</Table.Th>
@@ -102,6 +103,7 @@ const CartPage = () => {
                     />
                   </Table.Td>
                   <Table.Td>{item.raffleName}</Table.Td>
+                  <Table.Td><Text fw={700}>{item.number}</Text></Table.Td>
                   <Table.Td>{item.prize}</Table.Td>
                   <Table.Td>{formatCurrency(item.baseValue)}</Table.Td>
                   <Table.Td>{formatCurrency(item.tax)}</Table.Td>
