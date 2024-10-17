@@ -1,4 +1,4 @@
-import { Drawer, Button, Card, Text, Group, Badge, Table } from '@mantine/core';
+import { Drawer, Button, Card, Text, Group, Badge, Table, Grid } from '@mantine/core';
 import classes from './PurchaseDetailDrawer.module.css';
 import { useFormattedDate } from '@/app/hooks/useFormattedDate';
 import { useCurrencyFormatter } from '../../hooks/useCurrencyFormatter';
@@ -85,6 +85,17 @@ const PurchaseDetailDrawer: React.FC<PurchaseDetailDrawerProps> = ({ name, prize
                 { formatCurrency(totalWithTax.toFixed()) }
               </Text>
             </Card>
+          </Card.Section>
+
+          <Card.Section className={classes.section} pt={0}>
+            <Grid grow gutter="xs">
+              <Grid.Col span={{ base: 12, md: 6, lg: 6 }}>
+                <Button fullWidth size="md" radius="md">Seguir jugando</Button>
+              </Grid.Col>
+              <Grid.Col span={{ base: 12, md: 6, lg: 6 }}>
+                <Button fullWidth size="md" radius="md">Ir al Carrito</Button>
+              </Grid.Col>
+            </Grid>
           </Card.Section>
         </Card>
       </Drawer>
