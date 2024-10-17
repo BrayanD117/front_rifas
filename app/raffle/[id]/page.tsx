@@ -106,6 +106,12 @@ const RaffleDetailPage: React.FC = () => {
     }
   };
 
+  const resetInputs = () => {
+    if (raffle) {
+      setCurrentDigits(Array(raffle.numberDigits).fill(''));
+    }
+  };
+
   useEffect(() => {
     return () => {
       timeoutsRef.current.forEach(clearTimeout);
@@ -236,6 +242,7 @@ const RaffleDetailPage: React.FC = () => {
               elements={raffleNumbers}
               opened={opened}
               close={close}
+              resetInputs={resetInputs}
             />
           </Grid.Col>
         </Grid>

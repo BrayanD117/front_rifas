@@ -1,7 +1,10 @@
+"use client";
+
 import { Drawer, Button, Card, Text, Group, Badge, Table, Grid } from '@mantine/core';
 import classes from './PurchaseDetailDrawer.module.css';
 import { useFormattedDate } from '@/app/hooks/useFormattedDate';
 import { useCurrencyFormatter } from '../../hooks/useCurrencyFormatter';
+import { useRouter } from 'next/navigation';
 
 interface Element {
   number: string;
@@ -17,9 +20,11 @@ interface PurchaseDetailDrawerProps {
   elements: Element[];
   opened: boolean;
   close: () => void;
+  resetInputs: () => void;
 }
 
-const PurchaseDetailDrawer: React.FC<PurchaseDetailDrawerProps> = ({ name, prize, gameDate, elements, opened, close }) => {
+const PurchaseDetailDrawer: React.FC<PurchaseDetailDrawerProps> = ({ name, prize, gameDate, elements, opened, close, resetInputs }) => {
+  const router = useRouter();
   const { formatShortDate } = useFormattedDate();
   const formatCurrency = useCurrencyFormatter();
 
@@ -36,6 +41,17 @@ const PurchaseDetailDrawer: React.FC<PurchaseDetailDrawerProps> = ({ name, prize
       <Table.Td>{formatCurrency(element.totalValue)}</Table.Td>
     </Table.Tr>
   ));
+
+  const handleContinuePlaying = () => {
+    close();
+    resetInputs();
+  };
+
+  const handleGoToCart = () => {
+    close();
+    resetInputs();
+    router.push('/cart');
+  };
 
   return (
     <>
@@ -90,10 +106,10 @@ const PurchaseDetailDrawer: React.FC<PurchaseDetailDrawerProps> = ({ name, prize
           <Card.Section className={classes.section} pt={0}>
             <Grid grow gutter="xs">
               <Grid.Col span={{ base: 12, md: 6, lg: 6 }}>
-                <Button fullWidth size="md" radius="md">Seguir jugando</Button>
+                <Button fullWidth size="md" radius="md" onClick={handleContinuePlaying}>Seguir jugando</Button>
               </Grid.Col>
               <Grid.Col span={{ base: 12, md: 6, lg: 6 }}>
-                <Button fullWidth size="md" radius="md">Ir al Carrito</Button>
+                <Button fullWidth size="md" radius="md" onClick={handleGoToCart}>Ir al Carrito</Button>
               </Grid.Col>
             </Grid>
           </Card.Section>

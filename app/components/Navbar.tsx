@@ -1,4 +1,5 @@
 "use client";
+
 import {
   Group,
   Button,
@@ -43,6 +44,10 @@ export function Navbar() {
 
   const handleBrandClick = () => {
     router.push("/");
+  };
+
+  const handleGoToCart = () => {
+    router.push('/cart');
   };
 
   return (
@@ -126,6 +131,7 @@ export function Navbar() {
                     zIndex: 1001,
                   },
                 }}
+                onClick={handleGoToCart}
               >
                 <IconShoppingCartFilled
                   className={classes.cartIcon}
