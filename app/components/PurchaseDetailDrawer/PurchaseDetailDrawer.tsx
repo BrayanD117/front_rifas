@@ -42,7 +42,7 @@ const PurchaseDetailDrawer: React.FC<PurchaseDetailDrawerProps> = ({ name, prize
     </Table.Tr>
   ));
 
-  const handleContinuePlaying = () => {
+  const handleClose = () => {
     close();
     resetInputs();
   };
@@ -55,7 +55,7 @@ const PurchaseDetailDrawer: React.FC<PurchaseDetailDrawerProps> = ({ name, prize
 
   return (
     <>
-      <Drawer position="right" offset={8} radius="md" zIndex={1100} opened={opened} onClose={close} title="Detalle de tu compra">
+      <Drawer position="right" offset={8} radius="md" zIndex={1100} opened={opened} onClose={handleClose} title="Detalle de tu compra">
         <Card withBorder radius="md" className={classes.card}>
           <Group justify="space-between">
             <div>
@@ -106,7 +106,7 @@ const PurchaseDetailDrawer: React.FC<PurchaseDetailDrawerProps> = ({ name, prize
           <Card.Section className={classes.section} pt={0}>
             <Grid grow gutter="xs">
               <Grid.Col span={{ base: 12, md: 6, lg: 6 }}>
-                <Button fullWidth size="md" radius="md" onClick={handleContinuePlaying}>Seguir jugando</Button>
+                <Button fullWidth size="md" radius="md" onClick={handleClose}>Seguir jugando</Button>
               </Grid.Col>
               <Grid.Col span={{ base: 12, md: 6, lg: 6 }}>
                 <Button fullWidth size="md" radius="md" onClick={handleGoToCart}>Ir al Carrito</Button>
