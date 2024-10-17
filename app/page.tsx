@@ -1,3 +1,5 @@
+"use client";
+
 import React, { useContext, useEffect }  from 'react'
 import CarouselComponent from './components/Carousel'
 import { Container } from '@mantine/core'
