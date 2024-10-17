@@ -5,10 +5,11 @@ import '@mantine/dates/styles.css';
 import '@mantine/dropzone/styles.css';
 import { Notifications } from '@mantine/notifications';
 import { AuthProvider } from './context/AuthContext';
+import { TelemetryProvider } from "./context/TelemetryProvider";
+import ClientProvider from "./context/ClientProvider";
 
 import { ColorSchemeScript, MantineProvider } from '@mantine/core';
 import RouteGuard from './components/RouteGuard';
-import ClientProvider from "./context/ClientProvider";
 
 export const metadata: Metadata = {
   title: "Rifas",
@@ -28,12 +29,14 @@ export default function RootLayout({
       <body>
         <MantineProvider defaultColorScheme="light">
           <AuthProvider>
-              <Notifications />
-              <RouteGuard>
-                <ClientProvider>
-                  {children}
-                </ClientProvider>
-              </RouteGuard>
+            <TelemetryProvider>
+            <Notifications />
+            <RouteGuard>
+              <ClientProvider>
+              {children}
+              </ClientProvider>
+            </RouteGuard>
+            </TelemetryProvider>
           </AuthProvider>
         </MantineProvider>
       </body>

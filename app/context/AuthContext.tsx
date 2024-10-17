@@ -2,10 +2,15 @@
 import { createContext, useContext, useEffect, useState, ReactNode } from "react";
 import axios from "axios";
 
+interface User {
+  id: string;
+  role: string;
+}
+
 interface AuthContextType {
+  user: User | null;
   isLoggedIn: boolean;
-  role: string | null;
-  login: (role: string) => void;
+  login: (user: User) => void;
   logout: () => void;
   loading: boolean;
 }
@@ -21,8 +26,8 @@ export const useAuth = () => {
 };
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
+  const [user, setUser] = useState<User | null>(null);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const [role, setRole] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
 
   const checkAuth = async () => {
@@ -35,11 +40,11 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       );
       if (response.status === 200) {
         setIsLoggedIn(true);
-        setRole(response.data.user.role);
+        setUser({ id: response.data.user.id, role: response.data.user.role });
       }
     } catch (error) {
       setIsLoggedIn(false);
-      setRole(null);
+      setUser(null);
     } finally {
       setLoading(false);
     }
@@ -49,23 +54,23 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     checkAuth();
   }, []);
 
-  const login = (role: string) => {
+  const login = (user: User) => {
     setIsLoggedIn(true);
-    setRole(role);
+    setUser(user);
   };
 
   const logout = async () => {
     try {
       await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/auth/logout`, {}, { withCredentials: true });
       setIsLoggedIn(false);
-      setRole(null);
+      setUser(null);
     } catch (error) {
       console.error("Error al cerrar sesión", error);
     }
   };
 
   return (
-    <AuthContext.Provider value={{ isLoggedIn, role, login, logout, loading }}>
+    <AuthContext.Provider value={{ user, isLoggedIn, login, logout, loading }}>
       {children}
     </AuthContext.Provider>
   );
