@@ -1,27 +1,10 @@
 "use client";
 
-import { useAuth } from "../../context/AuthContext";
-import { useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { Loader, Container, Title, Text, Card, Divider, Grid, Button, Group } from "@mantine/core";
+import { Container, Title, Text, Card, Divider, Grid, Button, Group } from "@mantine/core";
 
 const AdminDashboard = () => {
-  const { isLoggedIn, role, loading } = useAuth();
   const router = useRouter();
-
-  useEffect(() => {
-    if (!loading && (!isLoggedIn || role !== "Admin")) {
-      router.push("/unauthorized");
-    }
-  }, [isLoggedIn, role, loading, router]);
-
-  if (loading) {
-    return (
-      <Container>
-        <Loader size="xl" />
-      </Container>
-    );
-  }
 
   return (
     <Container mt={20}>

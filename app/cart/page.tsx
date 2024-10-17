@@ -37,7 +37,7 @@ const CartPage = () => {
   const totalPrice = cartItems.reduce((acc, item) => acc + parseFloat(item.totalValue), 0).toFixed(2);
 
   return (
-    <Container mt={50}>
+    <Container mt={80}>
       <Title order={2} ta="center" mb={30}>
         Tu Carrito
       </Title>
