@@ -3,10 +3,16 @@
 import { useSelector, useDispatch } from 'react-redux';
 import { RootState } from '../../store';
 import { Container, Text, Group, Button, Table, Checkbox, Modal, Title, Stack, Divider, Paper, Image, Center } from '@mantine/core';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { removeSelectedItems } from '../../features/cart/cartSlice';
 import { useCurrencyFormatter } from '@/app/hooks/useCurrencyFormatter';
+import dynamic from 'next/dynamic';
+import cartAnimation from '@/public/lottie/cart.json';
+
+const Lottie = dynamic(() => import("lottie-react").then((mod) => mod.default), {
+  ssr: false,
+});
 
 const CartPage = () => {
   const cartItems = useSelector((state: RootState) => state.cart.items);
@@ -15,6 +21,11 @@ const CartPage = () => {
   const dispatch = useDispatch();
   const formatCurrency = useCurrencyFormatter();
   const router = useRouter();
+  const [isClient, setIsClient] = useState(false);
+
+  useEffect(() => {
+    setIsClient(true);
+  }, []);
 
   const handleGoHome = () => {
     router.push('/');
@@ -49,14 +60,23 @@ const CartPage = () => {
   };
 
   return (
-    <Container mt={80}>
+    <Container mt={90}>
       <Title order={2} ta="center" mb={30}>
         Tu Carrito
       </Title>
 
       {cartItems.length === 0 ? (
         <div style={{ textAlign: 'center' }}>
-          <Text size="xl" ta='center'mb="md">
+          <Center>
+            {isClient && (
+              <Lottie
+                animationData={cartAnimation}
+                loop={false}
+                style={{ height: '250px', width: '250px' }}
+              />
+            )}
+          </Center>
+          <Text size="xl" ta="center" mb="md">
             No tienes rifas en el carrito.
           </Text>
           <Button size="lg" onClick={handleGoHome}>
@@ -77,7 +97,7 @@ const CartPage = () => {
                 </Table.Th>
                 <Table.Th>Imagen</Table.Th>
                 <Table.Th>Rifa</Table.Th>
-                <Table.Th>Numero Jugado</Table.Th>
+                <Table.Th>Número Jugado</Table.Th>
                 <Table.Th>Premio</Table.Th>
                 <Table.Th>Precio Base</Table.Th>
                 <Table.Th>IVA</Table.Th>
