@@ -1,0 +1,13 @@
+.badge {
+    position: absolute;
+    top: var(--mantine-spacing-xs);
+    right: rem(12px);
+    pointer-events: none;
+    font-size: small;
+}
+
+.slogan {
+    display: block;
+    margin-top: var(--mantine-spacing-md);
+    margin-bottom: rem(5px);
+}

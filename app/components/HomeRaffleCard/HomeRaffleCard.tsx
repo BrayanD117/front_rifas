@@ -2,6 +2,7 @@
 
 import { Card, Image, Text, Badge, Button, Grid, Progress, Group } from '@mantine/core';
 import { PRIMARY_GREEN, PRIMARY_YELLOW } from '@/app/constants/colors';
+import classes from './HomeRaffleCard.module.css';
 
 interface HomeRaffleCardProps {
     imageSrc: string;
@@ -26,14 +27,13 @@ const HomeRaffleCard: React.FC<HomeRaffleCardProps> = ({
                 />
             </Card.Section>
 
-            <Grid mt={"sm"} mb={"xs"} align='center'>
-                <Grid.Col span={8} >
-                    <Text fw={500}>{slogan}</Text>
-                </Grid.Col>
-                <Grid.Col span={4}>
-                    <Badge color={PRIMARY_YELLOW}>{badgeText}</Badge>
-                </Grid.Col>
-            </Grid>
+            <Badge className={classes.badge} variant="gradient" gradient={{ from: 'yellow', to: 'red' }}>
+                {badgeText}
+            </Badge>
+
+            <Text className={classes.slogan} fw={500} ta='justify'>
+                {slogan}
+            </Text>
 
             <Text size="sm" c="dimmed" lineClamp={3} mb={0}>
                 {description}
