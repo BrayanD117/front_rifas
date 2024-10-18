@@ -72,15 +72,15 @@ export function DetailRaffleCard({ imagesUrls, slogan, totalValue, description, 
                 </Carousel>
             </Card.Section>
 
+            
+
             <Card.Section className={classes.section} mt="md">
-                <Group justify="apart">
-                    <Text fz={25} fw={500}>
-                        {slogan}
-                    </Text>
-                    <Badge fz={20} size="xl" variant="light">
-                        {formatCurrency(totalValue)}
-                    </Badge>
-                </Group>
+            <Badge className={classes.dateBadge} variant="gradient" gradient={{ from: 'yellow', to: 'red' }} size='xl'>
+                {formatCurrency(totalValue)}
+            </Badge>
+                <Text fz={25} fw={500}>
+                    {slogan}
+                </Text>
                 <Text fz="md" mt="xs">
                     {description}
                 </Text>
