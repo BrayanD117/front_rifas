@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState, useRef } from "react";
+import React, { useEffect, useState, useRef, useContext } from "react";
 import { DetailRaffleCard } from "@/app/components/DetailRaffleCard/DetailRaffleCard";
 import axios from "axios";
 import { useParams } from "next/navigation";
@@ -11,6 +11,8 @@ import PurchaseDetailDrawer from '@/app/components/PurchaseDetailDrawer/Purchase
 import { useDispatch } from "react-redux";
 import { addToCart } from "@/features/cart/cartSlice";
 import { useDisclosure } from "@mantine/hooks";
+import { TelemetryContext } from '@/app/context/TelemetryProvider';
+
 
 interface Raffle {
   id: number;
@@ -42,6 +44,7 @@ const RaffleDetailPage: React.FC = () => {
   const [isAnimating, setIsAnimating] = useState<boolean[]>([]);
   const timeoutsRef = useRef<NodeJS.Timeout[]>([]);
   const inputRefs = useRef<Array<HTMLInputElement | null>>([]);
+  const { trackEvent } = useContext(TelemetryContext);
 
   const [opened, { open, close }] = useDisclosure(false);
 
@@ -69,6 +72,12 @@ const RaffleDetailPage: React.FC = () => {
       fetchRaffle();
     }
   }, [id]);
+
+  useEffect(() => {
+    if (raffle) {
+      trackEvent('401e5499-efc3-4017-aca5-c6fe872ceefe', raffle.id.toString());
+    }
+  }, [raffle, trackEvent]);
 
   useEffect(() => {
     if (raffle && currentDigits.length === 0) {
