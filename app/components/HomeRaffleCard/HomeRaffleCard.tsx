@@ -6,7 +6,7 @@ import { PRIMARY_GREEN, PRIMARY_YELLOW } from '@/app/constants/colors';
 interface HomeRaffleCardProps {
     imageSrc: string;
     imageAlt: string;
-    title: string;
+    slogan: string;
     badgeText: string;
     description: string;
     buttonText: string;
@@ -14,7 +14,7 @@ interface HomeRaffleCardProps {
 }
 
 const HomeRaffleCard: React.FC<HomeRaffleCardProps> = ({
-    imageSrc, imageAlt, title, badgeText, description, buttonText, onButtonClick
+    imageSrc, imageAlt, slogan, badgeText, description, buttonText, onButtonClick
 }) => {
     return (
         <Card shadow="sm" padding="lg" radius="md" withBorder style={{ display: 'flex', flexDirection: 'column', justifyContent: 'space-between', minHeight: '400px', height: '100%'}}>
@@ -28,7 +28,7 @@ const HomeRaffleCard: React.FC<HomeRaffleCardProps> = ({
 
             <Grid mt={"sm"} mb={"xs"} align='center'>
                 <Grid.Col span={8} >
-                    <Text fw={500}>{title}</Text>
+                    <Text fw={500}>{slogan}</Text>
                 </Grid.Col>
                 <Grid.Col span={4}>
                     <Badge color={PRIMARY_YELLOW}>{badgeText}</Badge>

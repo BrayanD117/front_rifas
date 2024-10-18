@@ -15,7 +15,7 @@ dayjs.locale('es');
 interface Raffle {
   id: number;
   imagesUrls: string[];
-  name: string;
+  slogan: string;
   gameDate: string;
   description: string;
 }
@@ -57,8 +57,8 @@ const HomeCards: React.FC = () => {
             <Grid.Col key={raffle.id} span={{ base: 12, xs: 6, md: 4, lg: 3 }}>
               <HomeRaffleCard
                 imageSrc={getFirstImageUrl(raffle.imagesUrls)}
-                imageAlt={raffle.name}
-                title={raffle.name}
+                imageAlt={raffle.slogan}
+                slogan={raffle.slogan}
                 badgeText={formatShortDate(raffle.gameDate)}
                 description={raffle.description}
                 buttonText="¡Quiero Jugar!"
