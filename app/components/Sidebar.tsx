@@ -1,10 +1,10 @@
 import { useState, useEffect } from 'react';
 import { Group, Title, Modal, Button, Text, Burger, useMantineTheme, Center } from '@mantine/core';
 import {
-  IconSettings,
   IconLogout,
   IconTicket,
   IconHome,
+  IconCategory,
 } from '@tabler/icons-react';
 import { useRouter, usePathname } from 'next/navigation';
 import { useAuth } from '../context/AuthContext';
@@ -15,7 +15,7 @@ import axios from 'axios';
 const data = [
   { link: '/admin/dashboard', label: 'Inicio', icon: IconHome },
   { link: '/admin/raffles', label: 'Rifas', icon: IconTicket },
-  { link: '/admin/settings', label: 'Other Settings', icon: IconSettings },
+  { link: '/admin/categories', label: 'Categorias', icon: IconCategory },
 ];
 
 export function Sidebar({ opened, setOpened }: { opened: boolean, setOpened: React.Dispatch<React.SetStateAction<boolean>> }) {
