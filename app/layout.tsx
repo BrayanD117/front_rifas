@@ -33,7 +33,7 @@ export default function RootLayout({
             <Notifications />
             <RouteGuard>
               <ClientProvider>
-              {children}
+                {children}
               </ClientProvider>
             </RouteGuard>
             </TelemetryProvider>

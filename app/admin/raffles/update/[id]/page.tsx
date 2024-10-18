@@ -95,6 +95,7 @@ const EditRafflePage = () => {
   const [images, setImages] = useState<
     Array<{ id: string; url: string; file?: File; isNew: boolean }>
   >([]);
+  const [authorizationResolution, setAuthorizationResolution] = useState<string>("");
 
   useEffect(() => {
     const numericTotalValue = parseCurrency(totalValue);
@@ -191,6 +192,7 @@ const EditRafflePage = () => {
         setContactManagerRaffle(data.managerContact);
         setAddressManagerRaffle(data.managerAddress);
         setCategory(data.categoryId);
+        setAuthorizationResolution(data.authorizationResolution);
 
         const existingImagesFormatted = (data.imagesUrls || []).map(
           (url: string) => ({
@@ -318,6 +320,7 @@ const EditRafflePage = () => {
         managerContact: contactManagerRaffle,
         managerAddress: addressManagerRaffle,
         categoryId: category,
+        authorizationResolution: authorizationResolution
       };
 
       if (newImages.length > 0) {
@@ -695,6 +698,20 @@ const EditRafflePage = () => {
               onChange={setAuthorityId}
               mt="md"
               withAsterisk
+            />
+          </Grid.Col>
+        </Grid>
+      </Group>
+
+      <Group grow>
+        <Grid align="center">
+          <Grid.Col span={{ base: 12, lg: 12 }}>
+          <TextInput
+              label="Resolución de autorización"
+              placeholder="Ingrese la Resolución de autorización"
+              value={authorizationResolution}
+              onChange={(event) => setAuthorizationResolution(event.currentTarget.value)}
+              mt="md"
             />
           </Grid.Col>
         </Grid>

@@ -92,6 +92,7 @@ const CreateRafflePage = () => {
   const [images, setImages] = useState<
     Array<{ id: string; url: string; file: File; isNew: boolean }>
   >([]);
+  const [authorizationResolution, setAuthorizationResolution] = useState<string>("");
 
   useEffect(() => {
     const numericTotalValue = parseCurrency(totalValue);
@@ -267,6 +268,7 @@ const CreateRafflePage = () => {
         managerContact: contactManagerRaffle,
         managerAddress: addressManagerRaffle,
         categoryId: category,
+        authorizationResolution: authorizationResolution
       };
 
       if (images.length > 0) {
@@ -626,6 +628,20 @@ const CreateRafflePage = () => {
               onChange={setAuthorityId}
               mt="md"
               withAsterisk
+            />
+          </Grid.Col>
+        </Grid>
+      </Group>
+
+      <Group grow>
+        <Grid align="center">
+          <Grid.Col span={{ base: 12, lg: 12 }}>
+            <TextInput
+              label="Resolución de autorización"
+              placeholder="Ingrese la resolución de autorización"
+              value={authorizationResolution}
+              onChange={(event) => setAuthorizationResolution(event.currentTarget.value)}
+              mt="md"
             />
           </Grid.Col>
         </Grid>
