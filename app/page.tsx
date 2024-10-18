@@ -10,10 +10,10 @@ const HomePage = () => {
   const { trackEvent, location } = useContext(TelemetryContext);
 
   useEffect(() => {
-    if (location) {
+    if (location && location !== 'Permission denied' && location !== 'Geolocation not supported') {
       trackEvent('42ae8659-620f-4030-9562-a38383b55128');
     }
-  }, [location]);
+  }, [location, trackEvent]);
 
   return (
     <>

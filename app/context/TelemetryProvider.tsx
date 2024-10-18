@@ -17,30 +17,36 @@ export const TelemetryContext = React.createContext<TelemetryContextProps>({
 export const TelemetryProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [location, setLocation] = useState<string | null>(null);
   const { user }: { user: any } = useAuth();
+  const [hasTrackedEvent, setHasTrackedEvent] = useState<boolean>(false);
 
   const trackEvent = async (eventType: string, raffleId?: string, userLocation?: string) => {
-    if (!user?.id && !raffleId && !userLocation && !location) {
-      console.log('No userId, raffleId, or location, skipping telemetry');
+    if (hasTrackedEvent) return;
+
+    if (!user?.id && !raffleId && (!userLocation || userLocation === 'Permission denied' || userLocation === 'Geolocation not supported')) {
+      console.log('No valid user, raffleId, or location, skipping telemetry');
       return;
     }
+
+    setHasTrackedEvent(true);
 
     try {
       const apiURL = process.env.NEXT_PUBLIC_API_URL || '';
       await axios.post(`${apiURL}/telemetries`, {
-        userId: user?.id,
+        userId: user?.id || null,
         eventTypeId: eventType,
-        raffleId,
-        ubication: userLocation || location,
+        raffleId: raffleId || null,
+        ubication: userLocation || location || null,
       });
       console.log('Telemetry event successfully tracked');
     } catch (error) {
       console.error('Error tracking telemetry event', error);
+      setHasTrackedEvent(false);
     }
   };
 
   useEffect(() => {
     const requestLocation = () => {
-      if (navigator.geolocation) {
+      if (navigator.geolocation && !hasTrackedEvent) {
         navigator.geolocation.getCurrentPosition(
           (position) => {
             const { latitude, longitude } = position.coords;
@@ -54,13 +60,15 @@ export const TelemetryProvider: React.FC<{ children: React.ReactNode }> = ({ chi
             console.log('Location permission denied');
           }
         );
-      } else {
+      } else if (!navigator.geolocation) {
         setLocation('Geolocation not supported');
       }
     };
 
-    requestLocation();
-  }, []);
+    if (!hasTrackedEvent) {
+      requestLocation();
+    }
+  }, [hasTrackedEvent]);
 
   return (
     <TelemetryContext.Provider value={{ location, trackEvent }}>
