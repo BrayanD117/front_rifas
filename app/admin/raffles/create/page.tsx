@@ -456,7 +456,7 @@ const CreateRafflePage = () => {
           </Grid.Col>
           <Grid.Col span={{ base: 12, lg: 4 }}>
             <Switch
-              label="Cheque al portador"
+              label="Pagadero al portador"
               checked={bearerCheck}
               onChange={(event) => setBearerCheck(event.currentTarget.checked)}
               description="Esta opción hará que el premio sea entregado al portador de la boleta"
