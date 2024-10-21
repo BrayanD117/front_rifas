@@ -76,7 +76,7 @@ export function DetailRaffleCard({ imagesUrls, slogan, totalValue, description, 
 
             <Card.Section className={classes.section} mt="md">
             <Badge className={classes.dateBadge} variant="gradient" gradient={{ from: 'yellow', to: 'red' }} size='xl'>
-                {formatCurrency(totalValue)}
+                Valor número: {formatCurrency(totalValue)}
             </Badge>
                 <Text fz={25} fw={500}>
                     {slogan}
