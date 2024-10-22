@@ -71,7 +71,7 @@ export function DropzoneButton({
           const canvas = document.createElement("canvas");
           const ctx = canvas.getContext("2d");
 
-          const MAX_WIDTH = 800;
+          const MAX_WIDTH = 600;
           const MAX_HEIGHT = 600;
           let width = img.width;
           let height = img.height;
@@ -92,6 +92,8 @@ export function DropzoneButton({
           canvas.height = height;
           ctx?.drawImage(img, 0, 0, width, height);
 
+          const quality = 1;
+
           canvas.toBlob(
             (blob) => {
               if (blob) {
@@ -105,7 +107,8 @@ export function DropzoneButton({
                 resolve(optimizedFile);
               }
             },
-            "image/webp"
+            "image/webp",
+            quality
           );
         };
       };
