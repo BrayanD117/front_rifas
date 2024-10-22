@@ -27,6 +27,7 @@ import axios from "axios";
 import { IconX } from "@tabler/icons-react";
 import { DragDropContext, Droppable, Draggable } from "@hello-pangea/dnd";
 import dynamic from "next/dynamic";
+import DrawingsTableWithProviders from "@/app/components/DrawingsTable/DrawingsTable";
 
 const MapComponent = dynamic(
   () => import("@/app/components/MapComponent/MapComponent"),
@@ -631,6 +632,10 @@ const CreateRafflePage = () => {
             />
           </Grid.Col>
         </Grid>
+      </Group>
+
+      <Group grow>
+        <DrawingsTableWithProviders/>
       </Group>
 
       <Group grow>
