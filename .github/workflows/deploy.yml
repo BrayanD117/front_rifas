@@ -1,0 +1,39 @@
+name: Deploy Frontend Rifas
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v2
+
+    - name: Set up Node.js
+      uses: actions/setup-node@v3
+      with:
+        node-version: '20.11.1'
+
+    - name: Deploy application via SSH with git pull
+      uses: appleboy/ssh-action@v0.1.5
+      with:
+        host: ${{ secrets.SSH_HOST }}
+        username: ${{ secrets.SSH_USER }}
+        key: ${{ secrets.SSH_PRIVATE_KEY }}
+        script: |
+          cd /home/rifas/front_rifas
+          git pull origin main
+          npm i
+          npm run build
+          pm2 restart front_rifas
+
+    - name: Post Checkout repository
+      run: echo "Frontend deployment complete"
