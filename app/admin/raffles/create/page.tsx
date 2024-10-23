@@ -27,7 +27,13 @@ import axios from "axios";
 import { IconX } from "@tabler/icons-react";
 import { DragDropContext, Droppable, Draggable } from "@hello-pangea/dnd";
 import dynamic from "next/dynamic";
-import DrawingsTableWithProviders from "@/app/components/DrawingsTable/DrawingsTable";
+import DrawingsTable from "@/app/components/DrawingsTable/DrawingsTable";
+
+interface Drawing {
+  drawType: string;
+  drawDate: Date | null;
+  description: string;
+}
 
 const MapComponent = dynamic(
   () => import("@/app/components/MapComponent/MapComponent"),
@@ -94,6 +100,11 @@ const CreateRafflePage = () => {
     Array<{ id: string; url: string; file: File; isNew: boolean }>
   >([]);
   const [authorizationResolution, setAuthorizationResolution] = useState<string>("");
+  const [drawings, setDrawings] = useState<Drawing[]>([]);
+
+  const handleDrawingsChange = (newDrawings: Drawing[]) => {
+    setDrawings(newDrawings);
+  };
 
   useEffect(() => {
     const numericTotalValue = parseCurrency(totalValue);
@@ -269,7 +280,7 @@ const CreateRafflePage = () => {
         managerContact: contactManagerRaffle,
         managerAddress: addressManagerRaffle,
         categoryId: category,
-        authorizationResolution: authorizationResolution
+        authorizationResolution: authorizationResolution,
       };
 
       if (images.length > 0) {
@@ -280,7 +291,7 @@ const CreateRafflePage = () => {
         );
       }
 
-      await axios.post(
+      const { data: createdRaffle } = await axios.post(
         `${process.env.NEXT_PUBLIC_API_URL}/raffles`,
         raffleData,
         {
@@ -288,6 +299,15 @@ const CreateRafflePage = () => {
           headers: { "Content-Type": "application/json" },
         }
       );
+
+      const drawingsData = drawings.map((drawing) => ({
+        raffleId: createdRaffle.id,
+        drawTypeId: drawing.drawType,
+        drawDate: drawing.drawDate,
+        description: drawing.description,
+      }));
+
+      await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/drawings`, drawingsData);
 
       showNotification({
         title: "Rifa creada con éxito",
@@ -300,8 +320,7 @@ const CreateRafflePage = () => {
       console.error("Error al crear la rifa", error);
       showNotification({
         title: "Error al crear la rifa",
-        message:
-          "Ocurrió un error al crear la rifa. Por favor, inténtalo de nuevo.",
+        message: "Ocurrió un error al crear la rifa. Por favor, inténtalo de nuevo.",
         color: "red",
       });
     }
@@ -332,7 +351,7 @@ const CreateRafflePage = () => {
 
   return (
     <Container>
-      <Title order={2} mt="xl">
+      <Title ta={"center"} order={2} mt="xl">
         Crear Nueva Rifa
       </Title>
 
@@ -635,7 +654,7 @@ const CreateRafflePage = () => {
       </Group>
 
       <Group grow>
-        <DrawingsTableWithProviders/>
+        <DrawingsTable onDrawingsChange={handleDrawingsChange} />
       </Group>
 
       <Group grow>

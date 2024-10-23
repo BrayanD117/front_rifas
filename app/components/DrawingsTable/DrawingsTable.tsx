@@ -1,454 +1,215 @@
-import '@mantine/core/styles.css';
-import '@mantine/dates/styles.css';
-import 'mantine-react-table/styles.css';
-import { useMemo, useState } from 'react';
-import {
-  MantineReactTable,
-  createRow,
-  type MRT_ColumnDef,
-  type MRT_Row,
-  type MRT_TableOptions,
-  useMantineReactTable,
-} from 'mantine-react-table';
-import {
-  Box,
-  Button,
-  ActionIcon,
-  Tooltip,
-  useMantineTheme,
-  Select,
-} from '@mantine/core';
-import {
-  QueryClient,
-  QueryClientProvider,
-  useMutation,
-  useQuery,
-  useQueryClient,
-} from '@tanstack/react-query';
-import { IconUserPlus, IconEdit, IconTrash } from '@tabler/icons-react';
-
-// Interfaces
-interface DrawType {
-  id: string;
-  name: string;
-}
+import { useState } from "react";
+import { Table, Button, TextInput, Select, Divider, Group, Center, NumberInput, Title } from "@mantine/core";
+import { DateTimePicker } from "@mantine/dates";
+import { IconPlus, IconTrash } from "@tabler/icons-react";
+import { useCurrencyFormatter } from "@/app/hooks/useCurrencyFormatter";
 
 interface Drawing {
-  id: string;
-  raffleId: string;
-  drawTypeId: string;
-  drawDate: Date;
+  drawType: string;
+  drawDate: Date | null;
   description: string;
-  subRows?: Prize[];
+  lottery: string;
+  prizes: Prize[];
 }
 
 interface Prize {
-  id: string;
-  drawingId: string;
   name: string;
+  commercialValuation: number;
   specifications: string;
-  commercialValuation: string;
-  subRows?: never;
 }
 
-type RowData = Drawing | Prize;
+interface DrawingsTableProps {
+  onDrawingsChange: (drawings: Drawing[]) => void;
+}
 
-// Componente principal
-const DrawingsTable = () => {
-  const theme = useMantineTheme();
-  const [creatingRowIndex, setCreatingRowIndex] = useState<number | undefined>();
-  const [editedRowData, setEditedRowData] = useState<RowData | null>(null);
+const DrawingsTable: React.FC<DrawingsTableProps> = ({ onDrawingsChange }) => {
+  const [drawings, setDrawings] = useState<Drawing[]>([
+    { drawType: "", drawDate: null, description: "", lottery: "", prizes: [] },
+  ]);
 
-  // Obtener los tipos de sorteos
-  const { data: drawTypes = [] } = useGetDrawTypes();
+  const formatCurrency = useCurrencyFormatter();
 
-  // Definir columnas
-  const columns = useMemo<MRT_ColumnDef<RowData>[]>(() => [
-    // Columna para 'drawTypeId' con Select
-    {
-      accessorKey: 'drawTypeId',
-      header: 'Tipo de Sorteo',
-      size: 200,
-      Cell: ({ cell, row }) => {
-        if (isDrawing(row.original)) {
-          const drawTypeId = cell.getValue<string>();
-          const drawType = drawTypes.find((dt) => dt.id === drawTypeId);
-          return drawType ? drawType.name : 'Selecciona un tipo';
-        }
-        return '';
-      },
-      Edit: ({ cell, row, table }) => {
-        if (isDrawing(row.original)) {
-          return (
-            <Select
-              data={drawTypes.map((dt) => ({ value: dt.id, label: dt.name }))}
-              value={cell.getValue<string>() || ''}
-              onChange={(value) => {
-                const updatedRow = { ...row.original, drawTypeId: value || '' };
-                setEditedRowData(updatedRow);
-              }}
-            />
-          );
-        }
-        return null;
-      },
-    },
-    // Columna para 'drawDate'
-    {
-      accessorKey: 'drawDate',
-      header: 'Fecha del Sorteo',
-      size: 100,
-      editVariant: 'text',
-      mantineEditTextInputProps: {
-        type: 'date',
-      },
-      Cell: ({ cell, row }) => {
-        if (isDrawing(row.original)) {
-          const value = cell.getValue<Date>();
-          return value ? value.toLocaleDateString() : '-';
-        }
-        return '';
-      },
-    },
-    // Columna para 'description'
-    {
-      accessorKey: 'description',
-      header: 'Descripción',
-      size: 250,
-      Cell: ({ cell, row }) => {
-        if (isDrawing(row.original)) {
-          const value = cell.getValue<string>();
-          return value ?? '-';
-        }
-        return '';
-      },
-    },
-    // Columna para 'name' de Prize
-    {
-      accessorKey: 'name',
-      header: 'Nombre del Premio',
-      size: 120,
-      Cell: ({ cell, row }) => {
-        if (isPrize(row.original)) {
-          const value = cell.getValue<string>();
-          return value ?? '-';
-        }
-        return '';
-      },
-    },
-    // Columna para 'specifications' de Prize
-    {
-      accessorKey: 'specifications',
-      header: 'Especificaciones',
-      size: 200,
-      Cell: ({ cell, row }) => {
-        if (isPrize(row.original)) {
-          const value = cell.getValue<string>();
-          return value ?? '-';
-        }
-        return '';
-      },
-    },
-    // Columna para 'commercialValuation' de Prize
-    {
-      accessorKey: 'commercialValuation',
-      header: 'Valor Comercial',
-      size: 150,
-      Cell: ({ cell, row }) => {
-        if (isPrize(row.original)) {
-          const value = cell.getValue<string>();
-          return value ?? '-';
-        }
-        return '';
-      },
-    },
-  ], [drawTypes]);
-
-  // Hooks de mutación y consulta
-  const { mutateAsync: createDrawing } = useCreateDrawing();
-  const { data: fetchedDrawings = [] } = useGetDrawings();
-  const { mutateAsync: updateDrawing } = useUpdateDrawing();
-  const { mutateAsync: deleteDrawing } = useDeleteDrawing();
-  const { mutateAsync: createPrize } = useCreatePrize();
-  const { mutateAsync: updatePrize } = useUpdatePrize();
-  const { mutateAsync: deletePrize } = useDeletePrize();
-
-  // Función para crear subfilas (Prizes)
-  const handleCreateSubRow = (row: MRT_Row<RowData>) => {
-    if (!isDrawing(row.original)) return; // Asegurarse de que es una fila Drawing
-    setCreatingRowIndex(row.index + 1);
-    table.setCreatingRow(
-      createRow(
-        table,
-        {
-          id: '',
-          drawingId: row.original.id,
-          name: '',
-          specifications: '',
-          commercialValuation: '',
-        } as Prize,
-        -1,
-        row.depth + 1,
-      )
-    );
+  const handleAddRow = () => {
+    const newDrawings: Drawing[] = [...drawings, { drawType: "", drawDate: null, description: "", lottery: "", prizes: [] }];
+    setDrawings(newDrawings);
+    onDrawingsChange(newDrawings);
   };
 
-  // Función para guardar filas
-  const handleSaveRow: MRT_TableOptions<RowData>['onEditingRowSave'] = async ({ values, table }) => {
-    if (isDrawing(values)) {
-      await updateDrawing(values);
-    } else if (isPrize(values)) {
-      await updatePrize(values);
-    }
-    table.setEditingRow(null);
+  const handleRemoveRow = (index: number) => {
+    const updatedDrawings = drawings.filter((_, i) => i !== index);
+    setDrawings(updatedDrawings);
+    onDrawingsChange(updatedDrawings);
   };
 
-  // Función para confirmar eliminación
-  const openDeleteConfirmModal = (row: MRT_Row<RowData>) => {
-    if (window.confirm('¿Estás seguro de que deseas eliminar este elemento?')) {
-      if (isDrawing(row.original)) {
-        deleteDrawing(row.original.id);
-      } else if (isPrize(row.original)) {
-        deletePrize(row.original.id);
-      }
-    }
+  const handleChange = (index: number, field: keyof Drawing, value: any) => {
+    const updatedDrawings = [...drawings];
+    updatedDrawings[index][field] = value;
+    setDrawings(updatedDrawings);
+    onDrawingsChange(updatedDrawings);
   };
 
-  // Configuración de la tabla
-  const table = useMantineReactTable<RowData>({
-    columns,
-    data: fetchedDrawings as RowData[],
-    createDisplayMode: 'row',
-    editDisplayMode: 'row',
-    enableColumnPinning: true,
-    enableEditing: true,
-    enableExpanding: true,
-    positionCreatingRow: creatingRowIndex,
-    getRowId: (row) => row.id,
-    mantineTableBodyRowProps: ({ row }) => ({
-      style: {
-        backgroundColor: row.depth ? theme.colors.gray[0] : undefined,
-      },
-    }),
-    onCreatingRowSave: async ({ values, row, table }) => {
-      if (isDrawing(values)) {
-        await createDrawing(values);
-      } else if (isPrize(values)) {
-        await createPrize(values);
-      }
-      table.setCreatingRow(null);
-    },
-    onEditingRowSave: handleSaveRow,
-    renderRowActions: ({ row, table }) => (
-      <Box style={{ display: 'flex', gap: '0.5rem' }}>
-        <Tooltip label="Editar">
-          <ActionIcon onClick={() => table.setEditingRow(row)}>
-            <IconEdit size="1rem" />
-          </ActionIcon>
-        </Tooltip>
-        <Tooltip label="Eliminar">
-          <ActionIcon color="red" onClick={() => openDeleteConfirmModal(row)}>
-            <IconTrash size="1rem" />
-          </ActionIcon>
-        </Tooltip>
-        {isDrawing(row.original) && (
-          <Tooltip label="Agregar Premio">
-            <ActionIcon onClick={() => handleCreateSubRow(row)}>
-              <IconUserPlus size="1rem" />
-            </ActionIcon>
-          </Tooltip>
-        )}
-      </Box>
-    ),
-    renderTopToolbarCustomActions: ({ table }) => (
-      <Button
-        leftSection={<IconUserPlus size="1rem" />}
-        onClick={() => {
-          setCreatingRowIndex(table.getRowModel().rows.length);
-          table.setCreatingRow(true);
-        }}
-      >
-        Crear Nuevo Sorteo
-      </Button>
-    ),
-    initialState: {
-      expanded: true,
-      pagination: { pageSize: 20, pageIndex: 0 },
-    },
-  });
+  const handleAddPrize = (drawingIndex: number) => {
+    const updatedDrawings = [...drawings];
+    const updatedPrizes: Prize[] = [...updatedDrawings[drawingIndex].prizes, { name: "", commercialValuation: 0, specifications: "" }];
+    updatedDrawings[drawingIndex].prizes = updatedPrizes;
+    setDrawings(updatedDrawings);
+    onDrawingsChange(updatedDrawings);
+  };
 
-  return <MantineReactTable table={table} />;
+  const handlePrizeChange = (drawingIndex: number, prizeIndex: number, field: keyof Prize, value: any) => {
+    const updatedDrawings = [...drawings];
+    const updatedPrizes = [...updatedDrawings[drawingIndex].prizes];
+    updatedPrizes[prizeIndex] = { ...updatedPrizes[prizeIndex], [field]: value };
+    updatedDrawings[drawingIndex].prizes = updatedPrizes;
+    setDrawings(updatedDrawings);
+    onDrawingsChange(updatedDrawings);
+  };
+
+  const handleRemovePrize = (drawingIndex: number, prizeIndex: number) => {
+    const updatedDrawings = [...drawings];
+    const updatedPrizes = updatedDrawings[drawingIndex].prizes.filter((_, i) => i !== prizeIndex);
+    updatedDrawings[drawingIndex].prizes = updatedPrizes;
+    setDrawings(updatedDrawings);
+    onDrawingsChange(updatedDrawings);
+  };
+
+  const handleCommercialValuationChange = (drawingIndex: number, prizeIndex: number, value: number | string) => {
+    const numericValue = typeof value === 'string' ? parseFloat(value.replace(/\D/g, "")) : value;
+    handlePrizeChange(drawingIndex, prizeIndex, "commercialValuation", numericValue);
+  };
+
+  return (
+    <div>
+      <Title mt={"md"} ta={"center"}>Sorteos</Title>
+      {drawings.map((drawing, drawingIndex) => (
+        <div key={drawingIndex}>
+          <Divider mt={"md"} mb={"md"} label={`Sorteo ${drawingIndex + 1}`} labelPosition="center" />
+          
+          <Table striped withRowBorders withColumnBorders withTableBorder highlightOnHover>
+            <Table.Thead>
+              <Table.Tr>
+                <Table.Th>Tipo de Sorteo</Table.Th>
+                <Table.Th>Fecha del Sorteo</Table.Th>
+                <Table.Th>Descripción</Table.Th>
+                <Table.Th>Lotería</Table.Th>
+                <Center><Table.Th>Acciones</Table.Th></Center>
+              </Table.Tr>
+            </Table.Thead>
+            <Table.Tbody>
+              <Table.Tr>
+                <Table.Td>
+                  <Select
+                    placeholder="Selecciona tipo"
+                    data={[
+                      { value: "principal", label: "Principal" },
+                      { value: "anticipado", label: "Anticipado" },
+                    ]}
+                    value={drawing.drawType}
+                    onChange={(value) => handleChange(drawingIndex, "drawType", value)}
+                  />
+                </Table.Td>
+                <Table.Td>
+                  <DateTimePicker
+                    locale="es"
+                    value={drawing.drawDate}
+                    onChange={(value) => handleChange(drawingIndex, "drawDate", value)}
+                  />
+                </Table.Td>
+                <Table.Td>
+                  <TextInput
+                    placeholder="Descripción del sorteo"
+                    value={drawing.description}
+                    onChange={(e) => handleChange(drawingIndex, "description", e.currentTarget.value)}
+                  />
+                </Table.Td>
+                <Table.Td>
+                  <TextInput
+                    placeholder="Lotería"
+                    value={drawing.lottery}
+                    onChange={(e) => handleChange(drawingIndex, "lottery", e.currentTarget.value)}
+                  />
+                </Table.Td>
+                <Table.Td>
+                  <Center>
+                    <Button
+                      color="red"
+                      variant="outline"
+                      onClick={() => handleRemoveRow(drawingIndex)}
+                    >
+                      <IconTrash size={16} />
+                    </Button>
+                  </Center>
+                </Table.Td>
+              </Table.Tr>
+            </Table.Tbody>
+          </Table>
+
+          <Divider mt={"md"} mb={"md"} label={`Premios del Sorteo ${drawingIndex + 1}`} labelPosition="center" />
+          
+          <Table striped withRowBorders withColumnBorders withTableBorder highlightOnHover>
+            <Table.Thead>
+              <Table.Tr>
+                <Table.Th>Nombre del Premio</Table.Th>
+                <Table.Th>Avaluo Comercial</Table.Th>
+                <Table.Th>Especificaciones</Table.Th>
+                <Center><Table.Th>Acciones</Table.Th></Center>
+              </Table.Tr>
+            </Table.Thead>
+            <Table.Tbody>
+              {drawing.prizes.map((prize, prizeIndex) => (
+                <Table.Tr key={prizeIndex}>
+                  <Table.Td>
+                    <TextInput
+                      placeholder="Nombre del premio"
+                      value={prize.name}
+                      onChange={(e) => handlePrizeChange(drawingIndex, prizeIndex, "name", e.currentTarget.value)}
+                    />
+                  </Table.Td>
+                  <Table.Td>
+                    <NumberInput
+                      placeholder="Avaluo comercial"
+                      value={prize.commercialValuation}
+                      onChange={(value) => handleCommercialValuationChange(drawingIndex, prizeIndex, value || 0)}
+                    />
+                  </Table.Td>
+                  <Table.Td>
+                    <TextInput
+                      placeholder="Especificaciones del premio"
+                      value={prize.specifications}
+                      onChange={(e) => handlePrizeChange(drawingIndex, prizeIndex, "specifications", e.currentTarget.value)}
+                    />
+                  </Table.Td>
+                  <Table.Td>
+                    <Center>
+                      <Button
+                        color="red"
+                        variant="outline"
+                        onClick={() => handleRemovePrize(drawingIndex, prizeIndex)}
+                      >
+                        <IconTrash size={16} />
+                      </Button>
+                    </Center>
+                  </Table.Td>
+                </Table.Tr>
+              ))}
+            </Table.Tbody>
+          </Table>
+
+          <Group justify="center">
+            <Button mt="md" onClick={() => handleAddPrize(drawingIndex)}>
+              <IconPlus size={16} /> Añadir premio
+            </Button>
+          </Group>
+        </div>
+      ))}
+
+      <Group justify="center">
+        <Button mt="md" onClick={handleAddRow}>
+          <IconPlus size={16} /> Añadir sorteo
+        </Button>
+      </Group>
+    </div>
+  );
 };
 
-// Type Guards
-function isDrawing(row: RowData): row is Drawing {
-  return 'raffleId' in row;
-}
-
-function isPrize(row: RowData): row is Prize {
-  return 'drawingId' in row;
-}
-
-// Funciones de mutación y consulta
-function useGetDrawTypes() {
-  return useQuery<DrawType[]>({
-    queryKey: ['drawTypes'],
-    queryFn: async () => {
-      // Simula una llamada a la API para obtener los tipos de sorteos
-      await new Promise((resolve) => setTimeout(resolve, 1000));
-      // Reemplaza con tu lógica para obtener los datos reales
-      return Promise.resolve([
-        { id: '1', name: 'Tipo A' },
-        { id: '2', name: 'Tipo B' },
-        { id: '3', name: 'Tipo C' },
-      ]);
-    },
-  });
-}
-
-//CREATE hook for creating a drawing
-function useCreateDrawing() {
-    const queryClient = useQueryClient();
-    return useMutation({
-      mutationFn: async (drawing: Drawing) => {
-        console.info('create drawing', drawing);
-        // Make your API request here
-        await new Promise((resolve) => setTimeout(resolve, 1000)); // Simulate API
-        return Promise.resolve();
-      },
-      onMutate: (newDrawing: Drawing) => {
-        queryClient.setQueryData(['drawings'], (prevDrawings: Drawing[] = []) => {
-          return [...prevDrawings, { ...newDrawing, id: `${prevDrawings.length + 1}` }];
-        });
-      },
-    });
-  }
-  
-  //READ hook for fetching drawings
-  function useGetDrawings() {
-    return useQuery<Drawing[]>({
-      queryKey: ['drawings'],
-      queryFn: async () => {
-        // Simulate fetching drawings from API
-        await new Promise((resolve) => setTimeout(resolve, 1000));
-        return Promise.resolve([]);
-      },
-    });
-  }
-  
-  //UPDATE hook for updating a drawing
-  function useUpdateDrawing() {
-    const queryClient = useQueryClient();
-    return useMutation({
-      mutationFn: async (drawing: Drawing) => {
-        console.info('update drawing', drawing);
-        // Make your API request here
-        await new Promise((resolve) => setTimeout(resolve, 1000));
-        return Promise.resolve();
-      },
-      onMutate: (updatedDrawing: Drawing) => {
-        queryClient.setQueryData(['drawings'], (prevDrawings: Drawing[] = []) => {
-          return prevDrawings.map((d) =>
-            d.id === updatedDrawing.id ? updatedDrawing : d,
-          );
-        });
-      },
-    });
-  }
-  
-  //DELETE hook for deleting a drawing
-  function useDeleteDrawing() {
-    const queryClient = useQueryClient();
-    return useMutation({
-      mutationFn: async (drawingId: string) => {
-        console.info('delete drawing', drawingId);
-        // Make your API request here
-        await new Promise((resolve) => setTimeout(resolve, 1000));
-        return Promise.resolve();
-      },
-      onMutate: (drawingId: string) => {
-        queryClient.setQueryData(['drawings'], (prevDrawings: Drawing[] = []) => {
-          return prevDrawings.filter((d) => d.id !== drawingId);
-        });
-      },
-    });
-  }
-
-  function useCreatePrize() {
-    const queryClient = useQueryClient();
-    return useMutation<Prize, Error, Prize>({
-      mutationFn: async (prize: Prize) => {
-        console.info('create prize', prize);
-        await new Promise((resolve) => setTimeout(resolve, 1000));
-        // Retornar el objeto prize
-        return prize;
-      },
-      onSuccess: (newPrize: Prize) => {
-        queryClient.setQueryData(['drawings'], (prevDrawings: Drawing[] = []) =>
-          prevDrawings.map((drawing) =>
-            drawing.id === newPrize.drawingId
-              ? { ...drawing, subRows: [...(drawing.subRows || []), newPrize] }
-              : drawing
-          )
-        );
-      },
-    });
-  }
-  
-  function useUpdatePrize() {
-    const queryClient = useQueryClient();
-    return useMutation<Prize, Error, Prize>({
-      mutationFn: async (prize: Prize) => {
-        console.info('update prize', prize);
-        await new Promise((resolve) => setTimeout(resolve, 1000));
-        // Retornar el objeto prize actualizado
-        return prize;
-      },
-      onSuccess: (updatedPrize: Prize) => {
-        queryClient.setQueryData(['drawings'], (prevDrawings: Drawing[] = []) =>
-          prevDrawings.map((drawing) => {
-            if (drawing.id === updatedPrize.drawingId) {
-              return {
-                ...drawing,
-                subRows: drawing.subRows?.map((prize) =>
-                  prize.id === updatedPrize.id ? { ...prize, ...updatedPrize } : prize
-                ),
-              };
-            }
-            return drawing;
-          })
-        );
-      },
-    });
-  }
-  
-  function useDeletePrize() {
-    const queryClient = useQueryClient();
-    return useMutation<string, Error, string>({
-      mutationFn: async (prizeId: string) => {
-        console.info('delete prize', prizeId);
-        await new Promise((resolve) => setTimeout(resolve, 1000));
-        // Retornar el ID del prize eliminado
-        return prizeId;
-      },
-      onSuccess: (deletedPrizeId: string) => {
-        queryClient.setQueryData(['drawings'], (prevDrawings: Drawing[] = []) =>
-          prevDrawings.map((drawing) => ({
-            ...drawing,
-            subRows: drawing.subRows?.filter((prize) => prize.id !== deletedPrizeId),
-          }))
-        );
-      },
-    });
-  }
-
-
-const queryClient = new QueryClient();
-
-const DrawingsTableWithProviders = () => (
-  <QueryClientProvider client={queryClient}>
-    <DrawingsTable />
-  </QueryClientProvider>
-);
-
-export default DrawingsTableWithProviders;
+export default DrawingsTable;
