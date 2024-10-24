@@ -100,7 +100,7 @@ const DrawingsTable: React.FC<DrawingsTableProps> = ({ onDrawingsChange }) => {
             <Table.Thead>
               <Table.Tr>
                 <Table.Th>Tipo de Sorteo</Table.Th>
-                <Table.Th>Fecha del Sorteo</Table.Th>
+                <Table.Th>Fecha del Sorteo</Table. Th>
                 <Table.Th>Descripción</Table.Th>
                 <Table.Th>Lotería</Table.Th>
                 <Table.Th>Fecha de Cierre</Table.Th>
@@ -117,6 +117,7 @@ const DrawingsTable: React.FC<DrawingsTableProps> = ({ onDrawingsChange }) => {
                     value={drawing.drawType}
                     onChange={(value) => handleChange(drawingIndex, "drawType", value)}
                   />
+                  <h1>{drawing.drawType}</h1>
                 </Table.Td>
                 <Table.Td>
                   <DateTimePicker
