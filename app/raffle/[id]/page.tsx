@@ -56,6 +56,7 @@ const RaffleDetailPage: React.FC = () => {
 
   const [typingTimeout, setTypingTimeout] = useState<NodeJS.Timeout | null>(null);
   const [isNumberAvailable, setIsNumberAvailable] = useState<boolean | null>(null);
+  const [isValidating, setIsValidating] = useState(false);
 
   useEffect(() => {
     const fetchRaffle = async () => {
@@ -143,30 +144,25 @@ const RaffleDetailPage: React.FC = () => {
       return newDigits;
     });
 
-    if (typingTimeout) {
-      clearTimeout(typingTimeout);
-    }
+    const newNumber = [...currentDigits.slice(0, index), value, ...currentDigits.slice(index + 1)].join('');
 
-    const newTimeout = setTimeout(async () => {
-      const newNumber = [...currentDigits.slice(0, index), value, ...currentDigits.slice(index + 1)].join('');
+    if (newNumber.length === raffle?.numberDigits) {
+      setIsValidating(true);
 
-      if (newNumber.length === raffle?.numberDigits) {
-        const isValid = await validateNumber(newNumber);
-        setIsNumberAvailable(isValid);
+      const isValid = await validateNumber(newNumber);
+      setIsNumberAvailable(isValid);
 
-        if (!isValid) {
-          showNotification({
-            title: '¡Ups! Número ya jugado',
-            message: 'Parece que alguien ya eligió este número, pero no te preocupes. ¡Prueba con otro número y sigue participando por grandes premios!',
-            color: 'orange',
-            autoClose: 6000
-          });
-          resetInputs();
-        }
+      if (!isValid) {
+        showNotification({
+          title: '¡Ups! Número ya jugado',
+          message: 'Parece que alguien ya eligió este número, pero no te preocupes. ¡Prueba con otro número y sigue participando por grandes premios!',
+          color: 'orange',
+          autoClose: 6000
+        });
+        resetInputs();
       }
-    }, 0);
-
-    setTypingTimeout(newTimeout);
+      setIsValidating(false);
+    }
   };
 
   const focusNext = (index: number) => {
@@ -276,8 +272,8 @@ const RaffleDetailPage: React.FC = () => {
                 <Button
                   mt="md"
                   onClick={handleAddAndOpenDrawer}
-                  disabled={!allInputsFilled || isNumberAvailable === false}>
-                    Jugar número
+                  disabled={!allInputsFilled || isNumberAvailable === false || isValidating}>
+                  Jugar número
                 </Button>
               </Tooltip>
               <Button
