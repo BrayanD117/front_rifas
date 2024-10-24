@@ -33,6 +33,16 @@ interface Drawing {
   drawType: string;
   drawDate: Date | null;
   description: string;
+  lottery: string;
+  closeDate: Date | null;
+  expirationDate: Date | null;
+  prizes: Prize[];
+}
+
+interface Prize {
+  name: string;
+  commercialValuation: string;
+  specifications: string;
 }
 
 const MapComponent = dynamic(
@@ -67,11 +77,6 @@ const CreateRafflePage = () => {
   const [baseValue, setBaseValue] = useState<number>(0);
   const [ivaValue, setIvaValue] = useState<number>(0);
   const [totalValue, setTotalValue] = useState<string>("0");
-  const [gameDate, setGameDate] = useState<Date | null>(null);
-  const [daysCloseDate, setDaysCloseDate] = useState<number>(2);
-  const [closeDate, setCloseDate] = useState<Date | null>(null);
-  const [daysExpirationDate, setDaysExpirationDate] = useState<number>(30);
-  const [expirationDate, setExpirationDate] = useState<Date | null>(null);
   const [publicationDateTime, setPublicationDateTime] =
     useState<Date | null>(null);
   const [saleDateTime, setSaleDateTime] = useState<Date | null>(null);
@@ -187,24 +192,6 @@ const CreateRafflePage = () => {
   };
 
   useEffect(() => {
-    if (gameDate) {
-      const calculatedCloseDate = dayjs(gameDate)
-        .subtract(daysCloseDate, "day")
-        .toDate();
-      setCloseDate(calculatedCloseDate);
-    }
-  }, [gameDate, daysCloseDate]);
-
-  useEffect(() => {
-    if (gameDate) {
-      const calculatedExpirationDate = dayjs(gameDate)
-        .add(daysExpirationDate, "day")
-        .toDate();
-      setExpirationDate(calculatedExpirationDate);
-    }
-  }, [gameDate, daysExpirationDate]);
-
-  useEffect(() => {
     if (
       publicationDateTime &&
       saleDateTime &&
@@ -235,24 +222,17 @@ const CreateRafflePage = () => {
 
   const handleCreateRaffle = async () => {
     try {
+      // Paso 1: Crear la rifa
       const numericTotalValue = parseCurrency(totalValue);
       const numericPrizeCommercialValue = parseCurrency(prizeCommercialValue);
-      const formattedGameDate = formatDateToDB(gameDate);
-      const formattedCloseDate = formatDateToDB(closeDate);
-      const formattedExpirationDate = formatDateToDB(expirationDate);
       const dateTimePublication = formatDateToDB(publicationDateTime);
-
+  
       const raffleTitle = name;
       const normalizedRaffleName = name.replace(/\s+/g, "_");
-
-      const imageFilenames = images.map((_, index) => {
-        return `${normalizedRaffleName}_${index + 1}.webp`;
-      });
-
-      const imagesUrls = imageFilenames.map(
-        (filename) => `${normalizedRaffleName}/${filename}`
-      );
-
+  
+      const imageFilenames = images.map((_, index) => `${normalizedRaffleName}_${index + 1}.webp`);
+      const imagesUrls = imageFilenames.map((filename) => `${normalizedRaffleName}/${filename}`);
+  
       const raffleData = {
         name: raffleTitle,
         slogan,
@@ -267,9 +247,6 @@ const CreateRafflePage = () => {
         numberDigits,
         numberSeries,
         bearerCheck: bearerCheck.toString(),
-        gameDate: formattedGameDate,
-        closeDate: formattedCloseDate,
-        expirationDate: formattedExpirationDate,
         coverageId,
         authorityId,
         active: active.toString(),
@@ -280,9 +257,9 @@ const CreateRafflePage = () => {
         managerContact: contactManagerRaffle,
         managerAddress: addressManagerRaffle,
         categoryId: category,
-        authorizationResolution: authorizationResolution,
+        authorizationResolution,
       };
-
+  
       if (images.length > 0) {
         await uploadFilesToServer(
           images.map((img) => img.file),
@@ -290,7 +267,7 @@ const CreateRafflePage = () => {
           imageFilenames
         );
       }
-
+  
       const { data: createdRaffle } = await axios.post(
         `${process.env.NEXT_PUBLIC_API_URL}/raffles`,
         raffleData,
@@ -299,22 +276,37 @@ const CreateRafflePage = () => {
           headers: { "Content-Type": "application/json" },
         }
       );
-
+  
       const drawingsData = drawings.map((drawing) => ({
         raffleId: createdRaffle.id,
         drawTypeId: drawing.drawType,
         drawDate: drawing.drawDate,
         description: drawing.description,
       }));
-
-      await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/drawings`, drawingsData);
-
+  
+      const { data: createdDrawings } = await axios.post(
+        `${process.env.NEXT_PUBLIC_API_URL}/drawings`,
+        drawingsData
+      );
+  
+      await Promise.all(
+        createdDrawings.map(async (createdDrawing: any, index: number) => {
+          const prizesData = drawings[index].prizes.map((prize) => ({
+            drawingId: createdDrawing.id,
+            name: prize.name,
+            commercialValuation: parseCurrency(prize.commercialValuation),
+            specifications: prize.specifications,
+          }));
+          await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/prizes`, prizesData);
+        })
+      );
+  
       showNotification({
         title: "Rifa creada con éxito",
         message: "La rifa se ha creado correctamente.",
         color: "green",
       });
-
+  
       router.push("/admin/raffles");
     } catch (error) {
       console.error("Error al crear la rifa", error);
@@ -324,7 +316,7 @@ const CreateRafflePage = () => {
         color: "red",
       });
     }
-  };
+  };  
 
   const uploadFilesToServer = async (
     files: File[],
@@ -382,24 +374,6 @@ const CreateRafflePage = () => {
         mt="md"
       />
 
-      <TextInput
-        label="Premio"
-        placeholder="Ingrese el premio de la rifa"
-        value={prize}
-        onChange={(event) => setPrize(event.currentTarget.value)}
-        withAsterisk
-        mt="md"
-      />
-
-      <Textarea
-        label="Especificaciones del premio"
-        placeholder="Ingrese las especificaciones del premio"
-        value={prizeSpecifications}
-        onChange={(event) => setPrizeSpecifications(event.currentTarget.value)}
-        withAsterisk
-        mt="md"
-      />
-
       <Select
         label="Categoría"
         placeholder="Seleccione una categoría"
@@ -411,16 +385,6 @@ const CreateRafflePage = () => {
         mt="md"
         withAsterisk
       />
-      
-      <TextInput
-        label="Avaluo comercial del premio"
-        placeholder="Ingrese el avaluo comercial del premio"
-        value={prizeCommercialValue}
-        onChange={(event) => setPrizeCommercialValue(formatCurrency(parseCurrency(event.currentTarget.value)))}
-        withAsterisk
-        mt="md"
-      />
-
       <Group grow mt="md">
         <Grid>
           <Grid.Col span={{ base: 12, lg: 4 }}>
@@ -455,16 +419,6 @@ const CreateRafflePage = () => {
 
       <Group grow>
         <Grid>
-          <Grid.Col span={{ base: 12, lg: 4 }}>
-            <DateTimePicker
-              locale="es"
-              label="Fecha del Sorteo"
-              placeholder="Seleccione la fecha y hora del sorteo"
-              value={gameDate}
-              onChange={setGameDate}
-              withAsterisk
-            />
-          </Grid.Col>
           <Grid.Col span={{ base: 12, lg: 4 }}>
             <Switch
               label="Activar publicación"
@@ -519,60 +473,6 @@ const CreateRafflePage = () => {
           </Grid.Col>
         </Grid>
       </Group>
-      <Group grow mt="md">
-        <Grid>
-          <Grid.Col span={{ base: 12, lg: 3 }}>
-            <NumberInput
-              label="Fecha de Cierre"
-              description="Días antes de la fecha del sorteo"
-              placeholder="Ingrese el número de días"
-              value={daysCloseDate}
-              onChange={(value) => setDaysCloseDate(typeof value === 'number' ? value : 2)}
-              withAsterisk
-            />
-          </Grid.Col>
-          <Grid.Col span={{ base: 12, lg: 3 }}>
-            <DateTimePicker
-              locale="es"
-              label="Fecha de Cierre"
-              description="Fecha según días fijados"
-              placeholder="Seleccione la fecha y hora"
-              value={closeDate}
-              onChange={setCloseDate}
-              disabled
-            />
-          </Grid.Col>
-          <Grid.Col span={{ base: 12, lg: 3 }}>
-            <NumberInput
-              label="Término Caducidad Premio"
-              description="Días después de la fecha del sorteo"
-              placeholder="Ingrese el número de días"
-              value={daysExpirationDate}
-              onChange={(value) => setDaysExpirationDate(typeof value === 'number' ? value : 30)}
-              withAsterisk
-            />
-          </Grid.Col>
-          <Grid.Col span={{ base: 12, lg: 3 }}>
-            <DateTimePicker
-              locale="es"
-              label="Término Caducidad Premio"
-              description="Fecha según días fijados"
-              placeholder="Seleccione la fecha y hora"
-              value={expirationDate}
-              onChange={setExpirationDate}
-              disabled
-            />
-          </Grid.Col>
-        </Grid>
-      </Group>
-      <TextInput
-        label="Lotería"
-        placeholder="Ingrese la lotería"
-        value={lottery}
-        onChange={(event) => setLottery(event.currentTarget.value)}
-        mt="md"
-      />
-
       <Group grow mt="md">
         <Grid>
           <Grid.Col span={{ base: 12, lg: 6 }}>

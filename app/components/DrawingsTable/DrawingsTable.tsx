@@ -1,13 +1,16 @@
-import { useState } from "react";
-import { Table, Button, TextInput, Select, Divider, Group, Center, NumberInput, Title } from "@mantine/core";
+import { useEffect, useState } from "react";
+import { Table, Button, TextInput, Select, Divider, Group, Center, Title } from "@mantine/core";
 import { DateTimePicker } from "@mantine/dates";
 import { IconPlus, IconTrash } from "@tabler/icons-react";
+import axios from "axios";
 
 interface Drawing {
   drawType: string;
   drawDate: Date | null;
   description: string;
   lottery: string;
+  closeDate: Date | null;
+  expirationDate: Date | null;
   prizes: Prize[];
 }
 
@@ -21,25 +24,26 @@ interface DrawingsTableProps {
   onDrawingsChange: (drawings: Drawing[]) => void;
 }
 
-const formatCurrency = (value: number) => {
-  return new Intl.NumberFormat("es-CO", {
-    style: "currency",
-    currency: "COP",
-    minimumFractionDigits: 0,
-  }).format(value);
-};
-
-const parseCurrency = (value: string) => {
-  return Number(value.replace(/\D/g, "")) || 0;
-};
-
 const DrawingsTable: React.FC<DrawingsTableProps> = ({ onDrawingsChange }) => {
   const [drawings, setDrawings] = useState<Drawing[]>([
-    { drawType: "", drawDate: null, description: "", lottery: "", prizes: [] },
+    { drawType: "", drawDate: null, description: "", lottery: "", closeDate: null, expirationDate: null, prizes: [] },
   ]);
+  const [drawTypes, setDrawTypes] = useState([]);
+
+  useEffect(() => {
+    const fetchDrawTypes = async () => {
+      try {
+        const { data } = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/draw-types`);
+        setDrawTypes(data.map((type: any) => ({ value: type.id, label: type.name })));
+      } catch (error) {
+        console.error("Error fetching draw types", error);
+      }
+    };
+    fetchDrawTypes();
+  }, []);
 
   const handleAddRow = () => {
-    const newDrawings: Drawing[] = [...drawings, { drawType: "", drawDate: null, description: "", lottery: "", prizes: [] }];
+    const newDrawings: Drawing[] = [...drawings, { drawType: "", drawDate: null, description: "", lottery: "", closeDate: null, expirationDate: null, prizes: [] }];
     setDrawings(newDrawings);
     onDrawingsChange(newDrawings);
   };
@@ -85,16 +89,6 @@ const DrawingsTable: React.FC<DrawingsTableProps> = ({ onDrawingsChange }) => {
     onDrawingsChange(updatedDrawings);
   };
 
-  const handleCommercialValuationChange = (
-    drawingIndex: number,
-    prizeIndex: number,
-    value: string
-  ) => {
-    const numericValue = parseCurrency(value);
-    const formattedValue = formatCurrency(numericValue);
-    handlePrizeChange(drawingIndex, prizeIndex, "commercialValuation", formattedValue);
-  };
-
   return (
     <div>
       <Title mt={"md"} ta={"center"}>Sorteos</Title>
@@ -102,13 +96,15 @@ const DrawingsTable: React.FC<DrawingsTableProps> = ({ onDrawingsChange }) => {
         <div key={drawingIndex}>
           <Divider mt={"md"} mb={"md"} label={`Sorteo ${drawingIndex + 1}`} labelPosition="center" />
           
-          <Table striped withRowBorders withColumnBorders withTableBorder highlightOnHover>
+          <Table striped>
             <Table.Thead>
               <Table.Tr>
                 <Table.Th>Tipo de Sorteo</Table.Th>
                 <Table.Th>Fecha del Sorteo</Table.Th>
                 <Table.Th>Descripción</Table.Th>
                 <Table.Th>Lotería</Table.Th>
+                <Table.Th>Fecha de Cierre</Table.Th>
+                <Table.Th>Término Caducidad Premio</Table.Th>
                 <Center><Table.Th>Acciones</Table.Th></Center>
               </Table.Tr>
             </Table.Thead>
@@ -117,10 +113,7 @@ const DrawingsTable: React.FC<DrawingsTableProps> = ({ onDrawingsChange }) => {
                 <Table.Td>
                   <Select
                     placeholder="Selecciona tipo"
-                    data={[
-                      { value: "principal", label: "Principal" },
-                      { value: "anticipado", label: "Anticipado" },
-                    ]}
+                    data={drawTypes}
                     value={drawing.drawType}
                     onChange={(value) => handleChange(drawingIndex, "drawType", value)}
                   />
@@ -144,6 +137,21 @@ const DrawingsTable: React.FC<DrawingsTableProps> = ({ onDrawingsChange }) => {
                     placeholder="Lotería"
                     value={drawing.lottery}
                     onChange={(e) => handleChange(drawingIndex, "lottery", e.target.value)}
+                    required
+                  />
+                </Table.Td>
+                <Table.Td>
+                  <DateTimePicker
+                    locale="es"
+                    value={drawing.closeDate}
+                    onChange={(value) => handleChange(drawingIndex, "closeDate", value)}
+                  />
+                </Table.Td>
+                <Table.Td>
+                  <DateTimePicker
+                    locale="es"
+                    value={drawing.expirationDate}
+                    onChange={(value) => handleChange(drawingIndex, "expirationDate", value)}
                   />
                 </Table.Td>
                 <Table.Td>
@@ -163,7 +171,7 @@ const DrawingsTable: React.FC<DrawingsTableProps> = ({ onDrawingsChange }) => {
 
           <Divider mt={"md"} mb={"md"} label={`Premios del Sorteo ${drawingIndex + 1}`} labelPosition="center" />
           
-          <Table striped withRowBorders withColumnBorders withTableBorder highlightOnHover>
+          <Table striped>
             <Table.Thead>
               <Table.Tr>
                 <Table.Th>Nombre del Premio</Table.Th>
@@ -186,7 +194,7 @@ const DrawingsTable: React.FC<DrawingsTableProps> = ({ onDrawingsChange }) => {
                     <TextInput
                       placeholder="Avaluo comercial"
                       value={prize.commercialValuation}
-                      onChange={(e) => handleCommercialValuationChange(drawingIndex, prizeIndex, e.currentTarget.value)}
+                      onChange={(e) => handlePrizeChange(drawingIndex, prizeIndex, "commercialValuation", e.currentTarget.value)}
                     />
                   </Table.Td>
                   <Table.Td>
