@@ -2,7 +2,6 @@ import { useState } from "react";
 import { Table, Button, TextInput, Select, Divider, Group, Center, NumberInput, Title } from "@mantine/core";
 import { DateTimePicker } from "@mantine/dates";
 import { IconPlus, IconTrash } from "@tabler/icons-react";
-import { useCurrencyFormatter } from "@/app/hooks/useCurrencyFormatter";
 
 interface Drawing {
   drawType: string;
@@ -14,7 +13,7 @@ interface Drawing {
 
 interface Prize {
   name: string;
-  commercialValuation: number;
+  commercialValuation: string;
   specifications: string;
 }
 
@@ -22,12 +21,22 @@ interface DrawingsTableProps {
   onDrawingsChange: (drawings: Drawing[]) => void;
 }
 
+const formatCurrency = (value: number) => {
+  return new Intl.NumberFormat("es-CO", {
+    style: "currency",
+    currency: "COP",
+    minimumFractionDigits: 0,
+  }).format(value);
+};
+
+const parseCurrency = (value: string) => {
+  return Number(value.replace(/\D/g, "")) || 0;
+};
+
 const DrawingsTable: React.FC<DrawingsTableProps> = ({ onDrawingsChange }) => {
   const [drawings, setDrawings] = useState<Drawing[]>([
     { drawType: "", drawDate: null, description: "", lottery: "", prizes: [] },
   ]);
-
-  const formatCurrency = useCurrencyFormatter();
 
   const handleAddRow = () => {
     const newDrawings: Drawing[] = [...drawings, { drawType: "", drawDate: null, description: "", lottery: "", prizes: [] }];
@@ -50,7 +59,10 @@ const DrawingsTable: React.FC<DrawingsTableProps> = ({ onDrawingsChange }) => {
 
   const handleAddPrize = (drawingIndex: number) => {
     const updatedDrawings = [...drawings];
-    const updatedPrizes: Prize[] = [...updatedDrawings[drawingIndex].prizes, { name: "", commercialValuation: 0, specifications: "" }];
+    const updatedPrizes: Prize[] = [
+      ...updatedDrawings[drawingIndex].prizes,
+      { name: "", commercialValuation: "0", specifications: "" },
+    ];
     updatedDrawings[drawingIndex].prizes = updatedPrizes;
     setDrawings(updatedDrawings);
     onDrawingsChange(updatedDrawings);
@@ -73,9 +85,14 @@ const DrawingsTable: React.FC<DrawingsTableProps> = ({ onDrawingsChange }) => {
     onDrawingsChange(updatedDrawings);
   };
 
-  const handleCommercialValuationChange = (drawingIndex: number, prizeIndex: number, value: number | string) => {
-    const numericValue = typeof value === 'string' ? parseFloat(value.replace(/\D/g, "")) : value;
-    handlePrizeChange(drawingIndex, prizeIndex, "commercialValuation", numericValue);
+  const handleCommercialValuationChange = (
+    drawingIndex: number,
+    prizeIndex: number,
+    value: string
+  ) => {
+    const numericValue = parseCurrency(value);
+    const formattedValue = formatCurrency(numericValue);
+    handlePrizeChange(drawingIndex, prizeIndex, "commercialValuation", formattedValue);
   };
 
   return (
@@ -119,14 +136,14 @@ const DrawingsTable: React.FC<DrawingsTableProps> = ({ onDrawingsChange }) => {
                   <TextInput
                     placeholder="Descripción del sorteo"
                     value={drawing.description}
-                    onChange={(e) => handleChange(drawingIndex, "description", e.currentTarget.value)}
+                    onChange={(e) => handleChange(drawingIndex, "description", e.target.value)}
                   />
                 </Table.Td>
                 <Table.Td>
                   <TextInput
                     placeholder="Lotería"
                     value={drawing.lottery}
-                    onChange={(e) => handleChange(drawingIndex, "lottery", e.currentTarget.value)}
+                    onChange={(e) => handleChange(drawingIndex, "lottery", e.target.value)}
                   />
                 </Table.Td>
                 <Table.Td>
@@ -162,21 +179,21 @@ const DrawingsTable: React.FC<DrawingsTableProps> = ({ onDrawingsChange }) => {
                     <TextInput
                       placeholder="Nombre del premio"
                       value={prize.name}
-                      onChange={(e) => handlePrizeChange(drawingIndex, prizeIndex, "name", e.currentTarget.value)}
+                      onChange={(e) => handlePrizeChange(drawingIndex, prizeIndex, "name", e.target.value)}
                     />
                   </Table.Td>
                   <Table.Td>
-                    <NumberInput
+                    <TextInput
                       placeholder="Avaluo comercial"
                       value={prize.commercialValuation}
-                      onChange={(value) => handleCommercialValuationChange(drawingIndex, prizeIndex, value || 0)}
+                      onChange={(e) => handleCommercialValuationChange(drawingIndex, prizeIndex, e.currentTarget.value)}
                     />
                   </Table.Td>
                   <Table.Td>
                     <TextInput
                       placeholder="Especificaciones del premio"
                       value={prize.specifications}
-                      onChange={(e) => handlePrizeChange(drawingIndex, prizeIndex, "specifications", e.currentTarget.value)}
+                      onChange={(e) => handlePrizeChange(drawingIndex, prizeIndex, "specifications", e.target.value)}
                     />
                   </Table.Td>
                   <Table.Td>
