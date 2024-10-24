@@ -11,6 +11,7 @@ import PurchaseDetailDrawer from '@/app/components/PurchaseDetailDrawer/Purchase
 import { useDispatch } from "react-redux";
 import { addToCart } from "@/features/cart/cartSlice";
 import { useDisclosure } from "@mantine/hooks";
+import { showNotification } from "@mantine/notifications";
 
 interface Raffle {
   id: number;
@@ -52,6 +53,9 @@ const RaffleDetailPage: React.FC = () => {
     mixing: { scale: 1.3, transition: { duration: 0.3, ease: "easeInOut" } },
     final: { scale: 1, transition: { duration: 0.3, ease: "easeInOut" } },
   };
+
+  const [typingTimeout, setTypingTimeout] = useState<NodeJS.Timeout | null>(null);
+  const [isNumberAvailable, setIsNumberAvailable] = useState<boolean | null>(null);
 
   useEffect(() => {
     const fetchRaffle = async () => {
@@ -120,12 +124,49 @@ const RaffleDetailPage: React.FC = () => {
     };
   }, []);
 
-  const handleDigitChange = (value: string, index: number) => {
+  const validateNumber = async (number: string) => {
+    try {
+      const response = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/selected-numbers/${raffle?.id}/validate-number`, {
+        params: { number }
+      });
+      return response.data.isAvailable;
+    } catch (error) {
+      console.error('Error al validar el número:', error);
+      return false;
+    }
+  };
+
+  const handleDigitChange = async (value: string, index: number) => {
     setCurrentDigits((prev) => {
       const newDigits = [...prev];
       newDigits[index] = value;
       return newDigits;
     });
+
+    if (typingTimeout) {
+      clearTimeout(typingTimeout);
+    }
+
+    const newTimeout = setTimeout(async () => {
+      const newNumber = [...currentDigits.slice(0, index), value, ...currentDigits.slice(index + 1)].join('');
+
+      if (newNumber.length === raffle?.numberDigits) {
+        const isValid = await validateNumber(newNumber);
+        setIsNumberAvailable(isValid);
+
+        if (!isValid) {
+          showNotification({
+            title: '¡Ups! Número ya jugado',
+            message: 'Parece que alguien ya eligió este número, pero no te preocupes. ¡Prueba con otro número y sigue participando por grandes premios!',
+            color: 'orange',
+            autoClose: 6000
+          });
+          resetInputs();
+        }
+      }
+    }, 0);
+
+    setTypingTimeout(newTimeout);
   };
 
   const focusNext = (index: number) => {
@@ -232,8 +273,11 @@ const RaffleDetailPage: React.FC = () => {
             </Group>
             <Group mt={"lg"} justify="space-between" grow>
               <Tooltip label="Escribe los números a jugar" disabled={allInputsFilled}>
-                <Button mt="md" onClick={handleAddAndOpenDrawer} disabled={!allInputsFilled}>
-                  Jugar número
+                <Button
+                  mt="md"
+                  onClick={handleAddAndOpenDrawer}
+                  disabled={!allInputsFilled || isNumberAvailable === false}>
+                    Jugar número
                 </Button>
               </Tooltip>
               <Button

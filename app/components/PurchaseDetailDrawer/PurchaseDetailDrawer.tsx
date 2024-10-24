@@ -29,7 +29,6 @@ const PurchaseDetailDrawer: React.FC<PurchaseDetailDrawerProps> = ({ name, prize
   const formatCurrency = useCurrencyFormatter();
 
   const totalWithoutTax = elements.reduce((acc, element) => acc + Number(element.baseValue), 0);
-  console.log(totalWithoutTax);
   const tax = totalWithoutTax * 0.19;
   const totalWithTax = totalWithoutTax + tax;
 
